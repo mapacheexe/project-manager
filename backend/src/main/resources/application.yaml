@@ -1,0 +1,14 @@
+spring:
+  liquibase:
+    enabled: false
+  application:
+    name: backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/projectmanager_db
+    username: admin
+    password: 1234
+
+  jpa:
+    hibernate:
+      ddl-auto: update
