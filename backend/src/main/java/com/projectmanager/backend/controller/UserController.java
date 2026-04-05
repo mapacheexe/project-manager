@@ -1,46 +1,48 @@
 package com.projectmanager.backend.controller;
 
-import com.projectmanager.backend.model.User;
+import com.projectmanager.backend.entity.User;
 import com.projectmanager.backend.repository.UserRepository;
+import com.projectmanager.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        User response = userRepository.save(user);
+        User response = userService.save(user);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<User> getUsers() {
+        return userService.getUsers();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return userRepository.findById(id)
-                .orElseThrow( () -> new RuntimeException("User not found"));
+    public Optional<User> getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setName(updatedUser.getName());
-                    user.setEmail(updatedUser.getEmail());
-                    user.setPassword((updatedUser.getPassword()));
-                    User saved = userRepository.save(user);
-                    return ResponseEntity.ok(saved);
-                })
-                .orElseThrow( () -> new RuntimeException("User not found"));
+        return userService.getUserById(id)
+                .map(
+                        user -> {
+                            user.setName(updatedUser.getName());
+                            user.setEmail(updatedUser.getEmail());
+                            user.setPassword((updatedUser.getPassword()));
+                            User saved = userService.save(user);
+                            return ResponseEntity.ok(saved);
+                        }
+                ).orElseThrow( () -> new RuntimeException("User not found"));
     }
 }

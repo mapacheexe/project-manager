@@ -1,19 +1,21 @@
-package com.projectmanager.backend.model;
+package com.projectmanager.backend.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.ManyToMany;
 import lombok.Data;
+
+import java.util.Set;
 
 @Entity
 @Data
-@Table(name = "app_user")
-public class User {
+public class Project {
     @Id
     @GeneratedValue
     private Long id;
     private String name;
-    private String email;
-    private String password;
+
+    @ManyToMany
+    private Set<User> users;
 }
