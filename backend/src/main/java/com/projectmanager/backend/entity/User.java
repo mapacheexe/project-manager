@@ -2,12 +2,19 @@ package com.projectmanager.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
-@Table(name = "users")
+@Getter
+@Setter
+@Table(
+        name = "users",
+        uniqueConstraints = @UniqueConstraint(columnNames = "email")
+)
 public class User {
     @Id
     @GeneratedValue
@@ -16,6 +23,6 @@ public class User {
     private String email;
     private String password;
 
-    @ManyToMany
-    private Set<Project> projects;
+    @OneToMany
+    private Set<UserProject> userProjects = new HashSet<>();
 }

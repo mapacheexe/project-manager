@@ -1,7 +1,9 @@
 package com.projectmanager.backend.controller;
 
+import com.projectmanager.backend.entity.Project;
 import com.projectmanager.backend.entity.User;
-import com.projectmanager.backend.repository.UserRepository;
+import com.projectmanager.backend.model.ProjectDTO;
+import com.projectmanager.backend.model.UserDTO;
 import com.projectmanager.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,36 +15,45 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     @Autowired
     private UserService userService;
 
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User response = userService.save(user);
-        return ResponseEntity.ok(response);
-    }
 
     @GetMapping
-    public List<User> getUsers() {
-        return userService.getUsers();
+    public List<User> findUsers() {
+        return userService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Optional<User> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    public Optional<UserDTO> findUserById(@PathVariable Long id) {
+        return userService.findById(id);
+    }
+
+    @GetMapping("/{id}/projects")
+    public List<Project> findProjectsByUserId(@PathVariable Long id) {
+        return userService.findProjectsByUserId(id);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-        return userService.getUserById(id)
-                .map(
-                        user -> {
-                            user.setName(updatedUser.getName());
-                            user.setEmail(updatedUser.getEmail());
-                            user.setPassword((updatedUser.getPassword()));
-                            User saved = userService.save(user);
-                            return ResponseEntity.ok(saved);
-                        }
-                ).orElseThrow( () -> new RuntimeException("User not found"));
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+       return userService.updateUser(id, updatedUser);
     }
+
+    @PostMapping("/save")
+    public ResponseEntity<UserDTO> saveUser(@RequestBody User user) {
+        return userService.save(user);
+    }
+
+    @PostMapping("/{userId}/projects/{projectId}")
+    public ResponseEntity<Long> saveProject(@PathVariable Long userId, @PathVariable Long projectId) {
+        return userService.saveProject(userId, projectId);
+    }
+
+    // TODO
+    /*@PostMapping("/{userId}/projects")
+    public ResponseEntity<ProjectDTO> createProject(@PathVariable Long userId, @PathVariable ProjectDTO projectDTO) {
+        return userService.createProject(userId, projectDTO);
+    }*/
+
 }
