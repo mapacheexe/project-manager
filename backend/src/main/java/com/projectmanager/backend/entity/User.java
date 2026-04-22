@@ -16,13 +16,15 @@ import java.util.Set;
         uniqueConstraints = @UniqueConstraint(columnNames = "email")
 )
 public class User {
+
     @Id
     @GeneratedValue
     private Long id;
+
     private String name;
     private String email;
     private String password;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserProject> userProjects = new HashSet<>();
 }

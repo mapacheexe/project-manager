@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class UserDTO {
-    Long id;
-    String name;
-    List<Long> projectIds;
+    private Long id;
+    private String name;
+    private List<Long> projectIds;
 }

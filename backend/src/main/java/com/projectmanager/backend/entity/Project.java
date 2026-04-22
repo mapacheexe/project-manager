@@ -5,17 +5,20 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 public class Project {
+
     @Id
     @GeneratedValue
     private Long id;
+
     private String name;
 
-    @OneToMany
-    private Set<UserProject> userProjects;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserProject> userProjects = new HashSet<>();
 }

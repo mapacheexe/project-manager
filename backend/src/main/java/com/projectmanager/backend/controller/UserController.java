@@ -2,6 +2,7 @@ package com.projectmanager.backend.controller;
 
 import com.projectmanager.backend.entity.Project;
 import com.projectmanager.backend.entity.User;
+import com.projectmanager.backend.entity.UserProject;
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.model.UserDTO;
 import com.projectmanager.backend.service.UserService;
@@ -21,7 +22,7 @@ public class UserController {
 
 
     @GetMapping
-    public List<User> findUsers() {
+    public List<UserDTO> findUsers() {
         return userService.findAll();
     }
 
@@ -50,10 +51,9 @@ public class UserController {
         return userService.saveProject(userId, projectId);
     }
 
-    // TODO
-    /*@PostMapping("/{userId}/projects")
-    public ResponseEntity<ProjectDTO> createProject(@PathVariable Long userId, @PathVariable ProjectDTO projectDTO) {
+    @PostMapping("/{userId}/projects")
+    public ResponseEntity<ProjectDTO> createProject(@PathVariable Long userId, @RequestBody ProjectDTO projectDTO) {
         return userService.createProject(userId, projectDTO);
-    }*/
+    }
 
 }

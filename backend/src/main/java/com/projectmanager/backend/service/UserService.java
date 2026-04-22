@@ -3,6 +3,7 @@ package com.projectmanager.backend.service;
 import com.projectmanager.backend.entity.Project;
 import com.projectmanager.backend.entity.User;
 import com.projectmanager.backend.entity.UserProject;
+import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.model.UserDTO;
 import com.projectmanager.backend.repository.ProjectRepository;
 import com.projectmanager.backend.repository.UserProjectRepository;
@@ -23,10 +24,12 @@ public class UserService {
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
+    private ProjectService projectService;
+    @Autowired
     private UserProjectRepository userProjectRepository;
 
-    public List<User> findAll() {
-        return  userRepository.findAll();
+    public List<UserDTO> findAll() {
+        return  userRepository.findAll().stream().map(this::toDTO).toList();
     }
 
     public Optional<UserDTO> findById(Long id) {
@@ -43,7 +46,6 @@ public class UserService {
             return ResponseEntity.badRequest().build();
         }
     }
-
 
     public ResponseEntity<UserDTO> updateUser(Long id, User request) {
         try {
@@ -71,7 +73,6 @@ public class UserService {
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
-
             Project project = projectRepository.findById(projectId)
                     .orElseThrow(() -> new RuntimeException("Project not found"));
 
@@ -85,6 +86,25 @@ public class UserService {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    public ResponseEntity<ProjectDTO> createProject(Long userId, ProjectDTO projectDTO) {
+        UserProject newUserProject = new UserProject();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Project project = new Project();
+        project.setName(projectDTO.getName());
+        project.getUserProjects().add(newUserProject);
+
+        newUserProject.setUser(user);
+        newUserProject.setProject(project);
+
+        //ProjectDTO projectDTO =
+        projectDTO = projectService.save(project);
+        userProjectRepository.save(newUserProject);
+
+        return ResponseEntity.ok(projectDTO);
     }
 
     private UserDTO toDTO(User user) {
