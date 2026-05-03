@@ -5,9 +5,9 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ProjectDTO {
+public class StageDTO {
     private Long id;
     private String name;
-    private List<Long> userIds;
-    private List<StageDTO> stages;
+    private Integer position;
+    private List<TaskDTO> tasks;
 }

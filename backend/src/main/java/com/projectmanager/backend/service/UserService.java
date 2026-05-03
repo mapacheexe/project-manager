@@ -68,24 +68,21 @@ public class UserService {
         return userRepository.findProjectsByUserId(id);
     }
 
-    public ResponseEntity<Long> saveProject(Long userId, Long projectId) {
+    public Long saveProject(Long userId, Long projectId) {
 
-        try {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            Project project = projectRepository.findById(projectId)
-                    .orElseThrow(() -> new RuntimeException("Project not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            UserProject userProject = new UserProject();
-            userProject.setUser(user);
-            userProject.setProject(project);
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
 
-            userProjectRepository.save(userProject);
+        UserProject userProject = new UserProject();
+        userProject.setUser(user);
+        userProject.setProject(project);
 
-            return ResponseEntity.ok(userProject.getId());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        userProjectRepository.save(userProject);
+
+        return userProject.getId();
     }
 
     public ResponseEntity<ProjectDTO> createProject(Long userId, ProjectDTO projectDTO) {

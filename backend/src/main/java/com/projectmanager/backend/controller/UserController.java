@@ -21,6 +21,9 @@ public class UserController {
     private UserService userService;
 
 
+    // TODO Refactorizar a ResponseEntity
+    // TODO Refactorizar los ResponseEntity existentes
+
     @GetMapping
     public List<UserDTO> findUsers() {
         return userService.findAll();
@@ -48,7 +51,13 @@ public class UserController {
 
     @PostMapping("/{userId}/projects/{projectId}")
     public ResponseEntity<Long> saveProject(@PathVariable Long userId, @PathVariable Long projectId) {
-        return userService.saveProject(userId, projectId);
+        try {
+            Long id = userService.saveProject(userId, projectId);
+            return ResponseEntity.ok(id);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/{userId}/projects")
