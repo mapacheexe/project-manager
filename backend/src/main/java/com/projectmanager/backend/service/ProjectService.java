@@ -19,11 +19,9 @@ public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public Optional<List<ProjectDTO>> findAll() {
-        return Optional.of(
-                projectRepository.findAll()
-                        .stream().map(this::toDTO).toList()
-        );
+    public List<ProjectDTO> findAll() {
+        return projectRepository.findAll()
+                        .stream().map(this::toDTO).toList();
     }
 
     public Optional<ProjectDTO> findById(Long id) {
