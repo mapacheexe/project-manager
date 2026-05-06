@@ -68,7 +68,7 @@ public class UserService {
         return userRepository.findProjectsByUserId(id);
     }
 
-    public Long saveProject(Long userId, Long projectId) {
+    public Long assignProject(Long userId, Long projectId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -85,26 +85,28 @@ public class UserService {
         return userProject.getId();
     }
 
-    public ResponseEntity<ProjectDTO> createProject(Long userId, ProjectDTO projectDTO) {
-        UserProject newUserProject = new UserProject();
+    public ProjectDTO createProject(Long userId, ProjectDTO request) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Crear proyecto
         Project project = new Project();
-        project.setName(projectDTO.getName());
-        project.getUserProjects().add(newUserProject);
+        project.setName(request.getName());
 
-        newUserProject.setUser(user);
-        newUserProject.setProject(project);
+        projectRepository.save(project);
 
-        //ProjectDTO projectDTO =
-        projectDTO = projectService.save(project);
-        userProjectRepository.save(newUserProject);
+        // Relación
+        UserProject userProject = new UserProject();
+        userProject.setUser(user);
+        userProject.setProject(project);
 
-        return ResponseEntity.ok(projectDTO);
+        userProjectRepository.save(userProject);
+
+        return projectService.toDTO(project);
     }
 
-    private UserDTO toDTO(User user) {
+    public UserDTO toDTO(User user) {
 
         UserDTO dto = new UserDTO();
 

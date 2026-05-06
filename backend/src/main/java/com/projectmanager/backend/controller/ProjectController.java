@@ -29,10 +29,9 @@ public class ProjectController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // TODO request DTO
     @PostMapping
-    public ResponseEntity<ProjectDTO> save(@RequestBody Project project) {
-        ProjectDTO projectDTO = projectService.save(project);
+    public ResponseEntity<ProjectDTO> create(@RequestBody ProjectDTO request) {
+        ProjectDTO projectDTO = projectService.create(request);
         return ResponseEntity.ok(projectDTO);
     }
 

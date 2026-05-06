@@ -50,19 +50,15 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/projects/{projectId}")
-    public ResponseEntity<Long> saveProject(@PathVariable Long userId, @PathVariable Long projectId) {
-        try {
-            Long id = userService.saveProject(userId, projectId);
-            return ResponseEntity.ok(id);
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Long> assignProject(@PathVariable Long userId, @PathVariable Long projectId) {
+        Long id = userService.assignProject(userId, projectId);
+        return ResponseEntity.ok(id);
     }
 
     @PostMapping("/{userId}/projects")
-    public ResponseEntity<ProjectDTO> createProject(@PathVariable Long userId, @RequestBody ProjectDTO projectDTO) {
-        return userService.createProject(userId, projectDTO);
+    public ResponseEntity<ProjectDTO> createProject(@PathVariable Long userId, @RequestBody ProjectDTO request) {
+        ProjectDTO projectDTO = userService.createProject(userId, request);
+        return  ResponseEntity.ok(projectDTO);
     }
 
 }

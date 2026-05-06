@@ -32,7 +32,17 @@ public class ProjectService {
         return toDTO(projectRepository.save(project));
     }
 
-    private ProjectDTO toDTO(Project project) {
+    public ProjectDTO create(ProjectDTO request) {
+
+        Project project = new Project();
+        project.setName(request.getName());
+
+        projectRepository.save(project);
+
+        return toDTO(project);
+    }
+
+    public ProjectDTO toDTO(Project project) {
         ProjectDTO dto = new ProjectDTO();
 
         dto.setId(project.getId());
