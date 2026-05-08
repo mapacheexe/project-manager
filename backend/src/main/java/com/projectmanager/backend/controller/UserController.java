@@ -34,31 +34,31 @@ public class UserController {
         return userService.findById(id);
     }
 
-    @GetMapping("/{id}/projects")
-    public List<Project> findProjectsByUserId(@PathVariable Long id) {
-        return userService.findProjectsByUserId(id);
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
        return userService.updateUser(id, updatedUser);
     }
 
-    @PostMapping("/save")
+    @PostMapping
     public ResponseEntity<UserDTO> saveUser(@RequestBody User user) {
         return userService.save(user);
     }
 
-    @PostMapping("/{userId}/projects/{projectId}")
-    public ResponseEntity<Long> assignProject(@PathVariable Long userId, @PathVariable Long projectId) {
-        Long id = userService.assignProject(userId, projectId);
-        return ResponseEntity.ok(id);
+    @GetMapping("/{id}/projects")
+    public List<Project> findProjectsByUserId(@PathVariable Long id) {
+        return userService.findProjectsByUserId(id);
     }
 
-    @PostMapping("/{userId}/projects")
+    @PostMapping("/{id}/projects")
     public ResponseEntity<ProjectDTO> createProject(@PathVariable Long userId, @RequestBody ProjectDTO request) {
         ProjectDTO projectDTO = userService.createProject(userId, request);
         return  ResponseEntity.ok(projectDTO);
+    }
+
+    @PostMapping("/{id}/projects/{projectId}")
+    public ResponseEntity<Long> assignProject(@PathVariable Long userId, @PathVariable Long projectId) {
+        Long id = userService.assignProject(userId, projectId);
+        return ResponseEntity.ok(id);
     }
 
 }
