@@ -18,6 +18,8 @@ public class Stage {
 
     private String name;
 
+    private Integer position;
+
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;

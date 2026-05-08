@@ -13,7 +13,13 @@ public class Task {
     @GeneratedValue
     private Long id;
 
-    private String name;
+    private String title;
+
+    private String description;
+
+    private String status;
+
+    private Integer position;
 
     @ManyToOne
     @JoinColumn(name = "stage_id")

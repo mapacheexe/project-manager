@@ -8,6 +8,7 @@ import java.util.List;
 public class StageDTO {
     private Long id;
     private String name;
+    private Long projectId;
     private Integer position;
     private List<TaskDTO> tasks;
 }
