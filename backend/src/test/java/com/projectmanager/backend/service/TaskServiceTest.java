@@ -8,10 +8,15 @@ import com.projectmanager.backend.model.TaskDTO;
 import com.projectmanager.backend.repository.StageRepository;
 import com.projectmanager.backend.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
+import static com.projectmanager.backend.model.ProjectRole.ADMIN;
+import static com.projectmanager.backend.model.ProjectRole.MEMBER;
+import static com.projectmanager.backend.model.ProjectRole.OWNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
@@ -85,6 +90,83 @@ class TaskServiceTest {
         );
 
         assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void findByStageIdReturnsTasks() {
+        Task first = taskInStage(200L, 100L, 10L);
+        first.setTitle("Test 1");
+        first.setPosition(1);
+        Task second = taskInStage(201L, 100L, 10L);
+        second.setTitle("Test 2");
+        second.setPosition(2);
+
+        when(stageRepository.existsById(100L)).thenReturn(true);
+        when(taskRepository.findByStageIdOrderByPositionAscIdAsc(100L))
+                .thenReturn(List.of(first, second));
+
+        var result = service.findByStageId(100L);
+
+        assertEquals(2, result.size());
+        assertEquals(100L, result.get(0).getStageId());
+        assertEquals("Test 1", result.get(0).getTitle());
+    }
+
+    @Test
+    void findByIdReturnsTaskIfExists() {
+        Task task = taskInStage(200L, 100L, 10L);
+        when(taskRepository.findById(200L)).thenReturn(Optional.of(task));
+
+        var result = service.findById(200L);
+
+        assertEquals(200L, result.getId());
+    }
+
+    @Test
+    void findByIdRejectsMissingTask() {
+        when(taskRepository.findById(200L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.findById(200L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void updateModifiesTask() {
+        Task task = taskInStage(200L, 100L, 10L);
+        task.setTitle("Old title");
+        task.setPosition(1);
+
+        TaskDTO request = new TaskDTO();
+        request.setTitle("New title");
+        request.setDescription("Updated");
+        request.setStatus("DONE");
+        request.setPosition(2);
+
+        when(taskRepository.findById(200L)).thenReturn(Optional.of(task));
+        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN, MEMBER);
+        when(taskRepository.save(task)).thenReturn(task);
+
+        var result = service.update(200L, request, 1L);
+
+        assertEquals("New title", result.getTitle());
+        assertEquals(2, result.getPosition());
+        verify(taskRepository).save(task);
+    }
+
+    @Test
+    void deleteRemovesTask() {
+        Task task = taskInStage(200L, 100L, 10L);
+
+        when(taskRepository.findById(200L)).thenReturn(Optional.of(task));
+        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN, MEMBER);
+
+        service.delete(200L, 1L);
+
+        verify(taskRepository).delete(task);
     }
 
     private Task taskInStage(Long taskId, Long stageId, Long projectId) {

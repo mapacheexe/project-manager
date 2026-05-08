@@ -97,6 +97,71 @@ class StageServiceTest {
         return stageDTO;
     }
 
+    @Test
+    void findByProjectIdReturnsStages() {
+        Stage first = stageWithProject(100L, 10L);
+        first.setName("Todo");
+        first.setPosition(1);
+        Stage second = stageWithProject(101L, 10L);
+        second.setName("Doing");
+        second.setPosition(2);
+
+        when(projectRepository.existsById(10L)).thenReturn(true);
+        when(stageRepository.findByProjectIdOrderByPositionAscIdAsc(10L))
+                .thenReturn(List.of(first, second));
+
+        var result = service.findByProjectId(10L);
+
+        assertEquals(2, result.size());
+        assertEquals("Todo", result.get(0).getName());
+        assertEquals(10L, result.get(0).getProjectId());
+    }
+
+    @Test
+    void findByProjectIdRejectsMissingProject() {
+        when(projectRepository.existsById(10L)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.findByProjectId(10L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void updateModifiesStage() {
+        Stage stage = stageWithProject(100L, 10L);
+        stage.setName("Todo");
+        stage.setPosition(1);
+
+        StageDTO request = new StageDTO();
+        request.setName("Done");
+        request.setPosition(2);
+
+        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN);
+        when(stageRepository.findById(100L)).thenReturn(Optional.of(stage));
+        when(stageRepository.save(stage)).thenReturn(stage);
+
+        var result = service.update(100L, request, 1L);
+
+        assertEquals("Done", result.getName());
+        assertEquals(2, result.getPosition());
+        verify(stageRepository).save(stage);
+    }
+
+    @Test
+    void deleteRemovesStage() {
+        Stage stage = stageWithProject(100L, 10L);
+
+        when(stageRepository.findById(100L)).thenReturn(Optional.of(stage));
+        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN);
+
+        service.delete(100L, 1L);
+
+        verify(stageRepository).delete(stage);
+    }
+
     private Stage stageWithProject(Long stageId, Long projectId) {
         Stage stage = new Stage();
         stage.setId(stageId);

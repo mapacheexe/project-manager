@@ -11,8 +11,10 @@ import com.projectmanager.backend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
+import static com.projectmanager.backend.model.ProjectRole.ADMIN;
 import static com.projectmanager.backend.model.ProjectRole.MEMBER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -94,6 +96,69 @@ class ProjectMemberServiceTest {
         User user = new User();
         user.setId(id);
         return user;
+    }
+
+    @Test
+    void findMembersReturnsProjectMembers() {
+        UserProject member = new UserProject();
+        member.setId(1L);
+        member.setUser(userWithId(2L));
+        member.setProject(projectWithId(10L));
+        member.setRole(MEMBER);
+
+        when(projectRepository.existsById(10L)).thenReturn(true);
+        when(userProjectRepository.findByProjectId(10L)).thenReturn(List.of(member));
+
+        var result = service.findMembers(10L);
+
+        assertEquals(1, result.size());
+        assertEquals(2L, result.get(0).getUserId());
+    }
+
+    @Test
+    void findMembersRejectsMissingProject() {
+        when(projectRepository.existsById(10L)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.findMembers(10L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void updateMemberChangesRole() {
+        UserProject existing = new UserProject();
+        existing.setUser(userWithId(2L));
+        existing.setProject(projectWithId(10L));
+        existing.setRole(MEMBER);
+
+        ProjectMemberDTO request = new ProjectMemberDTO();
+        request.setRole(ADMIN);
+
+        when(userProjectRepository.findByUserIdAndProjectId(2L, 10L))
+                .thenReturn(Optional.of(existing));
+        when(userProjectRepository.save(existing)).thenReturn(existing);
+
+        var result = service.updateMember(10L, 2L, request, 1L);
+
+        assertEquals(ADMIN, result.getRole());
+        verify(userProjectRepository).save(existing);
+    }
+
+    @Test
+    void removeMemberDeletesRelationship() {
+        UserProject existing = new UserProject();
+        existing.setUser(userWithId(2L));
+        existing.setProject(projectWithId(10L));
+
+        when(userProjectRepository.findByUserIdAndProjectId(2L, 10L))
+                .thenReturn(Optional.of(existing));
+
+        service.removeMember(10L, 2L, 1L);
+
+        verify(userProjectRepository).delete(existing);
     }
 
     private Project projectWithId(Long id) {

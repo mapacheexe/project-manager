@@ -7,6 +7,7 @@ import com.projectmanager.backend.repository.ProjectRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.projectmanager.backend.model.ProjectRole.ADMIN;
@@ -72,6 +73,52 @@ class ProjectServiceTest {
 
         assertEquals(NOT_FOUND, exception.getStatusCode());
         verify(projectRepository, never()).save(any(Project.class));
+    }
+
+    @Test
+    void findAllReturnsAllProjects() {
+        Project first = projectWithId(10L);
+        Project second = projectWithId(20L);
+        when(projectRepository.findAll()).thenReturn(List.of(first, second));
+
+        var result = service.findAll();
+
+        assertEquals(2, result.size());
+        assertEquals(10L, result.get(0).getId());
+    }
+
+    @Test
+    void findByIdReturnsProjectIfExists() {
+        Project project = projectWithId(10L);
+        when(projectRepository.findById(10L)).thenReturn(Optional.of(project));
+
+        var result = service.findById(10L);
+
+        assertEquals(10L, result.get().getId());
+    }
+
+    @Test
+    void deleteRemovesExistingProject() {
+        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER);
+        when(projectRepository.existsById(10L)).thenReturn(true);
+
+        service.delete(10L, 1L);
+
+        verify(projectRepository).deleteById(10L);
+    }
+
+    @Test
+    void deleteRejectsMissingProject() {
+        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER);
+        when(projectRepository.existsById(10L)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.delete(10L, 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+        verify(projectRepository, never()).deleteById(10L);
     }
 
     private Project projectWithId(Long id) {

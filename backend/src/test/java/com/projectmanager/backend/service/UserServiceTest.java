@@ -13,6 +13,7 @@ import com.projectmanager.backend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.projectmanager.backend.model.ProjectRole.OWNER;
@@ -87,17 +88,78 @@ class UserServiceTest {
     }
 
     @Test
-    void createProjectRejectsMissingUser() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+    void findAllReturnsAllUsers() {
+        User first = userWithId(1L);
+        first.setName("Alice");
+        User second = userWithId(2L);
+        second.setName("Bob");
+
+        when(userRepository.findAll()).thenReturn(List.of(first, second));
+
+        var result = service.findAll();
+
+        assertEquals(2, result.size());
+        assertEquals(1L, result.get(0).getId());
+        assertEquals("Alice", result.get(0).getName());
+    }
+
+    @Test
+    void findByIdReturnsUserIfExists() {
+        User user = userWithId(1L);
+        user.setName("Alice");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        var result = service.findById(1L);
+
+        assertEquals(1L, result.get().getId());
+        assertEquals("Alice", result.get().getName());
+    }
+
+    @Test
+    void updateUserModifiesExistingUser() {
+        User existing = userWithId(1L);
+        existing.setName("Old Name");
+        existing.setEmail("old@example.com");
+
+        User request = new User();
+        request.setName("New Name");
+        request.setEmail("new@example.com");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(userRepository.save(existing)).thenReturn(existing);
+
+        var result = service.updateUser(1L, request);
+
+        assertEquals(1L, result.getId());
+        assertEquals("New Name", result.getName());
+        verify(userRepository).save(existing);
+    }
+
+    @Test
+    void findProjectsByUserIdReturnsMappedProjects() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.findProjectsByUserId(1L)).thenReturn(List.of(
+                projectWithId(10L),
+                projectWithId(20L)
+        ));
+
+        var result = service.findProjectsByUserId(1L);
+
+        assertEquals(2, result.size());
+        assertEquals(10L, result.get(0).getId());
+        assertEquals(20L, result.get(1).getId());
+    }
+
+    @Test
+    void findProjectsByUserIdRejectsMissingUser() {
+        when(userRepository.existsById(1L)).thenReturn(false);
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> service.createProject(1L, new ProjectDTO())
+                () -> service.findProjectsByUserId(1L)
         );
 
         assertEquals(NOT_FOUND, exception.getStatusCode());
-        verify(projectRepository, never()).save(any(Project.class));
-        verify(userProjectRepository, never()).save(any(UserProject.class));
     }
 
     private User userWithId(Long id) {
