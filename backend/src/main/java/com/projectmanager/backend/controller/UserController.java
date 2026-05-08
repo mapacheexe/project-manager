@@ -50,15 +50,15 @@ public class UserController {
     }
 
     @PostMapping("/{id}/projects")
-    public ResponseEntity<ProjectDTO> createProject(@PathVariable Long userId, @RequestBody ProjectDTO request) {
-        ProjectDTO projectDTO = userService.createProject(userId, request);
+    public ResponseEntity<ProjectDTO> createProject(@PathVariable Long id, @RequestBody ProjectDTO request) {
+        ProjectDTO projectDTO = userService.createProject(id, request);
         return  ResponseEntity.ok(projectDTO);
     }
 
     @PostMapping("/{id}/projects/{projectId}")
-    public ResponseEntity<Long> assignProject(@PathVariable Long userId, @PathVariable Long projectId) {
-        Long id = userService.assignProject(userId, projectId);
-        return ResponseEntity.ok(id);
+    public ResponseEntity<Long> assignProject(@PathVariable Long id, @PathVariable Long projectId) {
+        Long userProjectId = userService.assignProject(id, projectId);
+        return ResponseEntity.ok(userProjectId);
     }
 
 }
