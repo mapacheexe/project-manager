@@ -1,9 +1,7 @@
 package com.projectmanager.backend.controller;
 
-import com.projectmanager.backend.entity.Project;
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.service.ProjectService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +11,11 @@ import java.util.List;
 @RequestMapping("/projects")
 public class ProjectController {
 
-    @Autowired
-    private ProjectService projectService;
+    private final ProjectService projectService;
+
+    public ProjectController(ProjectService projectService) {
+        this.projectService = projectService;
+    }
 
     @GetMapping
     public ResponseEntity<List<ProjectDTO>> findAll() {
@@ -22,7 +23,7 @@ public class ProjectController {
         return ResponseEntity.ok(projects);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ProjectDTO> findById(@PathVariable Long id) {
         return projectService.findById(id)
                 .map(ResponseEntity::ok)
@@ -33,6 +34,21 @@ public class ProjectController {
     public ResponseEntity<ProjectDTO> create(@RequestBody ProjectDTO request) {
         ProjectDTO projectDTO = projectService.create(request);
         return ResponseEntity.ok(projectDTO);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProjectDTO> update(
+            @PathVariable Long id,
+            @RequestHeader("X-User-Id") Long requesterId,
+            @RequestBody ProjectDTO request
+    ) {
+        return ResponseEntity.ok(projectService.update(id, request, requesterId));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id, @RequestHeader("X-User-Id") Long requesterId) {
+        projectService.delete(id, requesterId);
+        return ResponseEntity.noContent().build();
     }
 
 }

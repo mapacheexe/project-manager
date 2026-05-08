@@ -1,64 +1,54 @@
 package com.projectmanager.backend.controller;
 
-import com.projectmanager.backend.entity.Project;
 import com.projectmanager.backend.entity.User;
-import com.projectmanager.backend.entity.UserProject;
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.model.UserDTO;
 import com.projectmanager.backend.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-
-    // TODO Refactorizar a ResponseEntity
-    // TODO Refactorizar los ResponseEntity existentes
-
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
     @GetMapping
-    public List<UserDTO> findUsers() {
-        return userService.findAll();
+    public ResponseEntity<List<UserDTO>> findUsers() {
+        return ResponseEntity.ok(userService.findAll());
     }
 
     @GetMapping("/{id}")
-    public Optional<UserDTO> findUserById(@PathVariable Long id) {
-        return userService.findById(id);
+    public ResponseEntity<UserDTO> findUserById(@PathVariable Long id) {
+        return userService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-       return userService.updateUser(id, updatedUser);
+       return ResponseEntity.ok(userService.updateUser(id, updatedUser));
     }
 
     @PostMapping
     public ResponseEntity<UserDTO> saveUser(@RequestBody User user) {
-        return userService.save(user);
+        return ResponseEntity.ok(userService.save(user));
     }
 
     @GetMapping("/{id}/projects")
-    public List<Project> findProjectsByUserId(@PathVariable Long id) {
-        return userService.findProjectsByUserId(id);
+    public ResponseEntity<List<ProjectDTO>> findProjectsByUserId(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.findProjectsByUserId(id));
     }
 
     @PostMapping("/{id}/projects")
     public ResponseEntity<ProjectDTO> createProject(@PathVariable Long id, @RequestBody ProjectDTO request) {
         ProjectDTO projectDTO = userService.createProject(id, request);
         return  ResponseEntity.ok(projectDTO);
-    }
-
-    @PostMapping("/{id}/projects/{projectId}")
-    public ResponseEntity<Long> assignProject(@PathVariable Long id, @PathVariable Long projectId) {
-        Long userProjectId = userService.assignProject(id, projectId);
-        return ResponseEntity.ok(userProjectId);
     }
 
 }
