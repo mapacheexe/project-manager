@@ -20,6 +20,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static com.projectmanager.backend.model.ProjectRole.OWNER;
+import static com.projectmanager.backend.model.ProjectRole.ADMIN;
 
 class StageServiceTest {
 

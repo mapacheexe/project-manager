@@ -167,4 +167,10 @@ class UserServiceTest {
         user.setId(id);
         return user;
     }
+
+    private Project projectWithId(Long id) {
+        Project project = new Project();
+        project.setId(id);
+        return project;
+    }
 }
