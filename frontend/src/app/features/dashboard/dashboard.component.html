@@ -1,0 +1,22 @@
+<h2>Proyectos</h2>
+
+@for (project of projects(); track project.id) {
+  <app-project-card [project]="project" (selected)="openProject($event)" />
+} @empty {
+  <p>No hay proyectos todavía.</p>
+}
+
+@if (showForm()) {
+  <div>
+    <input
+      type="text"
+      placeholder="Nombre del proyecto"
+      [value]="newProjectName()"
+      (input)="newProjectName.set($any($event.target).value)"
+    />
+    <button type="button" (click)="createProject()">Crear</button>
+    <button type="button" (click)="showForm.set(false)">Cancelar</button>
+  </div>
+} @else {
+  <button type="button" (click)="showForm.set(true)">+ Nuevo proyecto</button>
+}
