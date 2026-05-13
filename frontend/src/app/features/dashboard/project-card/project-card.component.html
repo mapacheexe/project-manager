@@ -1,0 +1,5 @@
+<div (click)="selected.emit(project())" style="cursor:pointer">
+  <strong>{{ project().name }}</strong>
+  <span>Etapas: {{ project().stages.length }}</span>
+  <span>Miembros: {{ project().userIds.length }}</span>
+</div>
