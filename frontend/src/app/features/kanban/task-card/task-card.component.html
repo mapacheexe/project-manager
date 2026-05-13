@@ -1,0 +1,8 @@
+<div class="task-card">
+  <span class="task-card__title">{{ task().title }}</span>
+  <span class="task-card__status">{{ task().status }}</span>
+  <div class="task-card__actions">
+    <button type="button" (click)="editRequested.emit(task())">Editar</button>
+    <button type="button" (click)="deleteRequested.emit(task())">Eliminar</button>
+  </div>
+</div>
