@@ -1,7 +1,7 @@
 <nav class="navbar">
   <span class="navbar__brand">Project Manager</span>
   <div class="navbar__user">
-    <span class="navbar__username">{{ auth.currentUser()?.name }}</span>
+    <span class="navbar__username">{{ userName() }}</span>
     <button class="navbar__logout" (click)="logout()">Salir</button>
   </div>
 </nav>

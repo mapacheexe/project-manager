@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from '../core/auth/auth.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../core/auth/auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -11,8 +11,10 @@ import { Router } from '@angular/router';
   styleUrl: './layout.component.scss',
 })
 export class LayoutComponent {
-  protected auth = inject(AuthService);
+  private auth = inject(AuthService);
   private router = inject(Router);
+
+  protected readonly userName = computed(() => this.auth.currentUser()?.name ?? '');
 
   logout(): void {
     this.auth.logout();
