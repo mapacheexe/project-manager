@@ -1,0 +1,29 @@
+<div class="stage-column">
+  <div class="stage-column__header">
+    <h3>{{ stage().name }}</h3>
+    <button type="button" (click)="stageDeleted.emit(stage().id)">Eliminar</button>
+  </div>
+
+  <div class="stage-column__tasks">
+    @for (task of stage().tasks; track task.id) {
+      <app-task-card [task]="task" />
+    } @empty {
+      <p class="stage-column__empty">Sin tareas.</p>
+    }
+  </div>
+
+  @if (showTaskForm()) {
+    <div class="stage-column__task-form">
+      <input
+        type="text"
+        placeholder="Título de la tarea"
+        [value]="newTaskTitle()"
+        (input)="newTaskTitle.set($any($event.target).value)"
+      />
+      <button type="button" (click)="submitTask()">Añadir</button>
+      <button type="button" (click)="showTaskForm.set(false)">Cancelar</button>
+    </div>
+  } @else {
+    <button type="button" (click)="showTaskForm.set(true)">+ Añadir tarea</button>
+  }
+</div>
