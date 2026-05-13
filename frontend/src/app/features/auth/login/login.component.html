@@ -1,0 +1,12 @@
+<h2>Iniciar sesión</h2>
+<p>Selecciona tu usuario:</p>
+<ul>
+  @for (user of users(); track user.id) {
+    <li>
+      <button type="button" (click)="selectUser(user)">{{ user.name }}</button>
+    </li>
+  } @empty {
+    <li>Cargando usuarios...</li>
+  }
+</ul>
+<a routerLink="/register">Crear cuenta nueva</a>
