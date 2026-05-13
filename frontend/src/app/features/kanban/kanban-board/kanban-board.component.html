@@ -1,0 +1,28 @@
+<div class="kanban-board">
+  <div class="kanban-board__columns">
+    @for (stage of stages(); track stage.id) {
+      <app-stage-column
+        [stage]="stage"
+        (taskCreated)="onTaskCreated($event.stageId, $event.title)"
+        (stageDeleted)="onStageDeleted($event)"
+      />
+    } @empty {
+      <p>No hay etapas todavía.</p>
+    }
+
+    @if (showStageForm()) {
+      <div class="kanban-board__stage-form">
+        <input
+          type="text"
+          placeholder="Nombre de la etapa"
+          [value]="newStageName()"
+          (input)="newStageName.set($any($event.target).value)"
+        />
+        <button type="button" (click)="createStage()">Crear</button>
+        <button type="button" (click)="showStageForm.set(false)">Cancelar</button>
+      </div>
+    } @else {
+      <button type="button" (click)="showStageForm.set(true)">+ Añadir etapa</button>
+    }
+  </div>
+</div>
