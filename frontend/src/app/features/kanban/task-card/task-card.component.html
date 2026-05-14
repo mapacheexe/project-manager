@@ -1,8 +1,10 @@
 <div class="task-card">
-  <span class="task-card__title">{{ task().title }}</span>
-  <span class="task-card__status">{{ task().status }}</span>
-  <div class="task-card__actions">
-    <button type="button" (click)="editRequested.emit(task())">Editar</button>
-    <button type="button" (click)="deleteRequested.emit(task())">Eliminar</button>
+  <p class="task-card__title">{{ task().title }}</p>
+  <div class="task-card__footer">
+    <span class="task-card__status task-card__status--{{ task().status | lowercase }}">{{ task().status }}</span>
+    <div class="task-card__actions">
+      <button class="btn btn--ghost btn--sm" type="button" (click)="editRequested.emit(task())">Editar</button>
+      <button class="btn btn--ghost btn--sm" type="button" (click)="deleteRequested.emit(task())">✕</button>
+    </div>
   </div>
 </div>

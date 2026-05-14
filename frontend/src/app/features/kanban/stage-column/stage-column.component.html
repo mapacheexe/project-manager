@@ -1,7 +1,7 @@
 <div class="stage-column">
   <div class="stage-column__header">
-    <h3>{{ stage().name }}</h3>
-    <button type="button" (click)="stageDeleted.emit(stage().id)">Eliminar</button>
+    <h3 class="stage-column__title">{{ stage().name }}</h3>
+    <button class="btn btn--ghost btn--sm" type="button" (click)="stageDeleted.emit(stage().id)">✕</button>
   </div>
 
   <div class="stage-column__tasks">
@@ -15,15 +15,20 @@
   @if (showTaskForm()) {
     <div class="stage-column__task-form">
       <input
+        class="form-field__input"
         type="text"
         placeholder="Título de la tarea"
         [value]="newTaskTitle()"
         (input)="newTaskTitle.set($any($event.target).value)"
       />
-      <button type="button" (click)="submitTask()">Añadir</button>
-      <button type="button" (click)="showTaskForm.set(false)">Cancelar</button>
+      <div class="stage-column__task-form-actions">
+        <button class="btn btn--sm" type="button" (click)="submitTask()">Añadir</button>
+        <button class="btn btn--ghost btn--sm" type="button" (click)="showTaskForm.set(false)">Cancelar</button>
+      </div>
     </div>
   } @else {
-    <button type="button" (click)="showTaskForm.set(true)">+ Añadir tarea</button>
+    <button class="btn btn--ghost btn--sm stage-column__add-task" type="button" (click)="showTaskForm.set(true)">
+      + Añadir tarea
+    </button>
   }
 </div>

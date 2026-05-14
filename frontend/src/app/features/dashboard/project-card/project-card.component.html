@@ -1,5 +1,7 @@
-<div (click)="selected.emit(project())" style="cursor:pointer">
-  <strong>{{ project().name }}</strong>
-  <span>Etapas: {{ project().stages.length }}</span>
-  <span>Miembros: {{ project().userIds.length }}</span>
+<div class="project-card" (click)="selected.emit(project())">
+  <h3 class="project-card__name">{{ project().name }}</h3>
+  <div class="project-card__meta">
+    <span>{{ project().stages.length }} etapas</span>
+    <span>{{ project().userIds.length }} miembros</span>
+  </div>
 </div>
