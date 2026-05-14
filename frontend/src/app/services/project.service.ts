@@ -17,12 +17,16 @@ export class ProjectService {
     return this.http.get<Project[]>(this.baseUrl);
   }
 
+  getByUser(userId: number): Observable<Project[]> {
+    return this.http.get<Project[]>(`${environment.apiUrl}/users/${userId}/projects`);
+  }
+
   getById(id: number): Observable<Project> {
     return this.http.get<Project>(`${this.baseUrl}/${id}`);
   }
 
-  create(payload: CreateProjectPayload): Observable<Project> {
-    return this.http.post<Project>(this.baseUrl, payload);
+  create(userId: number, payload: CreateProjectPayload): Observable<Project> {
+    return this.http.post<Project>(`${environment.apiUrl}/users/${userId}/projects`, payload);
   }
 
   update(id: number, payload: CreateProjectPayload): Observable<Project> {
