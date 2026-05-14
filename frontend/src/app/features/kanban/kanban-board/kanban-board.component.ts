@@ -5,12 +5,13 @@ import { switchMap } from 'rxjs';
 import { ProjectService } from '../../../services/project.service';
 import { StageService } from '../../../services/stage.service';
 import { TaskService } from '../../../services/task.service';
+import { RouterLink } from '@angular/router';
 import { StageColumnComponent } from '../stage-column/stage-column.component';
 
 @Component({
   selector: 'app-kanban-board',
   standalone: true,
-  imports: [StageColumnComponent],
+  imports: [RouterLink, StageColumnComponent],
   templateUrl: './kanban-board.component.html',
 })
 export class KanbanBoardComponent {

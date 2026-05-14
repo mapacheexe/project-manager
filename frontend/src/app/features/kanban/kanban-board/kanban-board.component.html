@@ -1,5 +1,8 @@
 <div class="kanban-board">
-  <h2 class="kanban-board__title">{{ project()?.name }}</h2>
+  <div class="kanban-board__header">
+    <a class="kanban-board__back" routerLink="/dashboard">← Mis proyectos</a>
+    <h2 class="kanban-board__title">{{ project()?.name }}</h2>
+  </div>
   <div class="kanban-board__columns">
     @for (stage of stages(); track stage.id) {
       <app-stage-column
