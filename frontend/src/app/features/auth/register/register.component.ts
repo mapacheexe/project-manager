@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../../services/user.service';
@@ -19,11 +19,14 @@ export class RegisterComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
+  protected readonly registerError = signal<string | null>(null);
 
   submit(): void {
     if (this.form.invalid) return;
+    this.registerError.set(null);
     this.userService.create(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/login']),
+      error: () => this.registerError.set('Este email ya está registrado.'),
     });
   }
 }
