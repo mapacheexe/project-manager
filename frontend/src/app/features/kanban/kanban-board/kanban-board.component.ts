@@ -2,6 +2,7 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { numberAttribute } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
+import { ProjectService } from '../../../services/project.service';
 import { StageService } from '../../../services/stage.service';
 import { TaskService } from '../../../services/task.service';
 import { StageColumnComponent } from '../stage-column/stage-column.component';
@@ -13,6 +14,7 @@ import { StageColumnComponent } from '../stage-column/stage-column.component';
   templateUrl: './kanban-board.component.html',
 })
 export class KanbanBoardComponent {
+  private readonly projectService = inject(ProjectService);
   private readonly stageService = inject(StageService);
   private readonly taskService = inject(TaskService);
 
@@ -24,6 +26,10 @@ export class KanbanBoardComponent {
     switchMap(({ id }) => this.stageService.getByProject(id))
   );
   protected readonly stages = toSignal(this.stages$, { initialValue: [] });
+
+  protected readonly project = toSignal(
+    toObservable(this.id).pipe(switchMap(id => this.projectService.getById(id)))
+  );
 
   protected readonly showStageForm = signal(false);
   protected readonly newStageName = signal('');
