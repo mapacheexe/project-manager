@@ -1,5 +1,5 @@
 import { Component, input, output, signal } from '@angular/core';
-import { Stage } from '../../../models';
+import { Stage, Task } from '../../../models';
 import { TaskCardComponent } from '../task-card/task-card.component';
 
 @Component({
@@ -12,6 +12,8 @@ export class StageColumnComponent {
   readonly stage = input.required<Stage>();
   readonly taskCreated = output<{ stageId: number; title: string }>();
   readonly stageDeleted = output<number>();
+  readonly stages = input.required<Stage[]>();
+  readonly taskMoved = output<{ task: Task; targetStageId: number }>();
 
   protected readonly showTaskForm = signal(false);
   protected readonly newTaskTitle = signal('');

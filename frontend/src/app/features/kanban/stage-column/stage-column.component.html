@@ -6,7 +6,11 @@
 
   <div class="stage-column__tasks">
     @for (task of stage().tasks; track task.id) {
-      <app-task-card [task]="task" />
+      <app-task-card
+        [task]="task"
+        [stages]="stages()"
+        (taskMoved)="taskMoved.emit($event)"
+      />
     } @empty {
       <p class="stage-column__empty">Sin tareas.</p>
     }
