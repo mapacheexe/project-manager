@@ -9,6 +9,8 @@
         [stage]="stage"
         (taskCreated)="onTaskCreated($event.stageId, $event.title)"
         (stageDeleted)="onStageDeleted($event)"
+        [stages]="stages()"
+        (taskMoved)="onTaskMoved($event)"
       />
     } @empty {
       <p class="kanban-board__empty">No hay etapas. Añade una para empezar.</p>

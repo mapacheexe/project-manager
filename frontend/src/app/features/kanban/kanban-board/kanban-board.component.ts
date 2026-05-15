@@ -5,6 +5,7 @@ import { switchMap } from 'rxjs';
 import { ProjectService } from '../../../services/project.service';
 import { StageService } from '../../../services/stage.service';
 import { TaskService } from '../../../services/task.service';
+import { Task } from '../../../models';
 import { RouterLink } from '@angular/router';
 import { StageColumnComponent } from '../stage-column/stage-column.component';
 
@@ -53,6 +54,12 @@ export class KanbanBoardComponent {
 
   protected onTaskCreated(stageId: number, title: string): void {
     this.taskService.create(stageId, { title, description: '' }).subscribe({
+      next: () => this.reload(),
+    });
+  }
+
+  protected onTaskMoved({task, targetStageId}: { task: Task, targetStageId: number }): void {
+    this.taskService.move(task.id, { stageId: targetStageId, position: 0 }).subscribe({
       next: () => this.reload(),
     });
   }
