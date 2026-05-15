@@ -3,6 +3,15 @@
   <div class="task-card__footer">
     <span class="task-card__status task-card__status--{{ task().status | lowercase }}">{{ task().status }}</span>
     <div class="task-card__actions">
+      <select
+        class="task-card__move-select"
+        [value]="task().stageId"
+        (change)="onStageChange($any($event.target).value)"
+      >
+        @for (stage of stages(); track stage.id) {
+          <option [value]="stage.id">{{ stage.name }}</option>
+        }
+      </select>
       <button class="btn btn--ghost btn--sm" type="button" (click)="editRequested.emit(task())">Editar</button>
       <button class="btn btn--ghost btn--sm" type="button" (click)="deleteRequested.emit(task())">✕</button>
     </div>
