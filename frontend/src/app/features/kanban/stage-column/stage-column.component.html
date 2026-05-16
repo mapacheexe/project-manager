@@ -10,6 +10,8 @@
         [task]="task"
         [stages]="stages()"
         (taskMoved)="taskMoved.emit($event)"
+        (editRequested)="taskEditRequested.emit($event)"
+        (deleteRequested)="taskDeleteRequested.emit($event)"
       />
     } @empty {
       <p class="stage-column__empty">Sin tareas.</p>

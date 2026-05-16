@@ -14,6 +14,9 @@ export class StageColumnComponent {
   readonly stageDeleted = output<number>();
   readonly stages = input.required<Stage[]>();
   readonly taskMoved = output<{ task: Task; targetStageId: number }>();
+  readonly taskEditRequested = output<Task>();
+  readonly taskDeleteRequested = output<Task>();
+  readonly taskdeletedRequest = output<Task>();
 
   protected readonly showTaskForm = signal(false);
   protected readonly newTaskTitle = signal('');

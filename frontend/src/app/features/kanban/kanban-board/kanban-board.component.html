@@ -11,6 +11,8 @@
         (stageDeleted)="onStageDeleted($event)"
         [stages]="stages()"
         (taskMoved)="onTaskMoved($event)"
+        (taskEditRequested)="onTaskEditingRequested($event)"
+        (taskDeleteRequested)="onTaskDeleteRequested($event)"
       />
     } @empty {
       <p class="kanban-board__empty">No hay etapas. Añade una para empezar.</p>
@@ -32,6 +34,20 @@
       <button class="btn btn--ghost kanban-board__add-stage" type="button" (click)="showStageForm.set(true)">
         + Añadir etapa
       </button>
+    }
+    @if (editingTask() != null) {
+      <app-task-modal
+        [task]="editingTask()"
+        (saved)="onTaskSaved($event)"
+        (cancelled)="editingTask.set(null)"
+      />
+    }
+    @if (deletingTask() !== null) {
+      <app-confirm-dialog
+        message="¿Eliminar la tarea '{{ deletingTask()!.title }}'?"
+        (confirmed)="onTaskDeleteConfirmed()"
+        (cancelled)="deletingTask.set(null)"
+      />
     }
   </div>
 </div>

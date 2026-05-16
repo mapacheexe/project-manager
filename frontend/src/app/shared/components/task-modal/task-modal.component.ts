@@ -2,6 +2,12 @@ import { Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Task } from '../../../models';
 
+export interface TaskFormValue {
+  title: string;
+  description: string;
+  status: string;
+}
+
 @Component({
   selector: 'app-task-modal',
   imports: [ReactiveFormsModule],
@@ -10,7 +16,7 @@ import { Task } from '../../../models';
 })
 export class TaskModalComponent {
   task = input<Task | null>(null);
-  saved = output<{ title: string; description: string; status: string }>();
+  saved = output<TaskFormValue>();
   cancelled = output();
 
   private formBuilder = inject(FormBuilder);

@@ -8,17 +8,21 @@ import { TaskService } from '../../../services/task.service';
 import { Task } from '../../../models';
 import { RouterLink } from '@angular/router';
 import { StageColumnComponent } from '../stage-column/stage-column.component';
+import { TaskFormValue, TaskModalComponent } from '../../../shared/components/task-modal/task-modal.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-kanban-board',
   standalone: true,
-  imports: [RouterLink, StageColumnComponent],
+  imports: [RouterLink, StageColumnComponent, TaskModalComponent, ConfirmDialogComponent],
   templateUrl: './kanban-board.component.html',
 })
 export class KanbanBoardComponent {
   private readonly projectService = inject(ProjectService);
   private readonly stageService = inject(StageService);
   private readonly taskService = inject(TaskService);
+  protected readonly editingTask = signal<Task | null>(null);
+  protected readonly deletingTask = signal<Task | null>(null);
 
   readonly id = input.required({ transform: numberAttribute });
   private readonly refresh = signal(0);
@@ -68,5 +72,33 @@ export class KanbanBoardComponent {
     this.stageService.delete(stageId).subscribe({
       next: () => this.reload(),
     });
+  }
+
+  protected onTaskEditingRequested(task: Task): void {
+    this.editingTask.set(task);
+  }
+
+  protected onTaskDeleteRequested(task: Task): void {
+    this.deletingTask.set(task);
+  }
+
+  protected onTaskSaved(value: TaskFormValue) {
+    const task = this.editingTask();
+    if (!task) return;
+    this.taskService.update(task.id, value).subscribe(() => {
+      this.editingTask.set(null);
+      this.reload();
+    })
+  }
+
+  protected onTaskDeleteConfirmed(): void {
+    const task = this.deletingTask();
+    if (!task) return;
+    this.taskService.delete(task.id).subscribe({
+      next: () => {
+        this.deletingTask.set(null);
+        this.reload();
+      }
+    })
   }
 }
