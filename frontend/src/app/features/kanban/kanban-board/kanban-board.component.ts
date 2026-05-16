@@ -21,8 +21,6 @@ export class KanbanBoardComponent {
   private readonly projectService = inject(ProjectService);
   private readonly stageService = inject(StageService);
   private readonly taskService = inject(TaskService);
-  protected readonly editingTask = signal<Task | null>(null);
-  protected readonly deletingTask = signal<Task | null>(null);
 
   readonly id = input.required({ transform: numberAttribute });
   private readonly refresh = signal(0);
@@ -39,6 +37,9 @@ export class KanbanBoardComponent {
 
   protected readonly showStageForm = signal(false);
   protected readonly newStageName = signal('');
+  protected readonly editingTask = signal<Task | null>(null);
+  protected readonly deletingTask = signal<Task | null>(null);
+  protected readonly creatingInStageId = signal<number | null>(null);
 
   private reload(): void {
     this.refresh.update(n => n + 1);
@@ -56,13 +57,11 @@ export class KanbanBoardComponent {
     });
   }
 
-  protected onTaskCreated(stageId: number, title: string): void {
-    this.taskService.create(stageId, { title, description: '' }).subscribe({
-      next: () => this.reload(),
-    });
+  protected onTaskCreateRequested(stageId: number): void {
+    this.creatingInStageId.set(stageId);
   }
 
-  protected onTaskMoved({task, targetStageId}: { task: Task, targetStageId: number }): void {
+  protected onTaskMoved({ task, targetStageId }: { task: Task; targetStageId: number }): void {
     this.taskService.move(task.id, { stageId: targetStageId, position: 0 }).subscribe({
       next: () => this.reload(),
     });
@@ -74,7 +73,7 @@ export class KanbanBoardComponent {
     });
   }
 
-  protected onTaskEditingRequested(task: Task): void {
+  protected onTaskEditRequested(task: Task): void {
     this.editingTask.set(task);
   }
 
@@ -82,13 +81,29 @@ export class KanbanBoardComponent {
     this.deletingTask.set(task);
   }
 
-  protected onTaskSaved(value: TaskFormValue) {
-    const task = this.editingTask();
-    if (!task) return;
-    this.taskService.update(task.id, value).subscribe(() => {
-      this.editingTask.set(null);
+  protected onTaskSaved(value: TaskFormValue): void {
+    const editTask = this.editingTask();
+    if (editTask) {
+      this.taskService.update(editTask.id, {
+        title: value.title,
+        description: value.description,
+        status: value.status ?? undefined,
+      }).subscribe(() => {
+        this.editingTask.set(null);
+        this.reload();
+      });
+      return;
+    }
+    const stageId = this.creatingInStageId();
+    if (!stageId) return;
+    this.taskService.create(stageId, {
+      title: value.title,
+      description: value.description,
+      status: value.status ?? undefined,
+    }).subscribe(() => {
+      this.creatingInStageId.set(null);
       this.reload();
-    })
+    });
   }
 
   protected onTaskDeleteConfirmed(): void {
@@ -98,7 +113,7 @@ export class KanbanBoardComponent {
       next: () => {
         this.deletingTask.set(null);
         this.reload();
-      }
-    })
+      },
+    });
   }
 }

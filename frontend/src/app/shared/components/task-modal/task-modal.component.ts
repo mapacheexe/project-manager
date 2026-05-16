@@ -5,7 +5,7 @@ import { Task } from '../../../models';
 export interface TaskFormValue {
   title: string;
   description: string;
-  status: string;
+  status: string | null;
 }
 
 @Component({
@@ -24,7 +24,7 @@ export class TaskModalComponent {
   form = this.formBuilder.nonNullable.group({
     title: ['', Validators.required],
     description: [''],
-    status: ['PENDING', Validators.required],
+    status: [''],
   });
 
   readonly statusOptions = ['PENDING', 'IN_PROGRESS', 'DONE'];
@@ -36,17 +36,18 @@ export class TaskModalComponent {
         this.form.patchValue({
           title: task.title,
           description: task.description ?? '',
-          status: task.status,
+          status: task.status ?? '',
         });
       } else {
-        this.form.reset({ title: '', description: '', status: 'PENDING' });
+        this.form.reset({ title: '', description: '', status: '' });
       }
     });
   }
 
   onSave(): void {
     if (this.form.invalid) return;
-    this.saved.emit(this.form.getRawValue());
+    const raw = this.form.getRawValue();
+    this.saved.emit({ ...raw, status: raw.status || null });
   }
 
   onCancel(): void {

@@ -7,6 +7,7 @@ import { environment } from '../../environments/environment';
 export interface CreateTaskPayload {
   title: string;
   description: string;
+  status?: string | null;
 }
 
 export interface UpdateTaskPayload {

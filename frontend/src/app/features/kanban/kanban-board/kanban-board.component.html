@@ -7,11 +7,11 @@
     @for (stage of stages(); track stage.id) {
       <app-stage-column
         [stage]="stage"
-        (taskCreated)="onTaskCreated($event.stageId, $event.title)"
-        (stageDeleted)="onStageDeleted($event)"
         [stages]="stages()"
+        (stageDeleted)="onStageDeleted($event)"
+        (taskCreateRequested)="onTaskCreateRequested($event)"
         (taskMoved)="onTaskMoved($event)"
-        (taskEditRequested)="onTaskEditingRequested($event)"
+        (taskEditRequested)="onTaskEditRequested($event)"
         (taskDeleteRequested)="onTaskDeleteRequested($event)"
       />
     } @empty {
@@ -35,19 +35,28 @@
         + Añadir etapa
       </button>
     }
-    @if (editingTask() != null) {
-      <app-task-modal
-        [task]="editingTask()"
-        (saved)="onTaskSaved($event)"
-        (cancelled)="editingTask.set(null)"
-      />
-    }
-    @if (deletingTask() !== null) {
-      <app-confirm-dialog
-        message="¿Eliminar la tarea '{{ deletingTask()!.title }}'?"
-        (confirmed)="onTaskDeleteConfirmed()"
-        (cancelled)="deletingTask.set(null)"
-      />
-    }
   </div>
+
+  @if (creatingInStageId() !== null) {
+    <app-task-modal
+      (saved)="onTaskSaved($event)"
+      (cancelled)="creatingInStageId.set(null)"
+    />
+  }
+
+  @if (editingTask() !== null) {
+    <app-task-modal
+      [task]="editingTask()"
+      (saved)="onTaskSaved($event)"
+      (cancelled)="editingTask.set(null)"
+    />
+  }
+
+  @if (deletingTask() !== null) {
+    <app-confirm-dialog
+      message="¿Eliminar la tarea '{{ deletingTask()!.title }}'?"
+      (confirmed)="onTaskDeleteConfirmed()"
+      (cancelled)="deletingTask.set(null)"
+    />
+  }
 </div>
