@@ -13,6 +13,11 @@ export class AuthService {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
   }
 
+  updateCurrentUser(user: User): void {
+    this.currentUser.set(user);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  }
+
   logout(): void {
     this.currentUser.set(null);
     localStorage.removeItem(STORAGE_KEY);

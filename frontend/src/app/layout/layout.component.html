@@ -1,7 +1,7 @@
 <nav class="navbar">
   <a class="navbar__brand" routerLink="/projects">Project Manager</a>
   <div class="navbar__user">
-    <span class="navbar__username">{{ userName() }}</span>
+    <button class="navbar__username" type="button" (click)="openProfile()">{{ userName() }}</button>
     <button class="navbar__logout" (click)="logout()">Salir</button>
   </div>
 </nav>
@@ -9,3 +9,20 @@
   <router-outlet />
 </main>
 <app-toast />
+
+@if (showProfileModal()) {
+  <app-profile-modal
+    [currentName]="userName()"
+    (saved)="onNameSaved($event)"
+    (cancelled)="showProfileModal.set(false)"
+    (deleteRequested)="onDeleteRequested()"
+  />
+}
+
+@if (showDeleteConfirm()) {
+  <app-confirm-dialog
+    message="¿Eliminar tu cuenta? Esta acción no se puede deshacer."
+    (confirmed)="deleteAccount()"
+    (cancelled)="showDeleteConfirm.set(false)"
+  />
+}
