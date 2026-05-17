@@ -70,7 +70,11 @@ export class KanbanBoardComponent {
   }
 
   protected onTaskStatusChanged({ task, status }: { task: Task; status: string }): void {
-    this.taskService.update(task.id, { status }).subscribe({
+    this.taskService.update(task.id, {
+      title: task.title,
+      description: task.description,
+      status,
+    }).subscribe({
       next: () => this.reload(),
       error: () => this.toastService.error('No se pudo actualizar el estado'),
     });
