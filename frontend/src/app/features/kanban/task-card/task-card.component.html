@@ -1,6 +1,6 @@
-<div class="task-card">
+<div class="task-card" (click)="editRequested.emit(task())">
   <p class="task-card__title">{{ task().title }}</p>
-  <div class="task-card__footer">
+  <div class="task-card__footer" (click)="$event.stopPropagation()">
     <span class="task-card__status task-card__status--{{ task().status | lowercase }}">{{ task().status }}</span>
     <div class="task-card__actions">
       <select
@@ -12,7 +12,6 @@
           <option [value]="stage.id">{{ stage.name }}</option>
         }
       </select>
-      <button class="btn btn--ghost btn--sm" type="button" (click)="editRequested.emit(task())">Editar</button>
       <button class="btn btn--ghost btn--sm" type="button" (click)="deleteRequested.emit(task())">✕</button>
     </div>
   </div>
