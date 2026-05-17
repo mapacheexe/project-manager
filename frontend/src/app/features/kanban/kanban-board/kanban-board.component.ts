@@ -5,6 +5,7 @@ import { switchMap } from 'rxjs';
 import { ProjectService } from '../../../services/project.service';
 import { StageService } from '../../../services/stage.service';
 import { TaskService } from '../../../services/task.service';
+import { ToastService } from '../../../shared/services/toast.service';
 import { Task } from '../../../models';
 import { RouterLink } from '@angular/router';
 import { StageColumnComponent } from '../stage-column/stage-column.component';
@@ -21,6 +22,7 @@ export class KanbanBoardComponent {
   private readonly projectService = inject(ProjectService);
   private readonly stageService = inject(StageService);
   private readonly taskService = inject(TaskService);
+  private readonly toastService = inject(ToastService);
 
   readonly id = input.required({ transform: numberAttribute });
   private readonly refresh = signal(0);
@@ -88,9 +90,13 @@ export class KanbanBoardComponent {
         title: value.title,
         description: value.description,
         status: value.status ?? undefined,
-      }).subscribe(() => {
-        this.editingTask.set(null);
-        this.reload();
+      }).subscribe({
+        next: () => {
+          this.editingTask.set(null);
+          this.reload();
+          this.toastService.success('Tarea actualizada');
+        },
+        error: () => this.toastService.error('No se pudo actualizar la tarea'),
       });
       return;
     }
@@ -100,9 +106,13 @@ export class KanbanBoardComponent {
       title: value.title,
       description: value.description,
       status: value.status ?? undefined,
-    }).subscribe(() => {
-      this.creatingInStageId.set(null);
-      this.reload();
+    }).subscribe({
+      next: () => {
+        this.creatingInStageId.set(null);
+        this.reload();
+        this.toastService.success('Tarea creada');
+      },
+      error: () => this.toastService.error('No se pudo crear la tarea'),
     });
   }
 
@@ -113,7 +123,9 @@ export class KanbanBoardComponent {
       next: () => {
         this.deletingTask.set(null);
         this.reload();
+        this.toastService.success('Tarea eliminada');
       },
+      error: () => this.toastService.error('No se pudo eliminar la tarea'),
     });
   }
 }
