@@ -8,7 +8,7 @@ import { UserService } from '../../services/user.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { AuthService } from '../../core/auth/auth.service';
 
-const ROLES = ['OWNER', 'ADMIN', 'MEMBER'] as const;
+const ASSIGNABLE_ROLES = ['ADMIN', 'MEMBER'] as const;
 
 @Component({
   selector: 'app-project-members',
@@ -26,7 +26,7 @@ export class ProjectMembersComponent {
 
   readonly id = input.required({ transform: numberAttribute });
 
-  protected readonly roles = ROLES;
+  protected readonly assignableRoles = ASSIGNABLE_ROLES;
 
   private readonly refresh = signal(0);
   private readonly members$ = toObservable(

@@ -9,16 +9,19 @@
       <div class="member-row">
         <span class="member-row__name">{{ member.user?.name ?? 'Usuario desconocido' }}</span>
         <span class="member-row__email">{{ member.user?.email }}</span>
-        <select
-          class="member-row__role"
-          [value]="member.role"
-          [disabled]="member.userId === currentUserId()"
-          (change)="updateRole(member.userId, $any($event.target).value)"
-        >
-          @for (role of roles; track role) {
-            <option [value]="role" [selected]="role === member.role">{{ role }}</option>
-          }
-        </select>
+        @if (member.role === 'OWNER') {
+          <span class="member-row__role member-row__role--owner">OWNER</span>
+        } @else {
+          <select
+            class="member-row__role"
+            [disabled]="member.userId === currentUserId()"
+            (change)="updateRole(member.userId, $any($event.target).value)"
+          >
+            @for (role of assignableRoles; track role) {
+              <option [value]="role" [selected]="role === member.role">{{ role }}</option>
+            }
+          </select>
+        }
         @if (member.userId !== currentUserId()) {
           <button class="btn btn--ghost btn--sm" type="button" (click)="removeMember(member.userId)">✕</button>
         }
