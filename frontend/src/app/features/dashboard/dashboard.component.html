@@ -22,9 +22,21 @@
 
   <div class="project-grid">
     @for (project of projects(); track project.id) {
-      <app-project-card [project]="project" (selected)="openProject($event)" />
+      <app-project-card
+        [project]="project"
+        (selected)="openProject($event)"
+        (deleteRequested)="deletingProject.set($event)"
+      />
     } @empty {
       <p class="dashboard__empty">No hay proyectos todavía.</p>
     }
   </div>
 </div>
+
+@if (deletingProject() !== null) {
+  <app-confirm-dialog
+    message="¿Eliminar el proyecto '{{ deletingProject()!.name }}'? Esta acción no se puede deshacer."
+    (confirmed)="deleteProject()"
+    (cancelled)="deletingProject.set(null)"
+  />
+}

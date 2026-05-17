@@ -9,4 +9,5 @@ import { Project } from '../../../models';
 export class ProjectCardComponent {
   readonly project = input.required<Project>();
   readonly selected = output<Project>();
+  readonly deleteRequested = output<Project>();
 }
