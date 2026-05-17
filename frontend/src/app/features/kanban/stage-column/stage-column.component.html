@@ -10,6 +10,7 @@
         [task]="task"
         [stages]="stages()"
         (taskMoved)="taskMoved.emit($event)"
+        (statusChanged)="taskStatusChanged.emit($event)"
         (editRequested)="taskEditRequested.emit($event)"
         (deleteRequested)="taskDeleteRequested.emit($event)"
       />

@@ -69,6 +69,13 @@ export class KanbanBoardComponent {
     });
   }
 
+  protected onTaskStatusChanged({ task, status }: { task: Task; status: string }): void {
+    this.taskService.update(task.id, { status }).subscribe({
+      next: () => this.reload(),
+      error: () => this.toastService.error('No se pudo actualizar el estado'),
+    });
+  }
+
   protected onStageDeleted(stageId: number): void {
     this.stageService.delete(stageId).subscribe({
       next: () => this.reload(),

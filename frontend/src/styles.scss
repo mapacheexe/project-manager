@@ -406,10 +406,18 @@ a:hover { text-decoration: underline; }
     background: var(--color-border);
     color: var(--color-text-muted);
 
-    &--todo    { background: #e0e7ff; color: #3730a3; }
+    &:is(select) {
+      appearance: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    &--pending    { background: #e0e7ff; color: #3730a3; }
     &--in_progress,
     &--in-progress { background: #fef3c7; color: #92400e; }
-    &--done    { background: #dcfce7; color: #166534; }
+    &--done       { background: #dcfce7; color: #166534; }
   }
 
   &__actions {

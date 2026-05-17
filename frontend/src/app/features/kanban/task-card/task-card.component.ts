@@ -14,8 +14,13 @@ export class TaskCardComponent {
   readonly editRequested = output<Task>();
   readonly deleteRequested = output<Task>();
   readonly taskMoved = output<{ task: Task; targetStageId: number }>();
+  readonly statusChanged = output<{ task: Task; status: string }>();
 
   protected onStageChange(targetStageId: string): void {
     this.taskMoved.emit({ task: this.task(), targetStageId: Number(targetStageId) });
+  }
+
+  protected onStatusChange(status: string): void {
+    this.statusChanged.emit({ task: this.task(), status });
   }
 }
