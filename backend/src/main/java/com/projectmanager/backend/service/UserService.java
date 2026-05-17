@@ -67,6 +67,13 @@ public class UserService {
 
     }
 
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new ResponseStatusException(NOT_FOUND, "User not found");
+        }
+        userRepository.deleteById(id);
+    }
+
     public List<ProjectDTO> findProjectsByUserId(Long id) {
         if (!userRepository.existsById(id)) {
             throw new ResponseStatusException(NOT_FOUND, "User not found");

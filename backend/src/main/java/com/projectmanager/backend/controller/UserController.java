@@ -40,6 +40,12 @@ public class UserController {
         return ResponseEntity.ok(userService.save(user));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}/projects")
     public ResponseEntity<List<ProjectDTO>> findProjectsByUserId(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findProjectsByUserId(id));
