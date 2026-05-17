@@ -1,0 +1,49 @@
+<div class="members-page">
+  <div class="members-page__header">
+    <a class="members-page__back" [routerLink]="['/projects', id()]">← Volver al tablero</a>
+    <h2 class="members-page__title">Miembros del proyecto</h2>
+  </div>
+
+  <div class="members-page__list">
+    @for (member of enrichedMembers(); track member.id) {
+      <div class="member-row">
+        <span class="member-row__name">{{ member.user?.name ?? 'Usuario desconocido' }}</span>
+        <span class="member-row__email">{{ member.user?.email }}</span>
+        <select
+          class="member-row__role"
+          [value]="member.role"
+          [disabled]="member.userId === currentUserId()"
+          (change)="updateRole(member.userId, $any($event.target).value)"
+        >
+          @for (role of roles; track role) {
+            <option [value]="role">{{ role }}</option>
+          }
+        </select>
+        @if (member.userId !== currentUserId()) {
+          <button class="btn btn--ghost btn--sm" type="button" (click)="removeMember(member.userId)">✕</button>
+        }
+      </div>
+    } @empty {
+      <p class="members-page__empty">No hay miembros en este proyecto.</p>
+    }
+  </div>
+
+  <div class="members-page__add">
+    <h3 class="members-page__add-title">Añadir miembro</h3>
+    <div class="members-page__add-form">
+      <select
+        class="form-field__input"
+        [value]="selectedUserId() ?? ''"
+        (change)="selectedUserId.set(+$any($event.target).value || null)"
+      >
+        <option value="">Selecciona un usuario...</option>
+        @for (user of availableUsers(); track user.id) {
+          <option [value]="user.id">{{ user.name }} — {{ user.email }}</option>
+        }
+      </select>
+      <button class="btn" type="button" [disabled]="!selectedUserId()" (click)="addMember()">
+        Añadir
+      </button>
+    </div>
+  </div>
+</div>

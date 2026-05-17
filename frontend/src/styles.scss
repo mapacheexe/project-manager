@@ -373,6 +373,64 @@ a:hover { text-decoration: underline; }
   }
 }
 
+/* ─── Members page ──────────────────────────────────────────────── */
+.members-page {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  &__back { font-size: 0.875rem; color: var(--color-text-muted); text-decoration: none; }
+  &__back:hover { color: var(--color-text); }
+
+  &__title { font-size: 1.25rem; font-weight: 600; flex: 1; }
+
+  &__empty { color: var(--color-text-muted); font-size: 0.875rem; }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  &__add-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
+
+  &__add-form {
+    display: flex;
+    gap: 0.75rem;
+
+    select { flex: 1; }
+  }
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+
+  &__name { font-weight: 500; font-size: 0.875rem; min-width: 10rem; }
+  &__email { font-size: 0.8rem; color: var(--color-text-muted); flex: 1; }
+
+  &__role {
+    font-size: 0.8rem;
+    padding: 3px 6px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+}
+
 /* ─── Task card ─────────────────────────────────────────────────── */
 .task-card {
   background: var(--color-surface);

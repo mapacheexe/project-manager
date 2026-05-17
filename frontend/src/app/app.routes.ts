@@ -32,9 +32,16 @@ export const routes: Routes = [
       {
         path: 'projects/:id',
         loadComponent: () =>
-          import(
-            './features/kanban/kanban-board/kanban-board.component'
-          ).then((m) => m.KanbanBoardComponent),
+          import('./features/kanban/kanban-board/kanban-board.component').then(
+            (m) => m.KanbanBoardComponent
+          ),
+      },
+      {
+        path: 'projects/:id/members',
+        loadComponent: () =>
+          import('./features/members/project-members.component').then(
+            (m) => m.ProjectMembersComponent
+          ),
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
