@@ -6,9 +6,9 @@
       [value]="task().status"
       (change)="onStatusChange($any($event.target).value)"
     >
-      <option value="PENDING">Pendiente</option>
-      <option value="IN_PROGRESS">En progreso</option>
-      <option value="DONE">Hecho</option>
+      <option value="PENDING"   [selected]="task().status === 'PENDING'">Pendiente</option>
+      <option value="IN_PROGRESS" [selected]="task().status === 'IN_PROGRESS'">En progreso</option>
+      <option value="DONE"      [selected]="task().status === 'DONE'">Hecho</option>
     </select>
     <div class="task-card__actions">
       <select
