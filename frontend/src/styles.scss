@@ -481,9 +481,14 @@ a:hover { text-decoration: underline; }
   &__actions {
     display: flex;
     gap: 4px;
-    opacity: 0;
     transition: opacity 0.15s;
+
+    @media (hover: hover) {
+      opacity: 0;
+    }
   }
 
-  &:hover &__actions { opacity: 1; }
+  @media (hover: hover) {
+    &:hover &__actions { opacity: 1; }
+  }
 }
