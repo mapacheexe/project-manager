@@ -7,6 +7,9 @@
   <div class="members-page__list">
     @for (member of enrichedMembers(); track member.id) {
       <div class="member-row">
+        <div class="member-row__avatar" [style.background]="member.avatarColor">
+          {{ (member.user?.name ?? '?')[0].toUpperCase() }}
+        </div>
         <span class="member-row__name">{{ member.user?.name ?? 'Usuario desconocido' }}</span>
         <span class="member-row__email">{{ member.user?.email }}</span>
         @if (member.role === 'OWNER') {
