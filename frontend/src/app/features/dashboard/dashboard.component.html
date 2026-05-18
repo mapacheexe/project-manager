@@ -28,7 +28,16 @@
         (deleteRequested)="deletingProject.set($event)"
       />
     } @empty {
-      <p class="dashboard__empty">No hay proyectos todavía.</p>
+      <div class="empty-state">
+        <svg class="empty-state__icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7a2 2 0 0 1 2-2h3.586a1 1 0 0 1 .707.293l1.414 1.414A1 1 0 0 0 11.414 7H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
+        </svg>
+        <p class="empty-state__title">No tienes proyectos aún</p>
+        <p class="empty-state__text">Crea tu primer proyecto para organizar tu trabajo en equipo.</p>
+        @if (!showForm()) {
+          <button class="btn" type="button" (click)="showForm.set(true)">+ Nuevo proyecto</button>
+        }
+      </div>
     }
   </div>
 </div>
