@@ -1,5 +1,5 @@
 <div class="stage-column">
-  <div class="stage-column__header">
+  <div class="stage-column__header" [style.border-left-color]="accentColor()">
     <h3 class="stage-column__title">{{ stage().name }}</h3>
     <button class="btn btn--ghost btn--sm" type="button" (click)="stageDeleted.emit(stage().id)">✕</button>
   </div>

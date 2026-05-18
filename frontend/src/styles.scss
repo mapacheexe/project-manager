@@ -329,7 +329,7 @@ a:hover { text-decoration: underline; }
   flex-direction: column;
   min-width: 260px;
   max-width: 260px;
-  background: var(--color-bg);
+  background: #eaeff6;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 12px;
@@ -341,7 +341,9 @@ a:hover { text-decoration: underline; }
     align-items: center;
     justify-content: space-between;
     padding-bottom: 8px;
+    padding-left: 8px;
     border-bottom: 1px solid var(--color-border);
+    border-left: 3px solid transparent;
   }
 
   &__title {
