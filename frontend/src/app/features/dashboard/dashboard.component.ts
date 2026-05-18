@@ -14,6 +14,7 @@ import { Project } from '../../models';
   standalone: true,
   imports: [ProjectCardComponent, ConfirmDialogComponent],
   templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent {
   private readonly auth = inject(AuthService);

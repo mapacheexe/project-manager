@@ -1,5 +1,5 @@
-<div class="task-modal__overlay">
-  <div class="task-modal__box">
+<div class="modal-overlay">
+  <div class="modal-box modal-box--lg">
     <h2 class="task-modal__title">{{ task() ? 'Editar tarea' : 'Nueva tarea' }}</h2>
 
     <form [formGroup]="form" (ngSubmit)="onSave()" class="task-modal__form">

@@ -1,23 +1,23 @@
-<div class="modal-backdrop" (click)="cancelled.emit()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <h3 class="modal__title">Editar perfil</h3>
+<div class="modal-overlay" (click)="cancelled.emit()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <h3 class="modal-box__title">Editar perfil</h3>
 
-    <div class="form-field">
-      <label class="form-field__label">Nombre</label>
+    <div class="form-group">
+      <label>Nombre</label>
       <input
-        class="form-field__input"
+        class="form-control"
         type="text"
         [value]="name()"
         (input)="name.set($any($event.target).value)"
       />
     </div>
 
-    <div class="modal__actions">
+    <div class="modal-box__actions">
       <button class="btn btn--ghost" type="button" (click)="cancelled.emit()">Cancelar</button>
       <button class="btn" type="button" [disabled]="!name().trim()" (click)="submit()">Guardar</button>
     </div>
 
-    <hr class="modal__divider" />
+    <hr class="modal-box__divider" />
 
     <button class="btn btn--danger btn--sm" type="button" (click)="deleteRequested.emit()">
       Eliminar cuenta

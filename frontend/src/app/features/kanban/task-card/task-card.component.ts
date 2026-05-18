@@ -19,6 +19,7 @@ const STATUS_CYCLE: Record<string, string> = {
   standalone: true,
   imports: [LowerCasePipe],
   templateUrl: './task-card.component.html',
+  styleUrl: './task-card.component.scss',
 })
 export class TaskCardComponent {
   readonly task = input.required<Task>();

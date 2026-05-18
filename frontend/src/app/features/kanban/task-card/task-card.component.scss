@@ -1,0 +1,79 @@
+// Status accent colors — SCSS vars for co-location with the component they style
+$status-pending:  #94a3b8;
+$status-progress: #f59e0b;
+$status-done:     #10b981;
+
+$badge-pending-bg:   #f1f5f9;  $badge-pending-text:  #475569;
+$badge-progress-bg:  #fef3c7;  $badge-progress-text: #92400e;
+$badge-done-bg:      #d1fae5;  $badge-done-text:     #166534;
+
+.task-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: box-shadow var(--transition), border-left-color var(--transition);
+
+  &:hover { box-shadow: var(--shadow-md); }
+
+  &--pending     { border-left-color: $status-pending; }
+  &--in_progress { border-left-color: $status-progress; }
+  &--done        { border-left-color: $status-done; }
+
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+
+  &__description {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  &__status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: none;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity var(--transition);
+
+    &:hover { opacity: 0.75; }
+
+    &--pending     { background: $badge-pending-bg;  color: $badge-pending-text;  }
+    &--in_progress { background: $badge-progress-bg; color: $badge-progress-text; }
+    &--done        { background: $badge-done-bg;     color: $badge-done-text;     }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 4px;
+    transition: opacity var(--transition);
+
+    @media (hover: hover) { opacity: 0; }
+  }
+
+  @media (hover: hover) {
+    &:hover &__actions { opacity: 1; }
+  }
+}

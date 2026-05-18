@@ -1,0 +1,45 @@
+.project-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow var(--transition), transform var(--transition);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  &__accent {
+    height: 6px;
+    margin: -20px -20px 16px;
+  }
+
+  &__name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  &__meta {
+    display: flex;
+    gap: 12px;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+    transition: opacity var(--transition);
+
+    @media (hover: hover) { opacity: 0; }
+  }
+
+  @media (hover: hover) {
+    &:hover &__actions { opacity: 1; }
+  }
+}

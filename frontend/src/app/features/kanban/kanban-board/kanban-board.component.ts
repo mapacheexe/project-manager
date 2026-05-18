@@ -17,6 +17,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
   standalone: true,
   imports: [RouterLink, StageColumnComponent, TaskModalComponent, ConfirmDialogComponent],
   templateUrl: './kanban-board.component.html',
+  styleUrl: './kanban-board.component.scss',
 })
 export class KanbanBoardComponent {
   private readonly projectService = inject(ProjectService);

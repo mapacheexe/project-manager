@@ -16,6 +16,7 @@ const ASSIGNABLE_ROLES = ['ADMIN', 'MEMBER'] as const;
   standalone: true,
   imports: [RouterLink],
   templateUrl: './project-members.component.html',
+  styleUrl: './project-members.component.scss',
 })
 export class ProjectMembersComponent {
   private readonly projectService = inject(ProjectService);

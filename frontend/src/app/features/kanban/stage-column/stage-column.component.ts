@@ -8,6 +8,7 @@ import { accentColor } from '../../../shared/utils/accent-color';
   standalone: true,
   imports: [TaskCardComponent],
   templateUrl: './stage-column.component.html',
+  styleUrl: './stage-column.component.scss',
 })
 export class StageColumnComponent {
   readonly stage = input.required<Stage>();
