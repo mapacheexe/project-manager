@@ -17,7 +17,18 @@
         (taskDeleteRequested)="onTaskDeleteRequested($event)"
       />
     } @empty {
-      <p class="kanban-board__empty">No hay etapas. Añade una para empezar.</p>
+      <div class="empty-state">
+        <svg class="empty-state__icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="5" height="18" rx="1"/>
+          <rect x="10" y="3" width="5" height="18" rx="1"/>
+          <rect x="17" y="3" width="4" height="18" rx="1"/>
+        </svg>
+        <p class="empty-state__title">Sin etapas todavía</p>
+        <p class="empty-state__text">Crea tu primera etapa para empezar a organizar las tareas.</p>
+        @if (!showStageForm()) {
+          <button class="btn" type="button" (click)="showStageForm.set(true)">+ Añadir etapa</button>
+        }
+      </div>
     }
 
     @if (showStageForm()) {
