@@ -1,15 +1,16 @@
 <div class="task-card" (click)="editRequested.emit(task())">
   <p class="task-card__title">{{ task().title }}</p>
   <div class="task-card__footer" (click)="$event.stopPropagation()">
-    <select
-      class="task-card__status task-card__status--{{ task().status | lowercase }}"
-      [value]="task().status"
-      (change)="onStatusChange($any($event.target).value)"
-    >
-      <option value="PENDING"   [selected]="task().status === 'PENDING'">Pendiente</option>
-      <option value="IN_PROGRESS" [selected]="task().status === 'IN_PROGRESS'">En progreso</option>
-      <option value="DONE"      [selected]="task().status === 'DONE'">Hecho</option>
-    </select>
+    <div class="task-card__status task-card__status--{{ task().status | lowercase }}">
+      <select
+        [value]="task().status"
+        (change)="onStatusChange($any($event.target).value)"
+      >
+        <option value="PENDING"   [selected]="task().status === 'PENDING'">Pendiente</option>
+        <option value="IN_PROGRESS" [selected]="task().status === 'IN_PROGRESS'">En progreso</option>
+        <option value="DONE"      [selected]="task().status === 'DONE'">Hecho</option>
+      </select>
+    </div>
     <div class="task-card__actions">
       <select
         class="task-card__move-select"
