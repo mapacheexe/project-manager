@@ -71,4 +71,12 @@
       (cancelled)="deletingTask.set(null)"
     />
   }
+
+  @if (deletingStageId() !== null) {
+    <app-confirm-dialog
+      message="¿Eliminar esta etapa? Se eliminarán también todas sus tareas."
+      (confirmed)="onStageDeleteConfirmed()"
+      (cancelled)="deletingStageId.set(null)"
+    />
+  }
 </div>

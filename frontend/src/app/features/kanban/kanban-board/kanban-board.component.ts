@@ -43,6 +43,7 @@ export class KanbanBoardComponent {
   protected readonly editingTask = signal<Task | null>(null);
   protected readonly deletingTask = signal<Task | null>(null);
   protected readonly creatingInStageId = signal<number | null>(null);
+  protected readonly deletingStageId = signal<number | null>(null);
 
   private reload(): void {
     this.refresh.update(n => n + 1);
@@ -76,8 +77,19 @@ export class KanbanBoardComponent {
   }
 
   protected onStageDeleted(stageId: number): void {
-    this.stageService.delete(stageId).subscribe({
-      next: () => this.reload(),
+    this.deletingStageId.set(stageId);
+  }
+
+  protected onStageDeleteConfirmed(): void {
+    const id = this.deletingStageId();
+    if (!id) return;
+    this.stageService.delete(id).subscribe({
+      next: () => {
+        this.deletingStageId.set(null);
+        this.reload();
+        this.toastService.success('Etapa eliminada');
+      },
+      error: () => this.toastService.error('No se pudo eliminar la etapa'),
     });
   }
 
