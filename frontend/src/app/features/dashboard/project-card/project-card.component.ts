@@ -1,7 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Project } from '../../../models';
-
-const ACCENT_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4'];
+import { accentColor } from '../../../shared/utils/accent-color';
 
 @Component({
   selector: 'app-project-card',
@@ -13,5 +12,5 @@ export class ProjectCardComponent {
   readonly selected = output<Project>();
   readonly deleteRequested = output<Project>();
 
-  readonly accentColor = computed(() => ACCENT_COLORS[this.project().id % ACCENT_COLORS.length]);
+  readonly accentColor = computed(() => accentColor(this.project().id));
 }

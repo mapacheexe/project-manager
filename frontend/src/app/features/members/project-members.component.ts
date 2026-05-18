@@ -7,6 +7,7 @@ import { ProjectService } from '../../services/project.service';
 import { UserService } from '../../services/user.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { accentColor } from '../../shared/utils/accent-color';
 
 const ASSIGNABLE_ROLES = ['ADMIN', 'MEMBER'] as const;
 
@@ -38,7 +39,11 @@ export class ProjectMembersComponent {
 
   protected readonly enrichedMembers = computed(() => {
     const userMap = new Map(this.allUsers().map(u => [u.id, u]));
-    return this.members().map(m => ({ ...m, user: userMap.get(m.userId) }));
+    return this.members().map(m => ({
+      ...m,
+      user: userMap.get(m.userId),
+      avatarColor: accentColor(m.userId),
+    }));
   });
 
   protected readonly availableUsers = computed(() => {
