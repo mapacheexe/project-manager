@@ -1,4 +1,5 @@
 <div class="project-card" (click)="selected.emit(project())">
+  <div class="project-card__accent" [style.background]="accentColor()"></div>
   <h3 class="project-card__name">{{ project().name }}</h3>
   <div class="project-card__meta">
     <span>{{ project().stages.length }} etapas</span>
