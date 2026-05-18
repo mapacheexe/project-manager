@@ -1,18 +1,23 @@
-<div class="task-card" (click)="editRequested.emit(task())">
+<div class="task-card task-card--{{ task().status | lowercase }}" (click)="editRequested.emit(task())">
   <p class="task-card__title">{{ task().title }}</p>
+  @if (task().description) {
+    <p class="task-card__description">{{ task().description }}</p>
+  }
   <div class="task-card__footer" (click)="$event.stopPropagation()">
-    <div class="task-card__status task-card__status--{{ task().status | lowercase }}">
-      <select
-        [value]="task().status"
-        (change)="onStatusChange($any($event.target).value)"
-      >
-        <option value="PENDING"   [selected]="task().status === 'PENDING'">Pendiente</option>
-        <option value="IN_PROGRESS" [selected]="task().status === 'IN_PROGRESS'">En progreso</option>
-        <option value="DONE"      [selected]="task().status === 'DONE'">Hecho</option>
-      </select>
-    </div>
+    <button
+      class="task-card__status-badge task-card__status-badge--{{ task().status | lowercase }}"
+      type="button"
+      (click)="cycleStatus()"
+    >{{ statusLabel() }}</button>
     <div class="task-card__actions">
-      <button class="btn btn--ghost btn--sm" type="button" (click)="deleteRequested.emit(task())">✕</button>
+      <button class="btn btn--ghost btn--sm" type="button" (click)="deleteRequested.emit(task())">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6M14 11v6"/>
+          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
     </div>
   </div>
 </div>
