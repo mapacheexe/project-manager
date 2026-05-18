@@ -47,8 +47,19 @@
       background: #334155;
     }
   }
+
+  @media (max-width: 640px) {
+    padding: 0 1rem;
+
+    &__username { display: none; }
+    &__user { gap: 0.5rem; }
+  }
 }
 
 .content {
   padding: 1.5rem;
+
+  @media (max-width: 640px) {
+    padding: 1rem;
+  }
 }
