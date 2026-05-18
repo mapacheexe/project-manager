@@ -4,8 +4,8 @@
   justify-content: space-between;
   padding: 0 1.5rem;
   height: 56px;
-  background: #1e293b;
-  color: #f1f5f9;
+  background: var(--color-nav-bg);
+  color: var(--color-nav-text);
 
   &__brand {
     font-weight: 600;
@@ -42,15 +42,15 @@
 
   &__logout {
     padding: 0.3rem 0.8rem;
-    border: 1px solid #475569;
+    border: 1px solid var(--color-nav-border);
     border-radius: 6px;
     background: transparent;
-    color: #f1f5f9;
+    color: var(--color-nav-text);
     cursor: pointer;
     font-size: 0.85rem;
 
     &:hover {
-      background: #334155;
+      background: var(--color-nav-hover);
     }
   }
 

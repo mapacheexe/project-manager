@@ -17,8 +17,8 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   animation: toast-in 0.2s ease;
 
-  &--success { background: #22c55e; }
-  &--error   { background: #ef4444; }
+  &--success { background: var(--color-success); }
+  &--error   { background: var(--color-danger); }
 }
 
 @keyframes toast-in {

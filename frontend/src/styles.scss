@@ -6,11 +6,19 @@
   --color-primary-dark:  #4338ca;
   --color-danger:        #ef4444;
   --color-danger-dark:   #dc2626;
+  --color-success:       #10b981;
   --color-bg:            #f1f5f9;
   --color-surface:       #ffffff;
   --color-border:        #e2e8f0;
   --color-text:          #1e293b;
   --color-text-muted:    #64748b;
+
+  --color-nav-bg:        #1e293b;
+  --color-nav-text:      #f1f5f9;
+  --color-nav-border:    #475569;
+  --color-nav-hover:     #334155;
+  --color-auth-gradient: linear-gradient(145deg, #1e293b 0%, #312e81 100%);
+  --color-column-bg:     #eaeff6;
 
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -149,7 +157,7 @@ a:hover { text-decoration: underline; }
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: linear-gradient(145deg, #1e293b 0%, #312e81 100%);
+  background: var(--color-auth-gradient);
 }
 
 .auth-card {
@@ -362,7 +370,7 @@ a:hover { text-decoration: underline; }
   flex-direction: column;
   min-width: 260px;
   max-width: 260px;
-  background: #eaeff6;
+  background: var(--color-column-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 12px;
@@ -501,9 +509,9 @@ a:hover { text-decoration: underline; }
 
   &:hover { box-shadow: var(--shadow-md); }
 
-  &--pending    { border-left-color: #6366f1; }
+  &--pending    { border-left-color: #94a3b8; }
   &--in_progress { border-left-color: #f59e0b; }
-  &--done       { border-left-color: #10b981; }
+  &--done       { border-left-color: var(--color-success); }
 
   &__title {
     font-size: 0.875rem;
@@ -542,7 +550,7 @@ a:hover { text-decoration: underline; }
 
     &:hover { opacity: 0.75; }
 
-    &--pending    { background: #ede9fe; color: #3730a3; }
+    &--pending    { background: #f1f5f9; color: #475569; }
     &--in_progress { background: #fef3c7; color: #92400e; }
     &--done       { background: #d1fae5; color: #166534; }
   }
