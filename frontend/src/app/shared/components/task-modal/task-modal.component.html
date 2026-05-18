@@ -18,10 +18,21 @@
         <select id="status" formControlName="status" class="form-control">
           <option value="">Sin estado</option>
           @for (s of statusOptions; track s) {
-          <option [value]="s">{{ s }}</option>
+            <option [value]="s">{{ s }}</option>
           }
         </select>
       </div>
+
+      @if (stages().length > 0) {
+        <div class="form-group">
+          <label for="stage">Etapa</label>
+          <select id="stage" formControlName="stageId" class="form-control">
+            @for (s of stages(); track s.id) {
+              <option [value]="s.id">{{ s.name }}</option>
+            }
+          </select>
+        </div>
+      }
 
       <div class="task-modal__actions">
         <button type="submit" class="btn" [disabled]="form.invalid">Guardar</button>

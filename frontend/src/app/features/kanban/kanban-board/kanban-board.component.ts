@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { numberAttribute } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
+import { of, switchMap } from 'rxjs';
 import { ProjectService } from '../../../services/project.service';
 import { StageService } from '../../../services/stage.service';
 import { TaskService } from '../../../services/task.service';
@@ -63,12 +63,6 @@ export class KanbanBoardComponent {
     this.creatingInStageId.set(stageId);
   }
 
-  protected onTaskMoved({ task, targetStageId }: { task: Task; targetStageId: number }): void {
-    this.taskService.move(task.id, { stageId: targetStageId, position: 0 }).subscribe({
-      next: () => this.reload(),
-    });
-  }
-
   protected onTaskStatusChanged({ task, status }: { task: Task; status: string }): void {
     this.taskService.update(task.id, {
       title: task.title,
@@ -97,11 +91,17 @@ export class KanbanBoardComponent {
   protected onTaskSaved(value: TaskFormValue): void {
     const editTask = this.editingTask();
     if (editTask) {
+      const stageChanged = value.stageId !== null && value.stageId !== editTask.stageId;
       this.taskService.update(editTask.id, {
         title: value.title,
         description: value.description,
         status: value.status ?? undefined,
-      }).subscribe({
+      }).pipe(
+        switchMap(() => stageChanged
+          ? this.taskService.move(editTask.id, { stageId: value.stageId!, position: 0 })
+          : of(null)
+        )
+      ).subscribe({
         next: () => {
           this.editingTask.set(null);
           this.reload();

@@ -11,12 +11,10 @@ import { accentColor } from '../../../shared/utils/accent-color';
 })
 export class StageColumnComponent {
   readonly stage = input.required<Stage>();
-  readonly stages = input.required<Stage[]>();
 
   readonly accentColor = computed(() => accentColor(this.stage().id));
   readonly stageDeleted = output<number>();
   readonly taskCreateRequested = output<number>();
-  readonly taskMoved = output<{ task: Task; targetStageId: number }>();
   readonly taskStatusChanged = output<{ task: Task; status: string }>();
   readonly taskEditRequested = output<Task>();
   readonly taskDeleteRequested = output<Task>();

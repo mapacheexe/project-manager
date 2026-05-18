@@ -1,11 +1,12 @@
 import { Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Task } from '../../../models';
+import { Stage, Task } from '../../../models';
 
 export interface TaskFormValue {
   title: string;
   description: string;
   status: string | null;
+  stageId: number | null;
 }
 
 @Component({
@@ -16,6 +17,7 @@ export interface TaskFormValue {
 })
 export class TaskModalComponent {
   task = input<Task | null>(null);
+  stages = input<Stage[]>([]);
   saved = output<TaskFormValue>();
   cancelled = output();
 
@@ -25,6 +27,7 @@ export class TaskModalComponent {
     title: ['', Validators.required],
     description: [''],
     status: [''],
+    stageId: [0 as number],
   });
 
   readonly statusOptions = ['PENDING', 'IN_PROGRESS', 'DONE'];
@@ -37,17 +40,23 @@ export class TaskModalComponent {
           title: task.title,
           description: task.description ?? '',
           status: task.status ?? '',
+          stageId: task.stageId,
         });
       } else {
-        this.form.reset({ title: '', description: '', status: '' });
+        this.form.reset({ title: '', description: '', status: '', stageId: 0 });
       }
     });
   }
 
   onSave(): void {
     if (this.form.invalid) return;
-    const raw = this.form.getRawValue();
-    this.saved.emit({ ...raw, status: raw.status || null });
+    const { title, description, status, stageId } = this.form.getRawValue();
+    this.saved.emit({
+      title,
+      description,
+      status: status || null,
+      stageId: stageId || null,
+    });
   }
 
   onCancel(): void {

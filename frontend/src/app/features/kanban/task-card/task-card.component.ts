@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { LowerCasePipe } from '@angular/common';
-import { Stage, Task } from '../../../models';
+import { Task } from '../../../models';
 
 @Component({
   selector: 'app-task-card',
@@ -10,15 +10,9 @@ import { Stage, Task } from '../../../models';
 })
 export class TaskCardComponent {
   readonly task = input.required<Task>();
-  readonly stages = input.required<Stage[]>();
   readonly editRequested = output<Task>();
   readonly deleteRequested = output<Task>();
-  readonly taskMoved = output<{ task: Task; targetStageId: number }>();
   readonly statusChanged = output<{ task: Task; status: string }>();
-
-  protected onStageChange(targetStageId: string): void {
-    this.taskMoved.emit({ task: this.task(), targetStageId: Number(targetStageId) });
-  }
 
   protected onStatusChange(status: string): void {
     this.statusChanged.emit({ task: this.task(), status });
