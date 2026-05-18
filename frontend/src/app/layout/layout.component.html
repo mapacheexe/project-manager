@@ -1,7 +1,9 @@
 <nav class="navbar">
   <a class="navbar__brand" routerLink="/projects">Project Manager</a>
   <div class="navbar__user">
-    <button class="navbar__username" type="button" (click)="openProfile()">{{ userName() }}</button>
+    <button class="navbar__avatar" type="button" (click)="openProfile()" [style.background]="avatarColor()">
+      {{ avatarInitial() }}
+    </button>
     <button class="navbar__logout" (click)="logout()">Salir</button>
   </div>
 </nav>

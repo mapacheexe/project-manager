@@ -7,6 +7,7 @@ import { ToastService } from '../shared/services/toast.service';
 import { ToastComponent } from '../shared/components/toast/toast.component';
 import { ProfileModalComponent } from '../shared/components/profile-modal/profile-modal.component';
 import { ConfirmDialogComponent } from '../shared/components/confirm-dialog/confirm-dialog.component';
+import { accentColor } from '../shared/utils/accent-color';
 
 @Component({
   selector: 'app-layout',
@@ -22,6 +23,8 @@ export class LayoutComponent {
   private readonly router = inject(Router);
 
   protected readonly userName = computed(() => this.auth.currentUser()?.name ?? '');
+  protected readonly avatarInitial = computed(() => this.auth.currentUser()?.name?.charAt(0)?.toUpperCase() ?? '?');
+  protected readonly avatarColor = computed(() => accentColor(this.auth.currentUser()?.id ?? 0));
   protected readonly showProfileModal = signal(false);
   protected readonly showDeleteConfirm = signal(false);
 

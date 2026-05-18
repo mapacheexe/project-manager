@@ -22,16 +22,22 @@
     gap: 1rem;
   }
 
-  &__username {
-    font-size: 0.9rem;
-    color: #94a3b8;
-    background: none;
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     border: none;
     cursor: pointer;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
     font-family: inherit;
-    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s;
 
-    &:hover { color: #f1f5f9; }
+    &:hover { opacity: 0.85; }
   }
 
   &__logout {
@@ -51,7 +57,6 @@
   @media (max-width: 640px) {
     padding: 0 1rem;
 
-    &__username { display: none; }
     &__user { gap: 0.5rem; }
   }
 }
