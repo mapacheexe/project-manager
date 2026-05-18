@@ -295,6 +295,8 @@ a:hover { text-decoration: underline; }
   }
 
   &__actions {
+    display: flex;
+    justify-content: flex-end;
     margin-top: 12px;
     transition: opacity 0.15s;
 
