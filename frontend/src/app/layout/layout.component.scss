@@ -8,6 +8,7 @@
   height: var(--navbar-height);
   padding: 0 24px;
   background: var(--color-nav-bg);
+  border-bottom: 1px solid var(--color-nav-border);
   color: var(--color-nav-text);
 
   &__brand {
