@@ -3,7 +3,7 @@
     <a class="kanban-board__back" routerLink="/dashboard">← Mis proyectos</a>
     <h2 class="kanban-board__title">{{ project()?.name }}</h2>
     @if (!showStageForm()) {
-      <button class="btn btn--ghost btn--sm" type="button" (click)="showStageForm.set(true)">+ Etapa</button>
+      <button class="btn btn--ghost btn--sm kanban-board__mobile-add" type="button" (click)="showStageForm.set(true)">+ Etapa</button>
     }
     <a class="btn kanban-board__members-btn" [routerLink]="['/projects', id(), 'members']">Miembros</a>
   </div>
@@ -54,6 +54,29 @@
           <button class="btn" type="button" (click)="showStageForm.set(true)">+ Añadir etapa</button>
         }
       </div>
+    }
+
+    @if (showStageForm()) {
+      <div class="kanban-board__stage-form">
+        <input
+          class="form-control"
+          type="text"
+          placeholder="Nombre de la etapa"
+          [value]="newStageName()"
+          (input)="newStageName.set($any($event.target).value)"
+          (keydown.enter)="createStage()"
+          (keydown.escape)="showStageForm.set(false)"
+          autofocus
+        />
+        <div class="kanban-board__stage-form-actions">
+          <button class="btn btn--sm" type="button" (click)="createStage()">Crear</button>
+          <button class="btn btn--ghost btn--sm" type="button" (click)="showStageForm.set(false)">Cancelar</button>
+        </div>
+      </div>
+    } @else {
+      <button class="kanban-board__add-stage" type="button" (click)="showStageForm.set(true)">
+        + Añadir etapa
+      </button>
     }
 
   </div>
