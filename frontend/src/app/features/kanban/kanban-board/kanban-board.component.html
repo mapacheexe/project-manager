@@ -5,7 +5,7 @@
     @if (!showStageForm()) {
       <button class="btn btn--ghost btn--sm" type="button" (click)="showStageForm.set(true)">+ Etapa</button>
     }
-    <a class="btn btn--ghost btn--sm" [routerLink]="['/projects', id(), 'members']">Miembros</a>
+    <a class="btn kanban-board__members-btn" [routerLink]="['/projects', id(), 'members']">Miembros</a>
   </div>
 
   @if (showStageForm()) {
