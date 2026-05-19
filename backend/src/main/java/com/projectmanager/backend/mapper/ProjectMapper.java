@@ -29,7 +29,8 @@ public class ProjectMapper {
         dto.setStages(
                 project.getStages()
                         .stream()
-                        .sorted(Comparator.comparing(Stage::getPosition, Comparator.nullsLast(Comparator.naturalOrder())))
+                        .sorted(Comparator.comparing(Stage::getPosition, Comparator.nullsLast(Comparator.naturalOrder()))
+                                .thenComparing(Stage::getId))
                         .map(this::toStageDTO)
                         .toList()
         );
@@ -47,7 +48,8 @@ public class ProjectMapper {
         dto.setTasks(
                 stage.getTasks()
                         .stream()
-                        .sorted(Comparator.comparing(Task::getPosition, Comparator.nullsLast(Comparator.naturalOrder())))
+                        .sorted(Comparator.comparing(Task::getPosition, Comparator.nullsLast(Comparator.naturalOrder()))
+                                .thenComparing(Task::getId))
                         .map(this::toTaskDTO)
                         .toList()
         );
