@@ -24,6 +24,8 @@ export class StageColumnComponent {
   readonly taskStatusChanged = output<{ task: Task; status: string }>();
   readonly taskEditRequested = output<Task>();
   readonly taskDeleteRequested = output<Task>();
+  readonly taskMovedLeft = output<Task>();
+  readonly taskMovedRight = output<Task>();
 
   protected readonly editingName = signal(false);
   protected readonly pendingName = signal('');

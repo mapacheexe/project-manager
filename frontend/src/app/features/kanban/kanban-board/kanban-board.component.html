@@ -18,6 +18,8 @@
         (taskStatusChanged)="onTaskStatusChanged($event)"
         (taskEditRequested)="onTaskEditRequested($event)"
         (taskDeleteRequested)="onTaskDeleteRequested($event)"
+        (taskMovedLeft)="onTaskMovedLeft($event)"
+        (taskMovedRight)="onTaskMovedRight($event)"
       />
     } @empty {
       <div class="empty-state">

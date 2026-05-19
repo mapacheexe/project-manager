@@ -76,6 +76,25 @@ export class KanbanBoardComponent {
     });
   }
 
+  protected onTaskMovedLeft(task: Task): void {
+    this.shiftTask(task, -1);
+  }
+
+  protected onTaskMovedRight(task: Task): void {
+    this.shiftTask(task, 1);
+  }
+
+  private shiftTask(task: Task, delta: number): void {
+    const stages = this.stages();
+    const index = stages.findIndex(s => s.id === task.stageId);
+    const target = stages[index + delta];
+    if (!target) return;
+    this.taskService.move(task.id, { stageId: target.id, position: 0 }).subscribe({
+      next: () => this.reload(),
+      error: () => this.toastService.error('No se pudo mover la tarea'),
+    });
+  }
+
   protected onStageMovedLeft(stageId: number): void {
     this.shiftStage(stageId, -1);
   }

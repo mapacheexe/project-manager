@@ -24,9 +24,13 @@
     @for (task of stage().tasks; track task.id) {
       <app-task-card
         [task]="task"
+        [isFirstStage]="isFirst()"
+        [isLastStage]="isLast()"
         (statusChanged)="taskStatusChanged.emit($event)"
         (editRequested)="taskEditRequested.emit($event)"
         (deleteRequested)="taskDeleteRequested.emit($event)"
+        (movedLeft)="taskMovedLeft.emit($event)"
+        (movedRight)="taskMovedRight.emit($event)"
       />
     } @empty {
       <div class="empty-state empty-state--sm">
