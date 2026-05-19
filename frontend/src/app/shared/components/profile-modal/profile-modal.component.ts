@@ -1,4 +1,4 @@
-import { Component, effect, input, output, signal } from '@angular/core';
+import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -16,6 +16,7 @@ export class ProfileModalComponent {
   readonly deleteRequested = output<void>();
 
   protected readonly name = signal('');
+  protected readonly avatarInitial = computed(() => this.name().trim()[0]?.toUpperCase() ?? '?');
 
   constructor() {
     effect(() => this.name.set(this.currentName()));
