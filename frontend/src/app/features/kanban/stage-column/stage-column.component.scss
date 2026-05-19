@@ -53,6 +53,13 @@
     overflow-y: auto;
   }
 
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
   &__add-task {
     width: 100%;
     justify-content: flex-start;

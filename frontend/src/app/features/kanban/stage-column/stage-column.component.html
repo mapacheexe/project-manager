@@ -13,7 +13,11 @@
     } @else {
       <h3 class="stage-column__title" (click)="startEditing()" title="Haz clic para renombrar">{{ stage().name }}</h3>
     }
-    <button class="btn btn--ghost btn--sm" type="button" (click)="stageDeleted.emit(stage().id)">✕</button>
+    <div class="stage-column__actions">
+      <button class="btn btn--ghost btn--sm" type="button" [disabled]="isFirst()" (click)="stageMovedLeft.emit(stage().id)" title="Mover a la izquierda">←</button>
+      <button class="btn btn--ghost btn--sm" type="button" [disabled]="isLast()" (click)="stageMovedRight.emit(stage().id)" title="Mover a la derecha">→</button>
+      <button class="btn btn--ghost btn--sm" type="button" (click)="stageDeleted.emit(stage().id)" title="Eliminar etapa">✕</button>
+    </div>
   </div>
 
   <div class="stage-column__tasks">

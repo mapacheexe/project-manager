@@ -5,11 +5,15 @@
     <a class="btn btn--ghost btn--sm" [routerLink]="['/projects', id(), 'members']">Miembros</a>
   </div>
   <div class="kanban-board__columns">
-    @for (stage of stages(); track stage.id) {
+    @for (stage of stages(); track stage.id; let i = $index; let count = $count) {
       <app-stage-column
         [stage]="stage"
+        [isFirst]="i === 0"
+        [isLast]="i === count - 1"
         (stageDeleted)="onStageDeleted($event)"
         (stageRenamed)="onStageRenamed($event)"
+        (stageMovedLeft)="onStageMovedLeft($event)"
+        (stageMovedRight)="onStageMovedRight($event)"
         (taskCreateRequested)="onTaskCreateRequested($event)"
         (taskStatusChanged)="onTaskStatusChanged($event)"
         (taskEditRequested)="onTaskEditRequested($event)"

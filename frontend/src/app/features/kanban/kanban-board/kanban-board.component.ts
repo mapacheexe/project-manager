@@ -76,6 +76,30 @@ export class KanbanBoardComponent {
     });
   }
 
+  protected onStageMovedLeft(stageId: number): void {
+    this.shiftStage(stageId, -1);
+  }
+
+  protected onStageMovedRight(stageId: number): void {
+    this.shiftStage(stageId, 1);
+  }
+
+  private shiftStage(stageId: number, delta: number): void {
+    const stages = this.stages();
+    const index = stages.findIndex(s => s.id === stageId);
+    const targetIndex = index + delta;
+    if (targetIndex < 0 || targetIndex >= stages.length) return;
+
+    const swapped = [...stages];
+    [swapped[index], swapped[targetIndex]] = [swapped[targetIndex], swapped[index]];
+    const payload = swapped.map((s, i) => ({ id: s.id, position: i }));
+
+    this.stageService.reorder(this.id(), payload).subscribe({
+      next: () => this.reload(),
+      error: () => this.toastService.error('No se pudo reordenar la etapa'),
+    });
+  }
+
   protected onStageRenamed({ id, name }: { id: number; name: string }): void {
     this.stageService.update(id, { name }).subscribe({
       next: () => {
