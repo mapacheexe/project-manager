@@ -10,6 +10,12 @@
       (click)="cycleStatus()"
     >{{ statusLabel() }}</button>
     <div class="task-card__actions">
+      @if (!isFirstStage()) {
+        <button class="btn btn--ghost btn--sm" type="button" title="Mover a la izquierda" (click)="movedLeft.emit(task())">←</button>
+      }
+      @if (!isLastStage()) {
+        <button class="btn btn--ghost btn--sm" type="button" title="Mover a la derecha" (click)="movedRight.emit(task())">→</button>
+      }
       <button class="btn btn--ghost btn--sm" type="button" (click)="deleteRequested.emit(task())">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"/>

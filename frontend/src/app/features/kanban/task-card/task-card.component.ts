@@ -23,9 +23,13 @@ const STATUS_CYCLE: Record<string, string> = {
 })
 export class TaskCardComponent {
   readonly task = input.required<Task>();
+  readonly isFirstStage = input<boolean>(false);
+  readonly isLastStage = input<boolean>(false);
   readonly editRequested = output<Task>();
   readonly deleteRequested = output<Task>();
   readonly statusChanged = output<{ task: Task; status: string }>();
+  readonly movedLeft = output<Task>();
+  readonly movedRight = output<Task>();
 
   readonly statusLabel = computed(() => STATUS_LABELS[this.task().status] ?? this.task().status);
 
