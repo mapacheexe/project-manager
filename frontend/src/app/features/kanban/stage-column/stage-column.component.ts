@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { Stage, Task } from '../../../models';
 import { TaskCardComponent } from '../task-card/task-card.component';
 import { accentColor } from '../../../shared/utils/accent-color';
@@ -15,8 +15,29 @@ export class StageColumnComponent {
 
   readonly accentColor = computed(() => accentColor(this.stage().id));
   readonly stageDeleted = output<number>();
+  readonly stageRenamed = output<{ id: number; name: string }>();
   readonly taskCreateRequested = output<number>();
   readonly taskStatusChanged = output<{ task: Task; status: string }>();
   readonly taskEditRequested = output<Task>();
   readonly taskDeleteRequested = output<Task>();
+
+  protected readonly editingName = signal(false);
+  protected readonly pendingName = signal('');
+
+  protected startEditing(): void {
+    this.pendingName.set(this.stage().name);
+    this.editingName.set(true);
+  }
+
+  protected confirmRename(): void {
+    const name = this.pendingName().trim();
+    if (name && name !== this.stage().name) {
+      this.stageRenamed.emit({ id: this.stage().id, name });
+    }
+    this.editingName.set(false);
+  }
+
+  protected cancelRename(): void {
+    this.editingName.set(false);
+  }
 }

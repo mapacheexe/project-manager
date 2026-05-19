@@ -26,6 +26,23 @@
     letter-spacing: 0.02em;
     text-transform: uppercase;
     color: var(--color-text-muted);
+    cursor: pointer;
+
+    @media (hover: hover) {
+      &:hover { color: var(--color-text); }
+    }
+  }
+
+  &__rename-input {
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    outline: none;
   }
 
   &__tasks {

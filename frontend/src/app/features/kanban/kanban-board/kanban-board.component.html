@@ -9,6 +9,7 @@
       <app-stage-column
         [stage]="stage"
         (stageDeleted)="onStageDeleted($event)"
+        (stageRenamed)="onStageRenamed($event)"
         (taskCreateRequested)="onTaskCreateRequested($event)"
         (taskStatusChanged)="onTaskStatusChanged($event)"
         (taskEditRequested)="onTaskEditRequested($event)"

@@ -1,6 +1,18 @@
 <div class="stage-column">
   <div class="stage-column__header" [style.border-left-color]="accentColor()">
-    <h3 class="stage-column__title">{{ stage().name }}</h3>
+    @if (editingName()) {
+      <input
+        class="stage-column__rename-input"
+        type="text"
+        [value]="pendingName()"
+        (input)="pendingName.set($any($event.target).value)"
+        (keydown.enter)="confirmRename()"
+        (keydown.escape)="cancelRename()"
+        (blur)="confirmRename()"
+      />
+    } @else {
+      <h3 class="stage-column__title" (click)="startEditing()" title="Haz clic para renombrar">{{ stage().name }}</h3>
+    }
     <button class="btn btn--ghost btn--sm" type="button" (click)="stageDeleted.emit(stage().id)">✕</button>
   </div>
 

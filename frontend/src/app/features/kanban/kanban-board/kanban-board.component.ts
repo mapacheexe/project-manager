@@ -76,6 +76,16 @@ export class KanbanBoardComponent {
     });
   }
 
+  protected onStageRenamed({ id, name }: { id: number; name: string }): void {
+    this.stageService.update(id, { name }).subscribe({
+      next: () => {
+        this.reload();
+        this.toastService.success('Etapa renombrada');
+      },
+      error: () => this.toastService.error('No se pudo renombrar la etapa'),
+    });
+  }
+
   protected onStageDeleted(stageId: number): void {
     this.deletingStageId.set(stageId);
   }
