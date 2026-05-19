@@ -46,10 +46,13 @@
 
   // Layout
   --navbar-height: 56px;
+
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    color-scheme: dark;
     // Surfaces
     --color-bg:           #0f172a;
     --color-surface:      #1e293b;
