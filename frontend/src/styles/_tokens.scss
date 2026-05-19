@@ -20,11 +20,11 @@
   --color-text:         #1e293b;
   --color-text-muted:   #64748b;
 
-  // Navigation (dark surface)
-  --color-nav-bg:       #1e293b;
-  --color-nav-text:     #f1f5f9;
-  --color-nav-border:   #475569;
-  --color-nav-hover:    #334155;
+  // Navigation
+  --color-nav-bg:       #ffffff;
+  --color-nav-text:     #1e293b;
+  --color-nav-border:   #e2e8f0;
+  --color-nav-hover:    #f8fafc;
 
   // Feature
   --color-auth-bg:      linear-gradient(145deg, #1e293b 0%, #312e81 100%);
@@ -46,4 +46,33 @@
 
   // Layout
   --navbar-height: 56px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    // Surfaces
+    --color-bg:           #0f172a;
+    --color-surface:      #1e293b;
+    --color-border:       #334155;
+    --color-dot:          rgba(148, 163, 184, 0.12);
+
+    // Text
+    --color-text:         #f1f5f9;
+    --color-text-muted:   #94a3b8;
+
+    // Navigation
+    --color-nav-bg:       #020617;
+    --color-nav-text:     #f1f5f9;
+    --color-nav-border:   #1e293b;
+    --color-nav-hover:    #1e293b;
+
+    // Feature
+    --color-auth-bg:      linear-gradient(145deg, #0f172a 0%, #1e1b4b 100%);
+    --color-column-bg:    #162032;
+
+    // Shadows
+    --shadow-sm:    0 1px 3px rgba(0, 0, 0, .35);
+    --shadow-md:    0 4px 16px rgba(0, 0, 0, .45);
+    --shadow-modal: 0 8px 40px rgba(0, 0, 0, .60);
+  }
 }
