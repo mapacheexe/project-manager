@@ -16,7 +16,11 @@ export class ProfileModalComponent {
   readonly deleteRequested = output<void>();
 
   protected readonly name = signal('');
-  protected readonly avatarInitial = computed(() => this.name().trim()[0]?.toUpperCase() ?? '?');
+  protected readonly avatarInitial = computed(() => this.firstLetter(this.name()));
+
+  private firstLetter(name: string): string {
+    return name.trim()[0]?.toUpperCase() ?? '?';
+  }
 
   constructor() {
     effect(() => this.name.set(this.currentName()));
