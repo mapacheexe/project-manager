@@ -78,7 +78,9 @@ public class TaskService {
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
         task.setStatus(request.getStatus());
-        task.setPosition(request.getPosition());
+        if (request.getPosition() != null) {
+            task.setPosition(request.getPosition());
+        }
 
         return projectMapper.toTaskDTO(taskRepository.save(task));
     }
