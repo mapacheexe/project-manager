@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v1.0.0-1" author="mario">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="users"/></not>
+        </preConditions>
+        <createTable tableName="users">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)">
+                <constraints unique="true" uniqueConstraintName="uq_users_email"/>
+            </column>
+            <column name="password" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1.0.0-2" author="mario">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="project"/></not>
+        </preConditions>
+        <createTable tableName="project">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1.0.0-3" author="mario">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="stage"/></not>
+        </preConditions>
+        <createTable tableName="stage">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="position" type="INTEGER"/>
+            <column name="project_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_stage_project"
+                             references="project(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1.0.0-4" author="mario">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="task"/></not>
+        </preConditions>
+        <createTable tableName="task">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="description" type="TEXT"/>
+            <column name="status" type="VARCHAR(50)"/>
+            <column name="position" type="INTEGER"/>
+            <column name="stage_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_task_stage"
+                             references="stage(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1.0.0-5" author="mario">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="user_project"/></not>
+        </preConditions>
+        <createTable tableName="user_project">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_userproject_user"
+                             references="users(id)"/>
+            </column>
+            <column name="project_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_userproject_project"
+                             references="project(id)"/>
+            </column>
+            <column name="role" type="VARCHAR(50)"/>
+            <column name="joined_at" type="DATE"/>
+        </createTable>
+        <addUniqueConstraint tableName="user_project"
+                             columnNames="user_id, project_id"
+                             constraintName="uq_user_project"/>
+    </changeSet>
+
+</databaseChangeLog>

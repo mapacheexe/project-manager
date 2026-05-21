@@ -1,6 +1,4 @@
 spring:
-  liquibase:
-    enabled: false
   application:
     name: backend
 
@@ -9,6 +7,9 @@ spring:
     username: admin
     password: 1234
 
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
