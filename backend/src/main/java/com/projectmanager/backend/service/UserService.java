@@ -5,7 +5,10 @@ import com.projectmanager.backend.entity.User;
 import com.projectmanager.backend.entity.UserProject;
 import com.projectmanager.backend.mapper.ProjectMapper;
 import com.projectmanager.backend.mapper.UserMapper;
+import com.projectmanager.backend.model.CreateUserRequest;
+import com.projectmanager.backend.model.LoginRequest;
 import com.projectmanager.backend.model.ProjectDTO;
+import com.projectmanager.backend.model.UpdateUserRequest;
 import com.projectmanager.backend.model.UserDTO;
 import com.projectmanager.backend.repository.ProjectRepository;
 import com.projectmanager.backend.repository.UserProjectRepository;
@@ -52,19 +55,26 @@ public class UserService {
                 .map(userMapper::toDTO);
     }
 
-    public UserDTO save(User user) {
+    public UserDTO save(CreateUserRequest request) {
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
         return userMapper.toDTO(userRepository.save(user));
     }
 
-    public UserDTO updateUser(Long id, User request) {
+    public UserDTO updateUser(Long id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
-
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-
         return userMapper.toDTO(userRepository.save(user));
+    }
 
+    public Optional<UserDTO> login(LoginRequest request) {
+        return userRepository.findByEmail(request.getEmail())
+                .filter(user -> user.getPassword().equals(request.getPassword()))
+                .map(userMapper::toDTO);
     }
 
     public void deleteUser(Long id) {

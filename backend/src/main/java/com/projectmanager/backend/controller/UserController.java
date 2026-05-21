@@ -1,7 +1,9 @@
 package com.projectmanager.backend.controller;
 
-import com.projectmanager.backend.entity.User;
+import com.projectmanager.backend.model.CreateUserRequest;
+import com.projectmanager.backend.model.LoginRequest;
 import com.projectmanager.backend.model.ProjectDTO;
+import com.projectmanager.backend.model.UpdateUserRequest;
 import com.projectmanager.backend.model.UserDTO;
 import com.projectmanager.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -30,14 +32,21 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-       return ResponseEntity.ok(userService.updateUser(id, updatedUser));
+    @PostMapping("/login")
+    public ResponseEntity<UserDTO> login(@RequestBody LoginRequest request) {
+        return userService.login(request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(401).build());
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> saveUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.save(user));
+    public ResponseEntity<UserDTO> saveUser(@RequestBody CreateUserRequest request) {
+        return ResponseEntity.ok(userService.save(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     @DeleteMapping("/{id}")
