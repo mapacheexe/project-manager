@@ -25,17 +25,13 @@ export class LoginComponent {
   submit(): void {
     if (this.form.invalid) return;
     this.loginError.set(false);
-    const { email } = this.form.getRawValue();
-    this.userService.getAll().subscribe({
-      next: (users) => {
-        const user = users.find(u => u.email === email);
-        if (user) {
-          this.auth.login(user);
-          this.router.navigate(['/dashboard']);
-        } else {
-          this.loginError.set(true);
-        }
+    const { email, password } = this.form.getRawValue();
+    this.userService.loginWithPassword(email, password).subscribe({
+      next: user => {
+        this.auth.login(user);
+        this.router.navigate(['/dashboard']);
       },
+      error: () => this.loginError.set(true),
     });
   }
 }
