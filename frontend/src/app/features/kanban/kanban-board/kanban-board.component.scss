@@ -53,6 +53,16 @@
 
     &::-webkit-scrollbar { display: none; }
 
+    @media (pointer: fine) {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-border) transparent;
+      padding-bottom: 20px;
+
+      &::-webkit-scrollbar { display: block; height: 4px; }
+      &::-webkit-scrollbar-track { background: transparent; }
+      &::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+    }
+
     @media (max-width: 768px) {
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;

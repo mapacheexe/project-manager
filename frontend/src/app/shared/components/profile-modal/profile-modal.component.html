@@ -13,6 +13,7 @@
         type="text"
         [value]="name()"
         (input)="name.set($any($event.target).value)"
+        (keydown.enter)="submit()"
       />
     </div>
 

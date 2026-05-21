@@ -14,6 +14,8 @@
         placeholder="Nombre del proyecto"
         [value]="newProjectName()"
         (input)="newProjectName.set($any($event.target).value)"
+        (keydown.enter)="createProject()"
+        (keydown.escape)="showForm.set(false)"
       />
       <button class="btn" type="button" (click)="createProject()">Crear</button>
       <button class="btn btn--ghost" type="button" (click)="showForm.set(false)">Cancelar</button>
