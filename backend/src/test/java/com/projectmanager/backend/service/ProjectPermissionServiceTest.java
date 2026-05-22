@@ -23,7 +23,7 @@ class ProjectPermissionServiceTest {
     private final ProjectPermissionService service = new ProjectPermissionService(userProjectRepository);
 
     @Test
-    void allowsUserWithRequiredRole() {
+    void givenUserWithMatchingRole_whenRequireProjectRole_thenNoException() {
         when(userProjectRepository.findByUserIdAndProjectId(1L, 10L))
                 .thenReturn(Optional.of(memberWithRole(OWNER)));
 
@@ -31,7 +31,7 @@ class ProjectPermissionServiceTest {
     }
 
     @Test
-    void rejectsUserWithoutProjectAccess() {
+    void givenUserNotInProject_whenRequireProjectRole_thenForbiddenThrown() {
         when(userProjectRepository.findByUserIdAndProjectId(1L, 10L))
                 .thenReturn(Optional.empty());
 
@@ -44,7 +44,7 @@ class ProjectPermissionServiceTest {
     }
 
     @Test
-    void rejectsUserWithInsufficientRole() {
+    void givenUserWithInsufficientRole_whenRequireProjectRole_thenForbiddenThrown() {
         when(userProjectRepository.findByUserIdAndProjectId(1L, 10L))
                 .thenReturn(Optional.of(memberWithRole(MEMBER)));
 
