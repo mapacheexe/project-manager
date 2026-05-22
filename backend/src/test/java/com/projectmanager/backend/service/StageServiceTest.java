@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 
+import static com.projectmanager.backend.model.ProjectRole.ADMIN;
+import static com.projectmanager.backend.model.ProjectRole.OWNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
@@ -20,8 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static com.projectmanager.backend.model.ProjectRole.OWNER;
-import static com.projectmanager.backend.model.ProjectRole.ADMIN;
 
 class StageServiceTest {
 
@@ -37,7 +37,7 @@ class StageServiceTest {
     );
 
     @Test
-    void createAddsStageToProject() {
+    void givenProjectAndPermission_whenCreate_thenStageAdded() {
         StageDTO request = new StageDTO();
         request.setName("Todo");
         request.setPosition(1);
@@ -55,7 +55,109 @@ class StageServiceTest {
     }
 
     @Test
-    void reorderUpdatesStagePositions() {
+    void givenMissingProject_whenCreate_thenNotFoundThrown() {
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
+        when(projectRepository.findById(10L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.create(10L, new StageDTO(), 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenExistingProject_whenFindByProjectId_thenReturnsStages() {
+        Stage first = stageWithProject(100L, 10L);
+        first.setName("Todo");
+        first.setPosition(1);
+        Stage second = stageWithProject(101L, 10L);
+        second.setName("Doing");
+        second.setPosition(2);
+
+        when(projectRepository.existsById(10L)).thenReturn(true);
+        when(stageRepository.findByProjectIdOrderByPositionAscIdAsc(10L))
+                .thenReturn(List.of(first, second));
+
+        var result = service.findByProjectId(10L);
+
+        assertEquals(2, result.size());
+        assertEquals("Todo", result.get(0).getName());
+        assertEquals(10L, result.get(0).getProjectId());
+    }
+
+    @Test
+    void givenMissingProject_whenFindByProjectId_thenNotFoundThrown() {
+        when(projectRepository.existsById(10L)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.findByProjectId(10L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenExistingStageAndPermission_whenUpdate_thenModified() {
+        Stage stage = stageWithProject(100L, 10L);
+        stage.setName("Todo");
+        stage.setPosition(1);
+
+        StageDTO request = new StageDTO();
+        request.setName("Done");
+        request.setPosition(2);
+
+        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN);
+        when(stageRepository.findById(100L)).thenReturn(Optional.of(stage));
+        when(stageRepository.save(stage)).thenReturn(stage);
+
+        var result = service.update(100L, request, 1L);
+
+        assertEquals("Done", result.getName());
+        assertEquals(2, result.getPosition());
+        verify(stageRepository).save(stage);
+    }
+
+    @Test
+    void givenMissingStage_whenUpdate_thenNotFoundThrown() {
+        when(stageRepository.findById(100L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.update(100L, new StageDTO(), 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenExistingStageAndPermission_whenDelete_thenDeleted() {
+        Stage stage = stageWithProject(100L, 10L);
+
+        when(stageRepository.findById(100L)).thenReturn(Optional.of(stage));
+        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN);
+
+        service.delete(100L, 1L);
+
+        verify(stageRepository).delete(stage);
+    }
+
+    @Test
+    void givenMissingStage_whenDelete_thenNotFoundThrown() {
+        when(stageRepository.findById(100L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.delete(100L, 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenPermissionAndExistingStages_whenReorder_thenPositionsUpdated() {
         Stage firstStage = stageWithProject(100L, 10L);
         Stage secondStage = stageWithProject(101L, 10L);
         StageDTO firstRequest = stageRequest(100L, 2);
@@ -77,7 +179,20 @@ class StageServiceTest {
     }
 
     @Test
-    void reorderRejectsStageFromAnotherProject() {
+    void givenMissingProject_whenReorder_thenNotFoundThrown() {
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
+        when(projectRepository.existsById(10L)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.reorder(10L, List.of(stageRequest(100L, 1)), 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenStageFromAnotherProject_whenReorder_thenNotFoundThrown() {
         Stage stage = stageWithProject(100L, 20L);
 
         doNothing().when(permissionService).requireProjectRole(any(), any(), any());
@@ -97,71 +212,6 @@ class StageServiceTest {
         stageDTO.setId(id);
         stageDTO.setPosition(position);
         return stageDTO;
-    }
-
-    @Test
-    void findByProjectIdReturnsStages() {
-        Stage first = stageWithProject(100L, 10L);
-        first.setName("Todo");
-        first.setPosition(1);
-        Stage second = stageWithProject(101L, 10L);
-        second.setName("Doing");
-        second.setPosition(2);
-
-        when(projectRepository.existsById(10L)).thenReturn(true);
-        when(stageRepository.findByProjectIdOrderByPositionAscIdAsc(10L))
-                .thenReturn(List.of(first, second));
-
-        var result = service.findByProjectId(10L);
-
-        assertEquals(2, result.size());
-        assertEquals("Todo", result.get(0).getName());
-        assertEquals(10L, result.get(0).getProjectId());
-    }
-
-    @Test
-    void findByProjectIdRejectsMissingProject() {
-        when(projectRepository.existsById(10L)).thenReturn(false);
-
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
-                () -> service.findByProjectId(10L)
-        );
-
-        assertEquals(NOT_FOUND, exception.getStatusCode());
-    }
-
-    @Test
-    void updateModifiesStage() {
-        Stage stage = stageWithProject(100L, 10L);
-        stage.setName("Todo");
-        stage.setPosition(1);
-
-        StageDTO request = new StageDTO();
-        request.setName("Done");
-        request.setPosition(2);
-
-        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN);
-        when(stageRepository.findById(100L)).thenReturn(Optional.of(stage));
-        when(stageRepository.save(stage)).thenReturn(stage);
-
-        var result = service.update(100L, request, 1L);
-
-        assertEquals("Done", result.getName());
-        assertEquals(2, result.getPosition());
-        verify(stageRepository).save(stage);
-    }
-
-    @Test
-    void deleteRemovesStage() {
-        Stage stage = stageWithProject(100L, 10L);
-
-        when(stageRepository.findById(100L)).thenReturn(Optional.of(stage));
-        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN);
-
-        service.delete(100L, 1L);
-
-        verify(stageRepository).delete(stage);
     }
 
     private Stage stageWithProject(Long stageId, Long projectId) {
