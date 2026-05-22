@@ -24,7 +24,7 @@ export class ProjectMembersComponent {
   private readonly toastService = inject(ToastService);
   private readonly authService = inject(AuthService);
 
-  protected readonly currentUserId = this.authService.currentUserId;
+  protected readonly currentUserId = computed(() => this.authService.currentUserId());
 
   readonly id = input.required({ transform: numberAttribute });
 

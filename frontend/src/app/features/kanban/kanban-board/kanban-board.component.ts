@@ -57,7 +57,9 @@ export class KanbanBoardComponent {
         this.showStageForm.set(false);
         this.newStageName.set('');
         this.reload();
+        this.toastService.success('Etapa creada');
       },
+      error: () => this.toastService.error('No se pudo crear la etapa'),
     });
   }
 
