@@ -13,6 +13,8 @@ import com.projectmanager.backend.model.UserDTO;
 import com.projectmanager.backend.repository.ProjectRepository;
 import com.projectmanager.backend.repository.UserProjectRepository;
 import com.projectmanager.backend.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,6 +33,7 @@ public class UserService {
     private final UserProjectRepository userProjectRepository;
     private final UserMapper userMapper;
     private final ProjectMapper projectMapper;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(
             UserRepository userRepository,
@@ -59,7 +62,7 @@ public class UserService {
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         return userMapper.toDTO(userRepository.save(user));
     }
 
@@ -73,7 +76,7 @@ public class UserService {
 
     public Optional<UserDTO> login(LoginRequest request) {
         return userRepository.findByEmail(request.getEmail())
-                .filter(user -> user.getPassword().equals(request.getPassword()))
+                .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
                 .map(userMapper::toDTO);
     }
 
