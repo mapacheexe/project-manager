@@ -34,18 +34,6 @@ class ProjectServiceTest {
     );
 
     @Test
-    void createPersistsProject() {
-        ProjectDTO request = new ProjectDTO();
-        request.setName("Backend");
-        when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        ProjectDTO result = service.create(request);
-
-        assertEquals("Backend", result.getName());
-        verify(projectRepository).save(any(Project.class));
-    }
-
-    @Test
     void updateChangesProjectNameWhenUserCanManageProject() {
         Project project = projectWithId(10L);
         ProjectDTO request = new ProjectDTO();

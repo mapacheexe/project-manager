@@ -5,7 +5,9 @@ import com.projectmanager.backend.entity.User;
 import com.projectmanager.backend.entity.UserProject;
 import com.projectmanager.backend.mapper.ProjectMapper;
 import com.projectmanager.backend.mapper.UserMapper;
+import com.projectmanager.backend.model.CreateUserRequest;
 import com.projectmanager.backend.model.ProjectDTO;
+import com.projectmanager.backend.model.UpdateUserRequest;
 import com.projectmanager.backend.model.UserDTO;
 import com.projectmanager.backend.repository.ProjectRepository;
 import com.projectmanager.backend.repository.UserProjectRepository;
@@ -21,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -43,15 +44,20 @@ class UserServiceTest {
 
     @Test
     void savePersistsUser() {
-        User user = userWithId(1L);
-        user.setName("Mario");
-        when(userRepository.save(user)).thenReturn(user);
+        User saved = userWithId(1L);
+        saved.setName("Mario");
+        when(userRepository.save(any(User.class))).thenReturn(saved);
 
-        UserDTO result = service.save(user);
+        CreateUserRequest request = new CreateUserRequest();
+        request.setName("Mario");
+        request.setEmail("mario@test.com");
+        request.setPassword("secret");
+
+        UserDTO result = service.save(request);
 
         assertEquals(1L, result.getId());
         assertEquals("Mario", result.getName());
-        verify(userRepository).save(user);
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
@@ -121,7 +127,7 @@ class UserServiceTest {
         existing.setName("Old Name");
         existing.setEmail("old@example.com");
 
-        User request = new User();
+        UpdateUserRequest request = new UpdateUserRequest();
         request.setName("New Name");
         request.setEmail("new@example.com");
 

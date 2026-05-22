@@ -1,5 +1,6 @@
 package com.projectmanager.backend.service;
 
+import com.projectmanager.backend.entity.Project;
 import com.projectmanager.backend.mapper.ProjectMapper;
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.repository.ProjectRepository;
