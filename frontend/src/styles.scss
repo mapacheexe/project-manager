@@ -1,11 +1,7 @@
-// ─── Shared design system ────────────────────────────────────────────────────
-// Component-specific styles live in their own .component.scss files.
-// Only truly cross-component concerns belong here.
-
-@use 'styles/tokens';   // CSS custom properties
-@use 'styles/reset';    // *, body, a
-@use 'styles/buttons';  // .btn
-@use 'styles/forms';    // .form-group, .form-control
-@use 'styles/modal';    // .modal-overlay, .modal-box
-@use 'styles/auth';     // .auth-page, .auth-card (login + register)
-@use 'styles/utils';    // .empty-state (dashboard, kanban, stage-column)
+@use 'styles/tokens';
+@use 'styles/reset';
+@use 'styles/buttons';
+@use 'styles/forms';
+@use 'styles/modal';
+@use 'styles/auth';
+@use 'styles/utils';
