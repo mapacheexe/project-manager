@@ -192,6 +192,20 @@ class StageServiceTest {
     }
 
     @Test
+    void givenMissingStageInReorder_whenReorder_thenNotFoundThrown() {
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
+        when(projectRepository.existsById(10L)).thenReturn(true);
+        when(stageRepository.findById(100L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.reorder(10L, List.of(stageRequest(100L, 1)), 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
     void givenStageFromAnotherProject_whenReorder_thenNotFoundThrown() {
         Stage stage = stageWithProject(100L, 20L);
 
