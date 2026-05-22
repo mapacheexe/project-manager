@@ -6,6 +6,7 @@ import com.projectmanager.backend.entity.UserProject;
 import com.projectmanager.backend.mapper.ProjectMapper;
 import com.projectmanager.backend.mapper.UserMapper;
 import com.projectmanager.backend.model.CreateUserRequest;
+import com.projectmanager.backend.model.LoginRequest;
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.model.UpdateUserRequest;
 import com.projectmanager.backend.model.UserDTO;
@@ -13,6 +14,7 @@ import com.projectmanager.backend.repository.ProjectRepository;
 import com.projectmanager.backend.repository.UserProjectRepository;
 import com.projectmanager.backend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.Optional;
 import static com.projectmanager.backend.model.ProjectRole.OWNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -43,7 +46,7 @@ class UserServiceTest {
     );
 
     @Test
-    void savePersistsUser() {
+    void givenValidRequest_whenSave_thenPersistsUser() {
         User saved = userWithId(1L);
         saved.setName("Mario");
         when(userRepository.save(any(User.class))).thenReturn(saved);
@@ -61,40 +64,40 @@ class UserServiceTest {
     }
 
     @Test
-    void createProjectCreatesProjectOwnedByUser() {
+    void givenValidCredentials_whenLogin_thenReturnsUser() {
         User user = userWithId(1L);
-        ProjectDTO request = new ProjectDTO();
-        request.setName("Backend");
+        user.setPassword(new BCryptPasswordEncoder().encode("secret"));
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(userProjectRepository.save(any(UserProject.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        LoginRequest request = new LoginRequest();
+        request.setEmail("mario@test.com");
+        request.setPassword("secret");
 
-        ProjectDTO result = service.createProject(1L, request);
+        when(userRepository.findByEmail("mario@test.com")).thenReturn(Optional.of(user));
 
-        assertEquals("Backend", result.getName());
-        verify(userProjectRepository).save(any(UserProject.class));
+        Optional<UserDTO> result = service.login(request);
+
+        assertTrue(result.isPresent());
+        assertEquals(1L, result.get().getId());
     }
 
     @Test
-    void createProjectStoresOwnerRole() {
+    void givenWrongPassword_whenLogin_thenReturnsEmpty() {
         User user = userWithId(1L);
-        ProjectDTO request = new ProjectDTO();
-        request.setName("Backend");
+        user.setPassword(new BCryptPasswordEncoder().encode("correct"));
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(userProjectRepository.save(any(UserProject.class))).thenAnswer(invocation -> {
-            UserProject userProject = invocation.getArgument(0);
-            assertEquals(OWNER, userProject.getRole());
-            return userProject;
-        });
+        LoginRequest request = new LoginRequest();
+        request.setEmail("mario@test.com");
+        request.setPassword("wrong");
 
-        service.createProject(1L, request);
+        when(userRepository.findByEmail("mario@test.com")).thenReturn(Optional.of(user));
+
+        Optional<UserDTO> result = service.login(request);
+
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void findAllReturnsAllUsers() {
+    void givenTwoUsers_whenFindAll_thenReturnsBoth() {
         User first = userWithId(1L);
         first.setName("Alice");
         User second = userWithId(2L);
@@ -110,19 +113,29 @@ class UserServiceTest {
     }
 
     @Test
-    void findByIdReturnsUserIfExists() {
+    void givenExistingUser_whenFindById_thenReturnsUser() {
         User user = userWithId(1L);
         user.setName("Alice");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         var result = service.findById(1L);
 
+        assertTrue(result.isPresent());
         assertEquals(1L, result.get().getId());
         assertEquals("Alice", result.get().getName());
     }
 
     @Test
-    void updateUserModifiesExistingUser() {
+    void givenMissingUser_whenFindById_thenReturnsEmpty() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        var result = service.findById(99L);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void givenExistingUser_whenUpdateUser_thenModified() {
         User existing = userWithId(1L);
         existing.setName("Old Name");
         existing.setEmail("old@example.com");
@@ -142,7 +155,28 @@ class UserServiceTest {
     }
 
     @Test
-    void findProjectsByUserIdReturnsMappedProjects() {
+    void givenExistingUser_whenDeleteUser_thenDeleted() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+
+        service.deleteUser(1L);
+
+        verify(userRepository).deleteById(1L);
+    }
+
+    @Test
+    void givenMissingUser_whenDeleteUser_thenNotFoundThrown() {
+        when(userRepository.existsById(99L)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.deleteUser(99L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenExistingUser_whenFindProjectsByUserId_thenReturnsMapped() {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(userRepository.findProjectsByUserId(1L)).thenReturn(List.of(
                 projectWithId(10L),
@@ -157,12 +191,57 @@ class UserServiceTest {
     }
 
     @Test
-    void findProjectsByUserIdRejectsMissingUser() {
+    void givenMissingUser_whenFindProjectsByUserId_thenNotFoundThrown() {
         when(userRepository.existsById(1L)).thenReturn(false);
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
                 () -> service.findProjectsByUserId(1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenExistingUser_whenCreateProject_thenProjectCreated() {
+        User user = userWithId(1L);
+        ProjectDTO request = new ProjectDTO();
+        request.setName("Backend");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userProjectRepository.save(any(UserProject.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ProjectDTO result = service.createProject(1L, request);
+
+        assertEquals("Backend", result.getName());
+        verify(userProjectRepository).save(any(UserProject.class));
+    }
+
+    @Test
+    void givenExistingUser_whenCreateProject_thenOwnerRoleAssigned() {
+        User user = userWithId(1L);
+        ProjectDTO request = new ProjectDTO();
+        request.setName("Backend");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userProjectRepository.save(any(UserProject.class))).thenAnswer(invocation -> {
+            UserProject userProject = invocation.getArgument(0);
+            assertEquals(OWNER, userProject.getRole());
+            return userProject;
+        });
+
+        service.createProject(1L, request);
+    }
+
+    @Test
+    void givenMissingUser_whenCreateProject_thenNotFoundThrown() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.createProject(99L, new ProjectDTO())
         );
 
         assertEquals(NOT_FOUND, exception.getStatusCode());
