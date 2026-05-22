@@ -236,6 +236,18 @@ class UserServiceTest {
     }
 
     @Test
+    void givenMissingUser_whenUpdateUser_thenNotFoundThrown() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.updateUser(99L, new UpdateUserRequest())
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
     void givenMissingUser_whenCreateProject_thenNotFoundThrown() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
