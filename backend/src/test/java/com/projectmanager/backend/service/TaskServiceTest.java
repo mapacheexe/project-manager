@@ -8,10 +8,9 @@ import com.projectmanager.backend.model.TaskDTO;
 import com.projectmanager.backend.repository.StageRepository;
 import com.projectmanager.backend.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.projectmanager.backend.model.ProjectRole.ADMIN;
@@ -40,7 +39,7 @@ class TaskServiceTest {
     );
 
     @Test
-    void createAddsTaskToStage() {
+    void givenStageAndPermission_whenCreate_thenTaskAdded() {
         TaskDTO request = new TaskDTO();
         request.setTitle("Implement tests");
         request.setDescription("Cover services");
@@ -61,27 +60,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void moveChangesTaskStageAndPosition() {
-        Task task = taskInStage(200L, 100L, 10L);
-        Stage targetStage = stageWithProject(101L, 10L);
-        TaskDTO request = new TaskDTO();
-        request.setStageId(101L);
-        request.setPosition(3);
-
-        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
-        when(taskRepository.findById(200L)).thenReturn(Optional.of(task));
-        when(stageRepository.findById(101L)).thenReturn(Optional.of(targetStage));
-        when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        TaskDTO result = service.move(200L, request, 1L);
-
-        assertEquals(101L, result.getStageId());
-        assertEquals(3, result.getPosition());
-        verify(taskRepository).save(task);
-    }
-
-    @Test
-    void createRejectsMissingStage() {
+    void givenMissingStage_whenCreate_thenNotFoundThrown() {
         when(stageRepository.findById(100L)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(
@@ -93,7 +72,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void findByStageIdReturnsTasks() {
+    void givenExistingStage_whenFindByStageId_thenReturnsTasks() {
         Task first = taskInStage(200L, 100L, 10L);
         first.setTitle("Test 1");
         first.setPosition(1);
@@ -113,7 +92,19 @@ class TaskServiceTest {
     }
 
     @Test
-    void findByIdReturnsTaskIfExists() {
+    void givenMissingStage_whenFindByStageId_thenNotFoundThrown() {
+        when(stageRepository.existsById(100L)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.findByStageId(100L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenExistingTask_whenFindById_thenReturnsTask() {
         Task task = taskInStage(200L, 100L, 10L);
         when(taskRepository.findById(200L)).thenReturn(Optional.of(task));
 
@@ -123,7 +114,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void findByIdRejectsMissingTask() {
+    void givenMissingTask_whenFindById_thenNotFoundThrown() {
         when(taskRepository.findById(200L)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(
@@ -135,7 +126,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void updateModifiesTask() {
+    void givenExistingTaskAndPermission_whenUpdate_thenModified() {
         Task task = taskInStage(200L, 100L, 10L);
         task.setTitle("Old title");
         task.setPosition(1);
@@ -158,7 +149,75 @@ class TaskServiceTest {
     }
 
     @Test
-    void deleteRemovesTask() {
+    void givenExistingTaskAndStageInSameProject_whenMove_thenStageAndPositionUpdated() {
+        Task task = taskInStage(200L, 100L, 10L);
+        Stage targetStage = stageWithProject(101L, 10L);
+        TaskDTO request = new TaskDTO();
+        request.setStageId(101L);
+        request.setPosition(3);
+
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
+        when(taskRepository.findById(200L)).thenReturn(Optional.of(task));
+        when(stageRepository.findById(101L)).thenReturn(Optional.of(targetStage));
+        when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        TaskDTO result = service.move(200L, request, 1L);
+
+        assertEquals(101L, result.getStageId());
+        assertEquals(3, result.getPosition());
+        verify(taskRepository).save(task);
+    }
+
+    @Test
+    void givenMissingTask_whenMove_thenNotFoundThrown() {
+        when(taskRepository.findById(200L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.move(200L, new TaskDTO(), 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenMissingTargetStage_whenMove_thenNotFoundThrown() {
+        Task task = taskInStage(200L, 100L, 10L);
+        TaskDTO request = new TaskDTO();
+        request.setStageId(101L);
+
+        when(taskRepository.findById(200L)).thenReturn(Optional.of(task));
+        when(stageRepository.findById(101L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.move(200L, request, 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenTasksInDifferentProjects_whenMove_thenChecksBothPermissions() {
+        Task task = taskInStage(200L, 100L, 10L);
+        Stage targetStage = stageWithProject(101L, 20L);
+        TaskDTO request = new TaskDTO();
+        request.setStageId(101L);
+        request.setPosition(1);
+
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
+        when(taskRepository.findById(200L)).thenReturn(Optional.of(task));
+        when(stageRepository.findById(101L)).thenReturn(Optional.of(targetStage));
+        when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        service.move(200L, request, 1L);
+
+        verify(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN, MEMBER);
+        verify(permissionService).requireProjectRole(20L, 1L, OWNER, ADMIN, MEMBER);
+    }
+
+    @Test
+    void givenExistingTaskAndPermission_whenDelete_thenDeleted() {
         Task task = taskInStage(200L, 100L, 10L);
 
         when(taskRepository.findById(200L)).thenReturn(Optional.of(task));
