@@ -91,8 +91,12 @@ public class TaskService {
         Stage stage = stageRepository.findById(request.getStageId())
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Stage not found"));
 
-        permissionService.requireProjectRole(task.getStage().getProject().getId(), requesterId, OWNER, ADMIN, MEMBER);
-        permissionService.requireProjectRole(stage.getProject().getId(), requesterId, OWNER, ADMIN, MEMBER);
+        Long sourceProjectId = task.getStage().getProject().getId();
+        Long targetProjectId = stage.getProject().getId();
+        permissionService.requireProjectRole(sourceProjectId, requesterId, OWNER, ADMIN, MEMBER);
+        if (!sourceProjectId.equals(targetProjectId)) {
+            permissionService.requireProjectRole(targetProjectId, requesterId, OWNER, ADMIN, MEMBER);
+        }
 
         task.setStage(stage);
         task.setPosition(request.getPosition());
