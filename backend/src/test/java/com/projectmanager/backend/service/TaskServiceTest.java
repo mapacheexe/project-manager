@@ -217,6 +217,30 @@ class TaskServiceTest {
     }
 
     @Test
+    void givenMissingTask_whenUpdate_thenNotFoundThrown() {
+        when(taskRepository.findById(200L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.update(200L, new TaskDTO(), 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenMissingTask_whenDelete_thenNotFoundThrown() {
+        when(taskRepository.findById(200L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.delete(200L, 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
     void givenExistingTaskAndPermission_whenDelete_thenDeleted() {
         Task task = taskInStage(200L, 100L, 10L);
 
