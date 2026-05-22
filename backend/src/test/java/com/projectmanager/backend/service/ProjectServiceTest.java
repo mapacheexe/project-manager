@@ -34,7 +34,7 @@ class ProjectServiceTest {
     );
 
     @Test
-    void updateChangesProjectNameWhenUserCanManageProject() {
+    void givenExistingProjectAndPermission_whenUpdate_thenNameChanged() {
         Project project = projectWithId(10L);
         ProjectDTO request = new ProjectDTO();
         request.setName("Updated");
@@ -50,7 +50,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    void updateRejectsMissingProject() {
+    void givenMissingProject_whenUpdate_thenNotFoundThrown() {
         doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN);
         when(projectRepository.findById(10L)).thenReturn(Optional.empty());
 
@@ -64,7 +64,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    void findAllReturnsAllProjects() {
+    void givenTwoProjects_whenFindAll_thenReturnsBoth() {
         Project first = projectWithId(10L);
         Project second = projectWithId(20L);
         when(projectRepository.findAll()).thenReturn(List.of(first, second));
@@ -76,7 +76,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    void findByIdReturnsProjectIfExists() {
+    void givenExistingProject_whenFindById_thenReturnsProject() {
         Project project = projectWithId(10L);
         when(projectRepository.findById(10L)).thenReturn(Optional.of(project));
 
@@ -86,7 +86,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    void deleteRemovesExistingProject() {
+    void givenExistingProjectAndPermission_whenDelete_thenDeleted() {
         doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER);
         when(projectRepository.existsById(10L)).thenReturn(true);
 
@@ -96,7 +96,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    void deleteRejectsMissingProject() {
+    void givenMissingProject_whenDelete_thenNotFoundThrown() {
         doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER);
         when(projectRepository.existsById(10L)).thenReturn(false);
 
