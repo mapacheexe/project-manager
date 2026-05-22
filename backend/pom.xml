@@ -113,6 +113,15 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.12</version>
+				<configuration>
+					<excludes>
+						<exclude>com/projectmanager/backend/BackendApplication.class</exclude>
+						<exclude>com/projectmanager/backend/entity/**</exclude>
+						<exclude>com/projectmanager/backend/model/**</exclude>
+						<exclude>com/projectmanager/backend/config/**</exclude>
+						<exclude>com/projectmanager/backend/repository/**</exclude>
+					</excludes>
+				</configuration>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>
