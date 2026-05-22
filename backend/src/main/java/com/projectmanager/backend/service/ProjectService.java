@@ -1,6 +1,5 @@
 package com.projectmanager.backend.service;
 
-import com.projectmanager.backend.entity.Project;
 import com.projectmanager.backend.mapper.ProjectMapper;
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.repository.ProjectRepository;
@@ -38,20 +37,6 @@ public class ProjectService {
 
     public Optional<ProjectDTO> findById(Long id) {
         return projectRepository.findById(id).map(projectMapper::toProjectDTO);
-    }
-
-    public ProjectDTO save(Project project) {
-        return projectMapper.toProjectDTO(projectRepository.save(project));
-    }
-
-    public ProjectDTO create(ProjectDTO request) {
-
-        Project project = new Project();
-        project.setName(request.getName());
-
-        projectRepository.save(project);
-
-        return projectMapper.toProjectDTO(project);
     }
 
     public ProjectDTO update(Long id, ProjectDTO request, Long requesterId) {

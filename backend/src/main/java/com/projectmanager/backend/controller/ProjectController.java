@@ -30,12 +30,6 @@ public class ProjectController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<ProjectDTO> create(@RequestBody ProjectDTO request) {
-        ProjectDTO projectDTO = projectService.create(request);
-        return ResponseEntity.ok(projectDTO);
-    }
-
     @PatchMapping("/{id}")
     public ResponseEntity<ProjectDTO> update(
             @PathVariable Long id,
