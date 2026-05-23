@@ -2,8 +2,10 @@ package com.projectmanager.backend.controller;
 
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.service.ProjectService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +20,12 @@ class ProjectControllerTest {
 
     private final ProjectService projectService = mock(ProjectService.class);
     private final ProjectController controller = new ProjectController(projectService);
+    private final Authentication authentication = mock(Authentication.class);
+
+    @BeforeEach
+    void setUp() {
+        when(authentication.getName()).thenReturn("1");
+    }
 
     @Test
     void givenProjects_whenFindAll_thenReturnsOk() {
@@ -64,7 +72,7 @@ class ProjectControllerTest {
         updated.setName("Updated");
         when(projectService.update(10L, request, 1L)).thenReturn(updated);
 
-        ResponseEntity<ProjectDTO> response = controller.update(10L, 1L, request);
+        ResponseEntity<ProjectDTO> response = controller.update(10L, authentication, request);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -73,7 +81,7 @@ class ProjectControllerTest {
 
     @Test
     void givenExistingProject_whenDelete_thenReturnsNoContent() {
-        ResponseEntity<Void> response = controller.delete(10L, 1L);
+        ResponseEntity<Void> response = controller.delete(10L, authentication);
 
         assertEquals(204, response.getStatusCode().value());
         verify(projectService).delete(10L, 1L);

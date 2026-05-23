@@ -2,8 +2,10 @@ package com.projectmanager.backend.controller;
 
 import com.projectmanager.backend.model.ProjectMemberDTO;
 import com.projectmanager.backend.service.ProjectMemberService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -19,6 +21,12 @@ class ProjectMemberControllerTest {
 
     private final ProjectMemberService projectMemberService = mock(ProjectMemberService.class);
     private final ProjectMemberController controller = new ProjectMemberController(projectMemberService);
+    private final Authentication authentication = mock(Authentication.class);
+
+    @BeforeEach
+    void setUp() {
+        when(authentication.getName()).thenReturn("1");
+    }
 
     @Test
     void givenExistingProject_whenFindMembers_thenReturnsOk() {
@@ -43,7 +51,7 @@ class ProjectMemberControllerTest {
         created.setRole(MEMBER);
         when(projectMemberService.addMember(10L, 2L, 1L)).thenReturn(created);
 
-        ResponseEntity<ProjectMemberDTO> response = controller.addMember(10L, 2L, 1L);
+        ResponseEntity<ProjectMemberDTO> response = controller.addMember(10L, 2L, authentication);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -59,7 +67,7 @@ class ProjectMemberControllerTest {
         updated.setRole(ADMIN);
         when(projectMemberService.updateMember(10L, 2L, request, 1L)).thenReturn(updated);
 
-        ResponseEntity<ProjectMemberDTO> response = controller.updateMember(10L, 2L, 1L, request);
+        ResponseEntity<ProjectMemberDTO> response = controller.updateMember(10L, 2L, authentication, request);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -68,7 +76,7 @@ class ProjectMemberControllerTest {
 
     @Test
     void givenExistingMembership_whenRemoveMember_thenReturnsNoContent() {
-        ResponseEntity<Void> response = controller.removeMember(10L, 2L, 1L);
+        ResponseEntity<Void> response = controller.removeMember(10L, 2L, authentication);
 
         assertEquals(204, response.getStatusCode().value());
         verify(projectMemberService).removeMember(10L, 2L, 1L);

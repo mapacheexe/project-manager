@@ -2,8 +2,10 @@ package com.projectmanager.backend.controller;
 
 import com.projectmanager.backend.model.TaskDTO;
 import com.projectmanager.backend.service.TaskService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -17,6 +19,12 @@ class TaskControllerTest {
 
     private final TaskService taskService = mock(TaskService.class);
     private final TaskController controller = new TaskController(taskService);
+    private final Authentication authentication = mock(Authentication.class);
+
+    @BeforeEach
+    void setUp() {
+        when(authentication.getName()).thenReturn("1");
+    }
 
     @Test
     void givenExistingStage_whenFindByStageId_thenReturnsOk() {
@@ -41,7 +49,7 @@ class TaskControllerTest {
         created.setTitle("Fix bug");
         when(taskService.create(100L, request, 1L)).thenReturn(created);
 
-        ResponseEntity<TaskDTO> response = controller.create(100L, 1L, request);
+        ResponseEntity<TaskDTO> response = controller.create(100L, authentication, request);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -70,7 +78,7 @@ class TaskControllerTest {
         updated.setTitle("Updated");
         when(taskService.update(200L, request, 1L)).thenReturn(updated);
 
-        ResponseEntity<TaskDTO> response = controller.update(200L, 1L, request);
+        ResponseEntity<TaskDTO> response = controller.update(200L, authentication, request);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -87,7 +95,7 @@ class TaskControllerTest {
         moved.setStageId(101L);
         when(taskService.move(200L, request, 1L)).thenReturn(moved);
 
-        ResponseEntity<TaskDTO> response = controller.move(200L, 1L, request);
+        ResponseEntity<TaskDTO> response = controller.move(200L, authentication, request);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -96,7 +104,7 @@ class TaskControllerTest {
 
     @Test
     void givenExistingTask_whenDelete_thenReturnsNoContent() {
-        ResponseEntity<Void> response = controller.delete(200L, 1L);
+        ResponseEntity<Void> response = controller.delete(200L, authentication);
 
         assertEquals(204, response.getStatusCode().value());
         verify(taskService).delete(200L, 1L);

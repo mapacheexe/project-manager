@@ -2,9 +2,11 @@ package com.projectmanager.backend.controller;
 
 import com.projectmanager.backend.model.CreateUserRequest;
 import com.projectmanager.backend.model.LoginRequest;
+import com.projectmanager.backend.model.LoginResponse;
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.model.UpdateUserRequest;
 import com.projectmanager.backend.model.UserDTO;
+import com.projectmanager.backend.service.JwtService;
 import com.projectmanager.backend.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +23,8 @@ import static org.mockito.Mockito.when;
 class UserControllerTest {
 
     private final UserService userService = mock(UserService.class);
-    private final UserController controller = new UserController(userService);
+    private final JwtService jwtService = mock(JwtService.class);
+    private final UserController controller = new UserController(userService, jwtService);
 
     @Test
     void givenUsers_whenFindAll_thenReturnsOk() {
@@ -60,15 +63,18 @@ class UserControllerTest {
     }
 
     @Test
-    void givenValidCredentials_whenLogin_thenReturnsOk() {
+    void givenValidCredentials_whenLogin_thenReturnsOkWithToken() {
         LoginRequest request = new LoginRequest();
         UserDTO user = new UserDTO();
         user.setId(1L);
         when(userService.login(request)).thenReturn(Optional.of(user));
+        when(jwtService.generateToken(1L)).thenReturn("token.jwt.here");
 
-        var response = controller.login(request);
+        ResponseEntity<LoginResponse> response = controller.login(request);
 
         assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals("token.jwt.here", response.getBody().getToken());
     }
 
     @Test
@@ -76,7 +82,7 @@ class UserControllerTest {
         LoginRequest request = new LoginRequest();
         when(userService.login(request)).thenReturn(Optional.empty());
 
-        var response = controller.login(request);
+        ResponseEntity<LoginResponse> response = controller.login(request);
 
         assertEquals(401, response.getStatusCode().value());
     }
