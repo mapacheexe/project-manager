@@ -17,6 +17,11 @@ export interface UpdateUserPayload {
   password?: string;
 }
 
+export interface LoginResponse {
+  token: string;
+  user: User;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly http = inject(HttpClient);
@@ -26,8 +31,8 @@ export class UserService {
     return this.http.get<User[]>(this.baseUrl);
   }
 
-  loginWithPassword(email: string, password: string): Observable<User> {
-    return this.http.post<User>(`${this.baseUrl}/login`, { email, password });
+  loginWithPassword(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, { email, password });
   }
 
   getById(id: number): Observable<User> {

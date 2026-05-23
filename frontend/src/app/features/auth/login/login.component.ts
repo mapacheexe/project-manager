@@ -27,8 +27,8 @@ export class LoginComponent {
     this.loginError.set(false);
     const { email, password } = this.form.getRawValue();
     this.userService.loginWithPassword(email, password).subscribe({
-      next: user => {
-        this.auth.login(user);
+      next: ({ user, token }) => {
+        this.auth.login(user, token);
         this.router.navigate(['/dashboard']);
       },
       error: () => this.loginError.set(true),
