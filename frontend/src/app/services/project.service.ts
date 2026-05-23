@@ -10,46 +10,46 @@ export interface CreateProjectPayload {
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
-  private readonly http = inject(HttpClient);
+  private readonly httpClient = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/projects`;
 
   getAll(): Observable<Project[]> {
-    return this.http.get<Project[]>(this.baseUrl);
+    return this.httpClient.get<Project[]>(this.baseUrl);
   }
 
   getByUser(userId: number): Observable<Project[]> {
-    return this.http.get<Project[]>(`${environment.apiUrl}/users/${userId}/projects`);
+    return this.httpClient.get<Project[]>(`${environment.apiUrl}/users/${userId}/projects`);
   }
 
   getById(id: number): Observable<Project> {
-    return this.http.get<Project>(`${this.baseUrl}/${id}`);
+    return this.httpClient.get<Project>(`${this.baseUrl}/${id}`);
   }
 
   create(userId: number, payload: CreateProjectPayload): Observable<Project> {
-    return this.http.post<Project>(`${environment.apiUrl}/users/${userId}/projects`, payload);
+    return this.httpClient.post<Project>(`${environment.apiUrl}/users/${userId}/projects`, payload);
   }
 
   update(id: number, payload: CreateProjectPayload): Observable<Project> {
-    return this.http.patch<Project>(`${this.baseUrl}/${id}`, payload);
+    return this.httpClient.patch<Project>(`${this.baseUrl}/${id}`, payload);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+    return this.httpClient.delete<void>(`${this.baseUrl}/${id}`);
   }
 
   getMembers(projectId: number): Observable<ProjectMember[]> {
-    return this.http.get<ProjectMember[]>(`${this.baseUrl}/${projectId}/users`);
+    return this.httpClient.get<ProjectMember[]>(`${this.baseUrl}/${projectId}/users`);
   }
 
   addMember(projectId: number, userId: number): Observable<ProjectMember> {
-    return this.http.post<ProjectMember>(`${this.baseUrl}/${projectId}/users/${userId}`, {});
+    return this.httpClient.post<ProjectMember>(`${this.baseUrl}/${projectId}/users/${userId}`, {});
   }
 
   updateMember(projectId: number, userId: number, payload: Pick<ProjectMember, 'role'>): Observable<ProjectMember> {
-    return this.http.patch<ProjectMember>(`${this.baseUrl}/${projectId}/users/${userId}`, payload);
+    return this.httpClient.patch<ProjectMember>(`${this.baseUrl}/${projectId}/users/${userId}`, payload);
   }
 
   removeMember(projectId: number, userId: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${projectId}/users/${userId}`);
+    return this.httpClient.delete<void>(`${this.baseUrl}/${projectId}/users/${userId}`);
   }
 }

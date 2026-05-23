@@ -10,11 +10,11 @@ import { UserService } from '../../../services/user.service';
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {
-  private fb = inject(FormBuilder);
-  private userService = inject(UserService);
-  private router = inject(Router);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly userService = inject(UserService);
+  private readonly router = inject(Router);
 
-  protected readonly form = this.fb.nonNullable.group({
+  protected readonly form = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],

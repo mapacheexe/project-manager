@@ -14,9 +14,9 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
-  private readonly fb = inject(FormBuilder);
+  private readonly formBuilder = inject(FormBuilder);
 
-  protected readonly form = this.fb.nonNullable.group({
+  protected readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });

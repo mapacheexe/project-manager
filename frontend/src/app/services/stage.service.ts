@@ -10,26 +10,26 @@ export interface CreateStagePayload {
 
 @Injectable({ providedIn: 'root' })
 export class StageService {
-  private readonly http = inject(HttpClient);
+  private readonly httpClient = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
 
   getByProject(projectId: number): Observable<Stage[]> {
-    return this.http.get<Stage[]>(`${this.apiUrl}/projects/${projectId}/stages`);
+    return this.httpClient.get<Stage[]>(`${this.apiUrl}/projects/${projectId}/stages`);
   }
 
   create(projectId: number, payload: CreateStagePayload): Observable<Stage> {
-    return this.http.post<Stage>(`${this.apiUrl}/projects/${projectId}/stages`, payload);
+    return this.httpClient.post<Stage>(`${this.apiUrl}/projects/${projectId}/stages`, payload);
   }
 
   update(id: number, payload: CreateStagePayload): Observable<Stage> {
-    return this.http.patch<Stage>(`${this.apiUrl}/stages/${id}`, payload);
+    return this.httpClient.patch<Stage>(`${this.apiUrl}/stages/${id}`, payload);
   }
 
   reorder(projectId: number, stages: Pick<Stage, 'id' | 'position'>[]): Observable<Stage[]> {
-    return this.http.patch<Stage[]>(`${this.apiUrl}/projects/${projectId}/stages/reorder`, stages);
+    return this.httpClient.patch<Stage[]>(`${this.apiUrl}/projects/${projectId}/stages/reorder`, stages);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/stages/${id}`);
+    return this.httpClient.delete<void>(`${this.apiUrl}/stages/${id}`);
   }
 }

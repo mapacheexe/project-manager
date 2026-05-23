@@ -17,13 +17,13 @@ import { Project } from '../../models';
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent {
-  private readonly auth = inject(AuthService);
+  private readonly authService = inject(AuthService);
   private readonly projectService = inject(ProjectService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
   private readonly refresh = signal(0);
-  private readonly query = computed(() => ({ userId: this.auth.currentUser()!.id, r: this.refresh() }));
+  private readonly query = computed(() => ({ userId: this.authService.currentUser()!.id, r: this.refresh() }));
   protected readonly projects = toSignal(
     toObservable(this.query).pipe(switchMap(({ userId }) => this.projectService.getByUser(userId))),
     { initialValue: [] }
@@ -53,7 +53,7 @@ export class DashboardComponent {
   createProject(): void {
     const name = this.newProjectName().trim();
     if (!name) return;
-    const userId = this.auth.currentUser()!.id;
+    const userId = this.authService.currentUser()!.id;
     this.projectService.create(userId, { name }).subscribe({
       next: () => {
         this.showForm.set(false);

@@ -24,34 +24,34 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private readonly http = inject(HttpClient);
+  private readonly httpClient = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/users`;
 
   getAll(): Observable<User[]> {
-    return this.http.get<User[]>(this.baseUrl);
+    return this.httpClient.get<User[]>(this.baseUrl);
   }
 
   loginWithPassword(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, { email, password });
+    return this.httpClient.post<LoginResponse>(`${this.baseUrl}/login`, { email, password });
   }
 
   getById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/${id}`);
+    return this.httpClient.get<User>(`${this.baseUrl}/${id}`);
   }
 
   getProjects(id: number): Observable<Project[]> {
-    return this.http.get<Project[]>(`${this.baseUrl}/${id}/projects`);
+    return this.httpClient.get<Project[]>(`${this.baseUrl}/${id}/projects`);
   }
 
   create(payload: CreateUserPayload): Observable<User> {
-    return this.http.post<User>(this.baseUrl, payload);
+    return this.httpClient.post<User>(this.baseUrl, payload);
   }
 
   update(id: number, payload: UpdateUserPayload): Observable<User> {
-    return this.http.patch<User>(`${this.baseUrl}/${id}`, payload);
+    return this.httpClient.patch<User>(`${this.baseUrl}/${id}`, payload);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+    return this.httpClient.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

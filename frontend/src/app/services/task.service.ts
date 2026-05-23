@@ -23,30 +23,30 @@ export interface MoveTaskPayload {
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
-  private readonly http = inject(HttpClient);
+  private readonly httpClient = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
 
   getByStage(stageId: number): Observable<Task[]> {
-    return this.http.get<Task[]>(`${this.apiUrl}/stages/${stageId}/tasks`);
+    return this.httpClient.get<Task[]>(`${this.apiUrl}/stages/${stageId}/tasks`);
   }
 
   getById(id: number): Observable<Task> {
-    return this.http.get<Task>(`${this.apiUrl}/tasks/${id}`);
+    return this.httpClient.get<Task>(`${this.apiUrl}/tasks/${id}`);
   }
 
   create(stageId: number, payload: CreateTaskPayload): Observable<Task> {
-    return this.http.post<Task>(`${this.apiUrl}/stages/${stageId}/tasks`, payload);
+    return this.httpClient.post<Task>(`${this.apiUrl}/stages/${stageId}/tasks`, payload);
   }
 
   update(id: number, payload: UpdateTaskPayload): Observable<Task> {
-    return this.http.patch<Task>(`${this.apiUrl}/tasks/${id}`, payload);
+    return this.httpClient.patch<Task>(`${this.apiUrl}/tasks/${id}`, payload);
   }
 
   move(id: number, payload: MoveTaskPayload): Observable<Task> {
-    return this.http.patch<Task>(`${this.apiUrl}/tasks/${id}/move`, payload);
+    return this.httpClient.patch<Task>(`${this.apiUrl}/tasks/${id}/move`, payload);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/tasks/${id}`);
+    return this.httpClient.delete<void>(`${this.apiUrl}/tasks/${id}`);
   }
 }

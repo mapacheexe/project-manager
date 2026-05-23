@@ -21,7 +21,7 @@ export class TaskModalComponent {
   saved = output<TaskFormValue>();
   cancelled = output();
 
-  private formBuilder = inject(FormBuilder);
+  private readonly formBuilder = inject(FormBuilder);
 
   form = this.formBuilder.nonNullable.group({
     title: ['', Validators.required],

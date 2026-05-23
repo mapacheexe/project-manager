@@ -17,14 +17,14 @@ import { accentColor } from '../shared/utils/accent-color';
   styleUrl: './layout.component.scss',
 })
 export class LayoutComponent {
-  private readonly auth = inject(AuthService);
+  private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
-  protected readonly userName = computed(() => this.auth.currentUser()?.name ?? '');
-  protected readonly avatarInitial = computed(() => this.auth.currentUser()?.name?.charAt(0)?.toUpperCase() ?? '?');
-  protected readonly avatarColor = computed(() => accentColor(this.auth.currentUser()?.id ?? 0));
+  protected readonly userName = computed(() => this.authService.currentUser()?.name ?? '');
+  protected readonly avatarInitial = computed(() => this.authService.currentUser()?.name?.charAt(0)?.toUpperCase() ?? '?');
+  protected readonly avatarColor = computed(() => accentColor(this.authService.currentUser()?.id ?? 0));
   protected readonly showProfileModal = signal(false);
   protected readonly showDeleteConfirm = signal(false);
 
@@ -33,11 +33,11 @@ export class LayoutComponent {
   }
 
   protected onNameSaved(name: string): void {
-    const user = this.auth.currentUser();
+    const user = this.authService.currentUser();
     if (!user) return;
     this.userService.update(user.id, { name, email: user.email }).subscribe({
       next: updated => {
-        this.auth.updateCurrentUser(updated);
+        this.authService.updateCurrentUser(updated);
         this.showProfileModal.set(false);
         this.toastService.success('Nombre actualizado');
       },
@@ -51,11 +51,11 @@ export class LayoutComponent {
   }
 
   protected deleteAccount(): void {
-    const user = this.auth.currentUser();
+    const user = this.authService.currentUser();
     if (!user) return;
     this.userService.delete(user.id).subscribe({
       next: () => {
-        this.auth.logout();
+        this.authService.logout();
         this.router.navigate(['/login']);
         this.toastService.success('Cuenta eliminada');
       },
@@ -64,7 +64,7 @@ export class LayoutComponent {
   }
 
   protected logout(): void {
-    this.auth.logout();
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }
