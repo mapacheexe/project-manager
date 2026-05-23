@@ -2,9 +2,11 @@ package com.projectmanager.backend.controller;
 
 import com.projectmanager.backend.model.CreateUserRequest;
 import com.projectmanager.backend.model.LoginRequest;
+import com.projectmanager.backend.model.LoginResponse;
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.model.UpdateUserRequest;
 import com.projectmanager.backend.model.UserDTO;
+import com.projectmanager.backend.service.JwtService;
 import com.projectmanager.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +18,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final JwtService jwtService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtService jwtService) {
         this.userService = userService;
+        this.jwtService = jwtService;
     }
     @GetMapping
     public ResponseEntity<List<UserDTO>> findUsers() {
@@ -33,9 +37,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return userService.login(request)
-                .map(ResponseEntity::ok)
+                .map(user -> {
+                    String token = jwtService.generateToken(user.getId());
+                    return ResponseEntity.ok(new LoginResponse(token, user));
+                })
                 .orElse(ResponseEntity.status(401).build());
     }
 
