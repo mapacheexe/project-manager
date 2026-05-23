@@ -3,6 +3,7 @@ package com.projectmanager.backend.controller;
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.service.ProjectService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,16 +34,20 @@ public class ProjectController {
     @PatchMapping("/{id}")
     public ResponseEntity<ProjectDTO> update(
             @PathVariable Long id,
-            @RequestHeader("X-User-Id") Long requesterId,
+            Authentication authentication,
             @RequestBody ProjectDTO request
     ) {
-        return ResponseEntity.ok(projectService.update(id, request, requesterId));
+        return ResponseEntity.ok(projectService.update(id, request, requesterId(authentication)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, @RequestHeader("X-User-Id") Long requesterId) {
-        projectService.delete(id, requesterId);
+    public ResponseEntity<Void> delete(@PathVariable Long id, Authentication authentication) {
+        projectService.delete(id, requesterId(authentication));
         return ResponseEntity.noContent().build();
+    }
+
+    private Long requesterId(Authentication authentication) {
+        return Long.parseLong(authentication.getName());
     }
 
 }

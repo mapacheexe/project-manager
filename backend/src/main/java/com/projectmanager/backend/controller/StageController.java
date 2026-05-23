@@ -3,6 +3,7 @@ package com.projectmanager.backend.controller;
 import com.projectmanager.backend.model.StageDTO;
 import com.projectmanager.backend.service.StageService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,33 +25,37 @@ public class StageController {
     @PostMapping("/projects/{projectId}/stages")
     public ResponseEntity<StageDTO> create(
             @PathVariable Long projectId,
-            @RequestHeader("X-User-Id") Long requesterId,
+            Authentication authentication,
             @RequestBody StageDTO request
     ) {
-        return ResponseEntity.ok(stageService.create(projectId, request, requesterId));
+        return ResponseEntity.ok(stageService.create(projectId, request, requesterId(authentication)));
     }
 
     @PatchMapping("/stages/{id}")
     public ResponseEntity<StageDTO> update(
             @PathVariable Long id,
-            @RequestHeader("X-User-Id") Long requesterId,
+            Authentication authentication,
             @RequestBody StageDTO request
     ) {
-        return ResponseEntity.ok(stageService.update(id, request, requesterId));
+        return ResponseEntity.ok(stageService.update(id, request, requesterId(authentication)));
     }
 
     @DeleteMapping("/stages/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, @RequestHeader("X-User-Id") Long requesterId) {
-        stageService.delete(id, requesterId);
+    public ResponseEntity<Void> delete(@PathVariable Long id, Authentication authentication) {
+        stageService.delete(id, requesterId(authentication));
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/projects/{projectId}/stages/reorder")
     public ResponseEntity<List<StageDTO>> reorder(
             @PathVariable Long projectId,
-            @RequestHeader("X-User-Id") Long requesterId,
+            Authentication authentication,
             @RequestBody List<StageDTO> request
     ) {
-        return ResponseEntity.ok(stageService.reorder(projectId, request, requesterId));
+        return ResponseEntity.ok(stageService.reorder(projectId, request, requesterId(authentication)));
+    }
+
+    private Long requesterId(Authentication authentication) {
+        return Long.parseLong(authentication.getName());
     }
 }

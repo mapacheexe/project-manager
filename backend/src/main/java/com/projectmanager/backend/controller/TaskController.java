@@ -3,6 +3,7 @@ package com.projectmanager.backend.controller;
 import com.projectmanager.backend.model.TaskDTO;
 import com.projectmanager.backend.service.TaskService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,10 +25,10 @@ public class TaskController {
     @PostMapping("/stages/{stageId}/tasks")
     public ResponseEntity<TaskDTO> create(
             @PathVariable Long stageId,
-            @RequestHeader("X-User-Id") Long requesterId,
+            Authentication authentication,
             @RequestBody TaskDTO request
     ) {
-        return ResponseEntity.ok(taskService.create(stageId, request, requesterId));
+        return ResponseEntity.ok(taskService.create(stageId, request, requesterId(authentication)));
     }
 
     @GetMapping("/tasks/{id}")
@@ -38,24 +39,28 @@ public class TaskController {
     @PatchMapping("/tasks/{id}")
     public ResponseEntity<TaskDTO> update(
             @PathVariable Long id,
-            @RequestHeader("X-User-Id") Long requesterId,
+            Authentication authentication,
             @RequestBody TaskDTO request
     ) {
-        return ResponseEntity.ok(taskService.update(id, request, requesterId));
+        return ResponseEntity.ok(taskService.update(id, request, requesterId(authentication)));
     }
 
     @PatchMapping("/tasks/{id}/move")
     public ResponseEntity<TaskDTO> move(
             @PathVariable Long id,
-            @RequestHeader("X-User-Id") Long requesterId,
+            Authentication authentication,
             @RequestBody TaskDTO request
     ) {
-        return ResponseEntity.ok(taskService.move(id, request, requesterId));
+        return ResponseEntity.ok(taskService.move(id, request, requesterId(authentication)));
     }
 
     @DeleteMapping("/tasks/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, @RequestHeader("X-User-Id") Long requesterId) {
-        taskService.delete(id, requesterId);
+    public ResponseEntity<Void> delete(@PathVariable Long id, Authentication authentication) {
+        taskService.delete(id, requesterId(authentication));
         return ResponseEntity.noContent().build();
+    }
+
+    private Long requesterId(Authentication authentication) {
+        return Long.parseLong(authentication.getName());
     }
 }

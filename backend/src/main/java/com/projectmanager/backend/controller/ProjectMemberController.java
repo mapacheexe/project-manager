@@ -3,6 +3,7 @@ package com.projectmanager.backend.controller;
 import com.projectmanager.backend.model.ProjectMemberDTO;
 import com.projectmanager.backend.service.ProjectMemberService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,28 +27,32 @@ public class ProjectMemberController {
     public ResponseEntity<ProjectMemberDTO> addMember(
             @PathVariable Long projectId,
             @PathVariable Long userId,
-            @RequestHeader("X-User-Id") Long requesterId
+            Authentication authentication
     ) {
-        return ResponseEntity.ok(projectMemberService.addMember(projectId, userId, requesterId));
+        return ResponseEntity.ok(projectMemberService.addMember(projectId, userId, requesterId(authentication)));
     }
 
     @PatchMapping("/{userId}")
     public ResponseEntity<ProjectMemberDTO> updateMember(
             @PathVariable Long projectId,
             @PathVariable Long userId,
-            @RequestHeader("X-User-Id") Long requesterId,
+            Authentication authentication,
             @RequestBody ProjectMemberDTO request
     ) {
-        return ResponseEntity.ok(projectMemberService.updateMember(projectId, userId, request, requesterId));
+        return ResponseEntity.ok(projectMemberService.updateMember(projectId, userId, request, requesterId(authentication)));
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> removeMember(
             @PathVariable Long projectId,
             @PathVariable Long userId,
-            @RequestHeader("X-User-Id") Long requesterId
+            Authentication authentication
     ) {
-        projectMemberService.removeMember(projectId, userId, requesterId);
+        projectMemberService.removeMember(projectId, userId, requesterId(authentication));
         return ResponseEntity.noContent().build();
+    }
+
+    private Long requesterId(Authentication authentication) {
+        return Long.parseLong(authentication.getName());
     }
 }
