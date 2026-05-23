@@ -6,6 +6,7 @@ import { AuthService } from '../auth/auth.service';
 import { User } from '../../models';
 
 const mockUser: User = { id: 42, name: 'Mario', email: 'mario@test.com', projectIds: [] };
+const mockToken = 'token.jwt.here';
 
 describe('authInterceptor', () => {
   let auth: AuthService;
@@ -27,16 +28,16 @@ describe('authInterceptor', () => {
     TestBed.runInInjectionContext(() => authInterceptor(req, next)).subscribe();
   };
 
-  it('adds X-User-Id header when user is authenticated', () => {
-    auth.login(mockUser);
+  it('adds Authorization header when user is authenticated', () => {
+    auth.login(mockUser, mockToken);
     const captured: { req?: HttpRequest<unknown> } = {};
     runInterceptor(captured);
-    expect(captured.req!.headers.get('X-User-Id')).toBe('42');
+    expect(captured.req!.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
   });
 
-  it('does not add X-User-Id header when no user is authenticated', () => {
+  it('does not add Authorization header when no user is authenticated', () => {
     const captured: { req?: HttpRequest<unknown> } = {};
     runInterceptor(captured);
-    expect(captured.req!.headers.has('X-User-Id')).toBe(false);
+    expect(captured.req!.headers.has('Authorization')).toBe(false);
   });
 });

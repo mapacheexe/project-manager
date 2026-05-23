@@ -5,6 +5,7 @@ import { AuthService } from '../auth/auth.service';
 import { User } from '../../models';
 
 const mockUser: User = { id: 1, name: 'Mario', email: 'mario@test.com', projectIds: [] };
+const mockToken = 'token.jwt.here';
 
 describe('authGuard', () => {
   let auth: AuthService;
@@ -25,7 +26,7 @@ describe('authGuard', () => {
     TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
 
   it('allows access when user is authenticated', () => {
-    auth.login(mockUser);
+    auth.login(mockUser, mockToken);
     expect(runGuard()).toBe(true);
   });
 

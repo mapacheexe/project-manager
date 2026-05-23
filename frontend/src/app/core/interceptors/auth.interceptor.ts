@@ -3,9 +3,9 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const userId = inject(AuthService).currentUserId();
+  const token = inject(AuthService).token();
 
-  if (userId === null) return next(req);
+  if (token === null) return next(req);
 
-  return next(req.clone({ setHeaders: { 'X-User-Id': String(userId) } }));
+  return next(req.clone({ setHeaders: { 'Authorization': `Bearer ${token}` } }));
 };
