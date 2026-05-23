@@ -9,6 +9,7 @@
         (keydown.enter)="confirmRename()"
         (keydown.escape)="cancelRename()"
         (blur)="confirmRename()"
+        autofocus
       />
     } @else {
       <h3 class="stage-column__title" (click)="startEditing()" title="Haz clic para renombrar">{{ stage().name }}</h3>
