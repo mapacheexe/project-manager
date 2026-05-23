@@ -1,9 +1,13 @@
 import { Injectable, signal } from '@angular/core';
 
+const TOAST_DURATION_MS = 3500;
+
+export type ToastType = 'success' | 'error';
+
 export interface Toast {
   id: number;
   message: string;
-  type: 'success' | 'error';
+  type: ToastType;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -23,9 +27,9 @@ export class ToastService {
     this.toasts.update(list => list.filter(t => t.id !== id));
   }
 
-  private add(message: string, type: 'success' | 'error'): void {
+  private add(message: string, type: ToastType): void {
     const id = this.nextId++;
     this.toasts.update(list => [...list, { id, message, type }]);
-    setTimeout(() => this.dismiss(id), 3500);
+    setTimeout(() => this.dismiss(id), TOAST_DURATION_MS);
   }
 }
