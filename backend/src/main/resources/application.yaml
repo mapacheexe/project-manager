@@ -2,6 +2,9 @@ spring:
   application:
     name: backend
 
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+
   datasource:
     url: jdbc:postgresql://localhost:5432/projectmanager_db
     username: admin
@@ -13,3 +16,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+
+jwt:
+  secret: ${JWT_SECRET:project-manager-jwt-secret-key-daw-2026-mario-vereda}
