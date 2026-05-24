@@ -2,6 +2,7 @@ package com.projectmanager.backend.controller;
 
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.service.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class ProjectController {
     public ResponseEntity<ProjectDTO> update(
             @PathVariable Long id,
             Authentication authentication,
-            @RequestBody ProjectDTO request
+            @Valid @RequestBody ProjectDTO request
     ) {
         return ResponseEntity.ok(projectService.update(id, request, requesterId(authentication)));
     }

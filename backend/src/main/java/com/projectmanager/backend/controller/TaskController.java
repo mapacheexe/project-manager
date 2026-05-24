@@ -2,6 +2,7 @@ package com.projectmanager.backend.controller;
 
 import com.projectmanager.backend.model.TaskDTO;
 import com.projectmanager.backend.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class TaskController {
     public ResponseEntity<TaskDTO> create(
             @PathVariable Long stageId,
             Authentication authentication,
-            @RequestBody TaskDTO request
+            @Valid @RequestBody TaskDTO request
     ) {
         return ResponseEntity.ok(taskService.create(stageId, request, requesterId(authentication)));
     }
@@ -40,7 +41,7 @@ public class TaskController {
     public ResponseEntity<TaskDTO> update(
             @PathVariable Long id,
             Authentication authentication,
-            @RequestBody TaskDTO request
+            @Valid @RequestBody TaskDTO request
     ) {
         return ResponseEntity.ok(taskService.update(id, request, requesterId(authentication)));
     }

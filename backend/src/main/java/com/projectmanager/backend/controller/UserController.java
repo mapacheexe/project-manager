@@ -8,6 +8,7 @@ import com.projectmanager.backend.model.UpdateUserRequest;
 import com.projectmanager.backend.model.UserDTO;
 import com.projectmanager.backend.service.JwtService;
 import com.projectmanager.backend.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         return userService.login(request)
                 .map(user -> {
                     String token = jwtService.generateToken(user.getId());
@@ -47,12 +48,12 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> saveUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserDTO> saveUser(@Valid @RequestBody CreateUserRequest request) {
         return ResponseEntity.ok(userService.save(request));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
@@ -68,7 +69,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/projects")
-    public ResponseEntity<ProjectDTO> createProject(@PathVariable Long id, @RequestBody ProjectDTO request) {
+    public ResponseEntity<ProjectDTO> createProject(@PathVariable Long id, @Valid @RequestBody ProjectDTO request) {
         ProjectDTO projectDTO = userService.createProject(id, request);
         return  ResponseEntity.ok(projectDTO);
     }

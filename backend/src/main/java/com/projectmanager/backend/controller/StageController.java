@@ -2,6 +2,7 @@ package com.projectmanager.backend.controller;
 
 import com.projectmanager.backend.model.StageDTO;
 import com.projectmanager.backend.service.StageService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class StageController {
     public ResponseEntity<StageDTO> create(
             @PathVariable Long projectId,
             Authentication authentication,
-            @RequestBody StageDTO request
+            @Valid @RequestBody StageDTO request
     ) {
         return ResponseEntity.ok(stageService.create(projectId, request, requesterId(authentication)));
     }
@@ -35,7 +36,7 @@ public class StageController {
     public ResponseEntity<StageDTO> update(
             @PathVariable Long id,
             Authentication authentication,
-            @RequestBody StageDTO request
+            @Valid @RequestBody StageDTO request
     ) {
         return ResponseEntity.ok(stageService.update(id, request, requesterId(authentication)));
     }
