@@ -68,7 +68,17 @@
     flex-shrink: 0;
   }
 
-  &__name  { font-weight: 500; font-size: 0.875rem; min-width: 8rem; flex: 1; }
+  &__name  {
+    font-weight: 500;
+    font-size: 0.875rem;
+    min-width: 8rem;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @media (max-width: 640px) { min-width: 0; }
+  }
   &__email {
     font-size: 0.8rem;
     color: var(--color-text-muted);
@@ -93,4 +103,6 @@
 
     &--select { cursor: pointer; }
   }
+
+  button { flex-shrink: 0; }
 }
