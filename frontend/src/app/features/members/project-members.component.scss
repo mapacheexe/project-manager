@@ -28,6 +28,12 @@
     margin-bottom: 2rem;
   }
 
+  &__leave {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2rem;
+  }
+
   &__add-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
 
   &__add-form {

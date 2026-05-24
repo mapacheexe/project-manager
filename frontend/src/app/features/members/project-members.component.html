@@ -34,6 +34,14 @@
     }
   </div>
 
+  @if (!isOwner()) {
+    <div class="members-page__leave">
+      <button class="btn btn--danger" type="button" (click)="leaveProject()">
+        Abandonar proyecto
+      </button>
+    </div>
+  }
+
   <div class="members-page__add">
     <h3 class="members-page__add-title">Añadir miembro</h3>
     <div class="members-page__add-form">

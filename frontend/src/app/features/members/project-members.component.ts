@@ -2,7 +2,7 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { numberAttribute } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { UserService } from '../../services/user.service';
 import { ToastService } from '../../shared/services/toast.service';
@@ -23,6 +23,7 @@ export class ProjectMembersComponent {
   private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   protected readonly currentUserId = computed(() => this.authService.currentUserId());
 
@@ -53,6 +54,10 @@ export class ProjectMembersComponent {
   });
 
   protected readonly selectedUserId = signal<number | null>(null);
+
+  protected readonly isOwner = computed(() =>
+    this.members().some(m => m.userId === this.currentUserId() && m.role === 'OWNER')
+  );
 
   private reload(): void {
     this.refresh.update(n => n + 1);
@@ -85,6 +90,16 @@ export class ProjectMembersComponent {
         this.toastService.success('Miembro eliminado');
       },
       error: () => this.toastService.error('No se pudo eliminar el miembro'),
+    });
+  }
+
+  protected leaveProject(): void {
+    this.projectService.leaveProject(this.id()).subscribe({
+      next: () => {
+        this.toastService.success('Has abandonado el proyecto');
+        this.router.navigate(['/dashboard']);
+      },
+      error: () => this.toastService.error('No se pudo abandonar el proyecto'),
     });
   }
 }
