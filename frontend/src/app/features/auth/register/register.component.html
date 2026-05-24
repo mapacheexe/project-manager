@@ -39,6 +39,22 @@
         />
       </div>
 
+      <div class="form-group">
+        <label for="confirmPassword">Repetir contraseña</label>
+        <input
+          class="form-control"
+          id="confirmPassword"
+          type="password"
+          formControlName="confirmPassword"
+          autocomplete="new-password"
+          placeholder="••••••••"
+        />
+      </div>
+
+      @if (passwordMismatch()) {
+        <p class="auth-form__error">Las contraseñas no coinciden.</p>
+      }
+
       @if (registerError()) {
         <p class="auth-form__error">{{ registerError() }}</p>
       }

@@ -1,7 +1,14 @@
-import { Component, inject, signal } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../../services/user.service';
+
+function passwordsMatch(control: AbstractControl): ValidationErrors | null {
+  const password = control.get('password')?.value;
+  const confirmPassword = control.get('confirmPassword')?.value;
+  return password === confirmPassword ? null : { passwordMismatch: true };
+}
 
 @Component({
   selector: 'app-register',
@@ -18,13 +25,23 @@ export class RegisterComponent {
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
+    confirmPassword: ['', Validators.required],
+  }, { validators: passwordsMatch });
+
+  private readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.value });
+
+  protected readonly passwordMismatch = computed(() => {
+    const { password, confirmPassword } = this.formValue();
+    return !!confirmPassword && password !== confirmPassword;
   });
+
   protected readonly registerError = signal<string | null>(null);
 
   submit(): void {
     if (this.form.invalid) return;
     this.registerError.set(null);
-    this.userService.create(this.form.getRawValue()).subscribe({
+    const { name, email, password } = this.form.getRawValue();
+    this.userService.create({ name, email, password }).subscribe({
       next: () => this.router.navigate(['/login']),
       error: (err) => {
         if (err.status === 409) this.registerError.set('Este email ya está registrado.');

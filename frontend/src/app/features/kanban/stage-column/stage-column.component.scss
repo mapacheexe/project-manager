@@ -52,6 +52,8 @@
     background: var(--color-surface);
     color: var(--color-text);
     outline: none;
+
+    @media (max-width: 768px) { font-size: 1rem; }
   }
 
   &__actions {
