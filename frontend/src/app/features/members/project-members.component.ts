@@ -25,7 +25,7 @@ export class ProjectMembersComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly currentUserId = computed(() => this.authService.currentUserId());
+  private readonly currentUserId = computed(() => this.authService.currentUserId());
 
   readonly id = input.required({ transform: numberAttribute });
 
@@ -39,12 +39,24 @@ export class ProjectMembersComponent {
   protected readonly members = toSignal(this.members$, { initialValue: [] });
   protected readonly allUsers = toSignal(this.userService.getAll(), { initialValue: [] });
 
+  protected readonly isOwner = computed(() =>
+    this.members().some(m => m.userId === this.currentUserId() && m.role === 'OWNER')
+  );
+
+  private readonly canManageRoles = computed(() =>
+    this.members().some(m => m.userId === this.currentUserId() && (m.role === 'OWNER' || m.role === 'ADMIN'))
+  );
+
   protected readonly enrichedMembers = computed(() => {
     const userMap = new Map(this.allUsers().map(u => [u.id, u]));
+    const currentId = this.currentUserId();
+    const canManage = this.canManageRoles();
     return this.members().map(m => ({
       ...m,
       user: userMap.get(m.userId),
       avatarColor: accentColor(m.userId),
+      roleFixed: !canManage || m.role === 'OWNER' || m.userId === currentId,
+      removable: m.userId !== currentId,
     }));
   });
 
@@ -54,10 +66,6 @@ export class ProjectMembersComponent {
   });
 
   protected readonly selectedUserId = signal<number | null>(null);
-
-  protected readonly isOwner = computed(() =>
-    this.members().some(m => m.userId === this.currentUserId() && m.role === 'OWNER')
-  );
 
   private reload(): void {
     this.refresh.update(n => n + 1);

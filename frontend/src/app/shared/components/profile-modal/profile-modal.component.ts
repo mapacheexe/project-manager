@@ -17,6 +17,7 @@ export class ProfileModalComponent {
 
   protected readonly name = signal('');
   protected readonly avatarInitial = computed(() => this.firstLetter(this.name()));
+  protected readonly saveDisabled = computed(() => !this.name().trim());
 
   private firstLetter(name: string): string {
     return name.trim()[0]?.toUpperCase() ?? '?';

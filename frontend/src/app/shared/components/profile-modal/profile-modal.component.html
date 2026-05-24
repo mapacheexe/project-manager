@@ -19,7 +19,7 @@
 
     <div class="modal-box__actions">
       <button class="btn btn--ghost" type="button" (click)="cancelled.emit()">Cancelar</button>
-      <button class="btn" type="button" [disabled]="!name().trim()" (click)="submit()">Guardar</button>
+      <button class="btn" type="button" [disabled]="saveDisabled()" (click)="submit()">Guardar</button>
     </div>
 
     <div class="profile-modal__danger">
