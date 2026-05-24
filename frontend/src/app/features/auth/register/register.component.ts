@@ -26,7 +26,11 @@ export class RegisterComponent {
     this.registerError.set(null);
     this.userService.create(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/login']),
-      error: () => this.registerError.set('Este email ya está registrado.'),
+      error: (err) => {
+        if (err.status === 409) this.registerError.set('Este email ya está registrado.');
+        else if (err.status === 400) this.registerError.set('Los datos introducidos no son válidos.');
+        else this.registerError.set('No se pudo completar el registro. Inténtalo de nuevo.');
+      },
     });
   }
 }
