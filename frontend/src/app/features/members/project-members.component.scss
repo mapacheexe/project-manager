@@ -68,8 +68,18 @@
     flex-shrink: 0;
   }
 
-  &__name  { font-weight: 500; font-size: 0.875rem; min-width: 10rem; }
-  &__email { font-size: 0.8rem; color: var(--color-text-muted); flex: 1; }
+  &__name  { font-weight: 500; font-size: 0.875rem; min-width: 8rem; flex: 1; }
+  &__email {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+
+    @media (max-width: 640px) { display: none; }
+  }
 
   &__role {
     font-size: 0.8rem;
