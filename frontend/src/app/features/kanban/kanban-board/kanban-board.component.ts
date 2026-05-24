@@ -1,12 +1,11 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
-import { numberAttribute } from '@angular/core';
-import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, input, numberAttribute, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { of, switchMap } from 'rxjs';
 import { ProjectService } from '../../../services/project.service';
 import { StageService } from '../../../services/stage.service';
 import { TaskService } from '../../../services/task.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { Task } from '../../../models';
+import { Stage, Task } from '../../../models';
 import { RouterLink } from '@angular/router';
 import { StageColumnComponent } from '../stage-column/stage-column.component';
 import { TaskFormValue, TaskModalComponent } from '../../../shared/components/task-modal/task-modal.component';
@@ -26,17 +25,18 @@ export class KanbanBoardComponent {
   private readonly toastService = inject(ToastService);
 
   readonly id = input.required({ transform: numberAttribute });
-  private readonly refresh = signal(0);
 
-  private readonly query = computed(() => ({ id: this.id(), r: this.refresh() }));
-  private readonly stages$ = toObservable(this.query).pipe(
-    switchMap(({ id }) => this.stageService.getByProject(id))
-  );
-  protected readonly stages = toSignal(this.stages$, { initialValue: [] });
+  private readonly stagesResource = rxResource({
+    params: () => this.id(),
+    stream: ({ params: id }) => this.stageService.getByProject(id),
+  });
+  private readonly projectResource = rxResource({
+    params: () => this.id(),
+    stream: ({ params: id }) => this.projectService.getById(id),
+  });
 
-  protected readonly project = toSignal(
-    toObservable(this.id).pipe(switchMap(id => this.projectService.getById(id)))
-  );
+  protected readonly stages = computed(() => this.stagesResource.value() ?? []);
+  protected readonly project = this.projectResource.value;
 
   protected readonly showStageForm = signal(false);
   protected readonly newStageName = signal('');
@@ -46,7 +46,7 @@ export class KanbanBoardComponent {
   protected readonly deletingStageId = signal<number | null>(null);
 
   private reload(): void {
-    this.refresh.update(n => n + 1);
+    this.stagesResource.reload();
   }
 
   protected createStage(): void {
@@ -111,14 +111,17 @@ export class KanbanBoardComponent {
     const targetIndex = index + delta;
     if (targetIndex < 0 || targetIndex >= stages.length) return;
 
-    const swapped = [...stages];
-    [swapped[index], swapped[targetIndex]] = [swapped[targetIndex], swapped[index]];
-    const payload = swapped.map((s, i) => ({ id: s.id, position: i }));
-
+    const payload = this.swapStagesAndAssignPositions(stages, index, targetIndex);
     this.stageService.reorder(this.id(), payload).subscribe({
       next: () => this.reload(),
       error: () => this.toastService.error('No se pudo reordenar la etapa'),
     });
+  }
+
+  private swapStagesAndAssignPositions(stages: Stage[], fromIndex: number, toIndex: number) {
+    const reordered = [...stages];
+    [reordered[fromIndex], reordered[toIndex]] = [reordered[toIndex], reordered[fromIndex]];
+    return reordered.map((stage, position) => ({ id: stage.id, position }));
   }
 
   protected onStageRenamed({ id, name }: { id: number; name: string }): void {
@@ -158,29 +161,33 @@ export class KanbanBoardComponent {
 
   protected onTaskSaved(value: TaskFormValue): void {
     const editTask = this.editingTask();
-    if (editTask) {
-      const stageChanged = value.stageId !== null && value.stageId !== editTask.stageId;
-      this.taskService.update(editTask.id, {
-        title: value.title,
-        description: value.description,
-        status: value.status ?? undefined,
-      }).pipe(
-        switchMap(() => stageChanged
-          ? this.taskService.move(editTask.id, { stageId: value.stageId!, position: 0 })
-          : of(null)
-        )
-      ).subscribe({
-        next: () => {
-          this.editingTask.set(null);
-          this.reload();
-          this.toastService.success('Tarea actualizada');
-        },
-        error: () => this.toastService.error('No se pudo actualizar la tarea'),
-      });
-      return;
-    }
     const stageId = this.creatingInStageId();
-    if (!stageId) return;
+    if (editTask) this.saveEditedTask(editTask, value);
+    else if (stageId) this.saveNewTask(stageId, value);
+  }
+
+  private saveEditedTask(task: Task, value: TaskFormValue): void {
+    const stageChanged = value.stageId !== null && value.stageId !== task.stageId;
+    this.taskService.update(task.id, {
+      title: value.title,
+      description: value.description,
+      status: value.status ?? undefined,
+    }).pipe(
+      switchMap(() => stageChanged
+        ? this.taskService.move(task.id, { stageId: value.stageId!, position: 0 })
+        : of(null)
+      )
+    ).subscribe({
+      next: () => {
+        this.editingTask.set(null);
+        this.reload();
+        this.toastService.success('Tarea actualizada');
+      },
+      error: () => this.toastService.error('No se pudo actualizar la tarea'),
+    });
+  }
+
+  private saveNewTask(stageId: number, value: TaskFormValue): void {
     this.taskService.create(stageId, {
       title: value.title,
       description: value.description,
