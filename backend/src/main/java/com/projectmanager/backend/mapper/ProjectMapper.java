@@ -15,6 +15,14 @@ import java.util.Comparator;
 @Component
 public class ProjectMapper {
 
+    private static final Comparator<Stage> STAGE_ORDER =
+            Comparator.comparing(Stage::getPosition, Comparator.nullsLast(Comparator.naturalOrder()))
+                      .thenComparing(Stage::getId);
+
+    private static final Comparator<Task> TASK_ORDER =
+            Comparator.comparing(Task::getPosition, Comparator.nullsLast(Comparator.naturalOrder()))
+                      .thenComparing(Task::getId);
+
     public ProjectDTO toProjectDTO(Project project) {
         ProjectDTO dto = new ProjectDTO();
 
@@ -29,8 +37,7 @@ public class ProjectMapper {
         dto.setStages(
                 project.getStages()
                         .stream()
-                        .sorted(Comparator.comparing(Stage::getPosition, Comparator.nullsLast(Comparator.naturalOrder()))
-                                .thenComparing(Stage::getId))
+                        .sorted(STAGE_ORDER)
                         .map(this::toStageDTO)
                         .toList()
         );
@@ -48,8 +55,7 @@ public class ProjectMapper {
         dto.setTasks(
                 stage.getTasks()
                         .stream()
-                        .sorted(Comparator.comparing(Task::getPosition, Comparator.nullsLast(Comparator.naturalOrder()))
-                                .thenComparing(Task::getId))
+                        .sorted(TASK_ORDER)
                         .map(this::toTaskDTO)
                         .toList()
         );
