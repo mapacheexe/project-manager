@@ -81,4 +81,12 @@ class ProjectMemberControllerTest {
         assertEquals(204, response.getStatusCode().value());
         verify(projectMemberService).removeMember(10L, 2L, 1L);
     }
+
+    @Test
+    void givenValidRequest_whenLeaveProject_thenReturnsNoContent() {
+        ResponseEntity<Void> response = controller.leaveProject(10L, authentication);
+
+        assertEquals(204, response.getStatusCode().value());
+        verify(projectMemberService).leaveProject(10L, 1L);
+    }
 }

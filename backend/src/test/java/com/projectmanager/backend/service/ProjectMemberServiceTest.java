@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static com.projectmanager.backend.model.ProjectRole.ADMIN;
 import static com.projectmanager.backend.model.ProjectRole.MEMBER;
+import static com.projectmanager.backend.model.ProjectRole.OWNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 class ProjectMemberServiceTest {
@@ -186,6 +188,52 @@ class ProjectMemberServiceTest {
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
                 () -> service.removeMember(10L, 2L, 1L)
+        );
+
+        assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenMember_whenLeaveProject_thenDeleted() {
+        UserProject userProject = new UserProject();
+        userProject.setUser(userWithId(2L));
+        userProject.setProject(projectWithId(10L));
+        userProject.setRole(MEMBER);
+
+        when(userProjectRepository.findByUserIdAndProjectId(2L, 10L))
+                .thenReturn(Optional.of(userProject));
+
+        service.leaveProject(10L, 2L);
+
+        verify(userProjectRepository).delete(userProject);
+    }
+
+    @Test
+    void givenOwner_whenLeaveProject_thenForbiddenThrown() {
+        UserProject userProject = new UserProject();
+        userProject.setUser(userWithId(1L));
+        userProject.setProject(projectWithId(10L));
+        userProject.setRole(OWNER);
+
+        when(userProjectRepository.findByUserIdAndProjectId(1L, 10L))
+                .thenReturn(Optional.of(userProject));
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.leaveProject(10L, 1L)
+        );
+
+        assertEquals(FORBIDDEN, exception.getStatusCode());
+        verify(userProjectRepository, never()).delete(any(UserProject.class));
+    }
+
+    @Test
+    void givenMissingMembership_whenLeaveProject_thenNotFoundThrown() {
+        when(userProjectRepository.findByUserIdAndProjectId(2L, 10L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.leaveProject(10L, 2L)
         );
 
         assertEquals(NOT_FOUND, exception.getStatusCode());
