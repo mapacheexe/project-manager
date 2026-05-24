@@ -7,9 +7,9 @@ spring:
       - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/projectmanager_db
-    username: admin
-    password: 1234
+    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:projectmanager_db}
+    username: ${PGUSER:admin}
+    password: ${PGPASSWORD:1234}
 
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
@@ -17,6 +17,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+frontend:
+  url: ${FRONTEND_URL:http://localhost:4200}
 
 jwt:
   secret: ${JWT_SECRET:project-manager-jwt-secret-key-daw-2026-mario-vereda}
