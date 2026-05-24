@@ -54,6 +54,7 @@ public class SecurityConfig {
 
     private void configureAuthorizationRules(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/users/login", "/users").permitAll()
                 .anyRequest().authenticated()
         );
