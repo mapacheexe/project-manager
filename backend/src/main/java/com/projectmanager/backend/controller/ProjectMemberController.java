@@ -53,6 +53,15 @@ public class ProjectMemberController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> leaveProject(
+            @PathVariable Long projectId,
+            Authentication authentication
+    ) {
+        projectMemberService.leaveProject(projectId, requesterId(authentication));
+        return ResponseEntity.noContent().build();
+    }
+
     private Long requesterId(Authentication authentication) {
         return Long.parseLong(authentication.getName());
     }

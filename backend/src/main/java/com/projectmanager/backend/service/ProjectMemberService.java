@@ -94,4 +94,15 @@ public class ProjectMemberService {
 
         userProjectRepository.delete(userProject);
     }
+
+    public void leaveProject(Long projectId, Long requesterId) {
+        UserProject userProject = userProjectRepository.findByUserIdAndProjectId(requesterId, projectId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Project member not found"));
+
+        if (OWNER.name().equalsIgnoreCase(userProject.getRole())) {
+            throw new ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "El propietario no puede abandonar el proyecto");
+        }
+
+        userProjectRepository.delete(userProject);
+    }
 }
