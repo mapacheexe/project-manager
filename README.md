@@ -1,9 +1,20 @@
 # Project Manager
 
-Aplicación web colaborativa de gestión de proyectos y tareas basada en metodología Kanban. Permite a equipos crear proyectos, definir etapas, gestionar tareas y colaborar con control de roles. Interfaz responsiva con soporte de modo claro y oscuro.
+<div align="center">
 
-**Demo:** [project-manager-hw8b1hij5-mapacheexes-projects.vercel.app](https://project-manager-hw8b1hij5-mapacheexes-projects.vercel.app)  
-**API:** [project-manager-backend-production-c6ed.up.railway.app](https://project-manager-backend-production-c6ed.up.railway.app)
+![Angular](https://img.shields.io/badge/Angular-20-DD0031?style=flat&logo=angular&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0-6DB33F?style=flat&logo=springboot&logoColor=white)
+![Java](https://img.shields.io/badge/Java-21-ED8B00?style=flat&logo=openjdk&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-316192?style=flat&logo=postgresql&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat&logo=typescript&logoColor=white)
+![CI](https://github.com/mapacheexe/project-manager/actions/workflows/ci.yml/badge.svg)
+
+Aplicación web colaborativa de gestión de proyectos y tareas basada en metodología Kanban.  
+Interfaz responsiva con modo claro/oscuro, control de roles y tablero Kanban interactivo.
+
+**[Demo en vivo](https://project-manager-hw8b1hij5-mapacheexes-projects.vercel.app)** · **[API](https://project-manager-backend-production-c6ed.up.railway.app)**
+
+</div>
 
 ---
 
