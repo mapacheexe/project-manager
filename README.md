@@ -240,9 +240,15 @@ npx vitest run
 
 ### CI/CD
 
-Dos flujos en GitHub Actions ejecutados en cada push a `main`:
-- **ci.yml** — tests de frontend y backend con JaCoCo
-- **gitleaks.yml** — escaneo de secretos y credenciales
+**Integración continua — GitHub Actions:**
+- **ci.yml** — tests de frontend y backend con JaCoCo en cada push a `main`
+- **gitleaks.yml** — escaneo de secretos y credenciales en cada push
+
+**Despliegue continuo:**
+- **Railway** — detecta cada push a `main` y redespliega el backend Spring Boot automáticamente. PostgreSQL 16 está gestionado como servicio dentro del mismo proyecto.
+- **Vercel** — detecta cada push a `main`, ejecuta `ng build` y publica el frontend en su CDN global.
+
+Cualquier cambio mergeado a `main` pasa por los tests y, si se superan, queda desplegado en producción sin intervención manual.
 
 ---
 
