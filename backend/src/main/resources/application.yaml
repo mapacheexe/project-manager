@@ -16,7 +16,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 
 frontend:
   url: ${FRONTEND_URL:http://localhost:4200}
