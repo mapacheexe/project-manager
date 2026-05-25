@@ -36,10 +36,11 @@ public class TaskService {
         this.projectMapper = projectMapper;
     }
 
-    public List<TaskDTO> findByStageId(Long stageId) {
-        if (!stageRepository.existsById(stageId)) {
-            throw new ResponseStatusException(NOT_FOUND, "Stage not found");
-        }
+    public List<TaskDTO> findByStageId(Long stageId, Long requesterId) {
+        Stage stage = stageRepository.findById(stageId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Stage not found"));
+
+        permissionService.requireProjectRole(stage.getProject().getId(), requesterId, OWNER, ADMIN, MEMBER);
 
         return taskRepository.findByStageIdOrderByPositionAscIdAsc(stageId)
                 .stream()
@@ -47,10 +48,13 @@ public class TaskService {
                 .toList();
     }
 
-    public TaskDTO findById(Long id) {
-        return taskRepository.findById(id)
-                .map(projectMapper::toTaskDTO)
+    public TaskDTO findById(Long id, Long requesterId) {
+        Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Task not found"));
+
+        permissionService.requireProjectRole(task.getStage().getProject().getId(), requesterId, OWNER, ADMIN, MEMBER);
+
+        return projectMapper.toTaskDTO(task);
     }
 
     public TaskDTO create(Long stageId, TaskDTO request, Long requesterId) {

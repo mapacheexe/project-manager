@@ -77,10 +77,11 @@ class StageServiceTest {
         second.setPosition(2);
 
         when(projectRepository.existsById(10L)).thenReturn(true);
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
         when(stageRepository.findByProjectIdOrderByPositionAscIdAsc(10L))
                 .thenReturn(List.of(first, second));
 
-        var result = service.findByProjectId(10L);
+        var result = service.findByProjectId(10L, 1L);
 
         assertEquals(2, result.size());
         assertEquals("Todo", result.get(0).getName());
@@ -93,7 +94,7 @@ class StageServiceTest {
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> service.findByProjectId(10L)
+                () -> service.findByProjectId(10L, 1L)
         );
 
         assertEquals(NOT_FOUND, exception.getStatusCode());

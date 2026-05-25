@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 import static com.projectmanager.backend.model.ProjectRole.ADMIN;
+import static com.projectmanager.backend.model.ProjectRole.MEMBER;
 import static com.projectmanager.backend.model.ProjectRole.OWNER;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -35,10 +36,12 @@ public class StageService {
         this.projectMapper = projectMapper;
     }
 
-    public List<StageDTO> findByProjectId(Long projectId) {
+    public List<StageDTO> findByProjectId(Long projectId, Long requesterId) {
         if (!projectRepository.existsById(projectId)) {
             throw new ResponseStatusException(NOT_FOUND, "Project not found");
         }
+
+        permissionService.requireProjectRole(projectId, requesterId, OWNER, ADMIN, MEMBER);
 
         return stageRepository.findByProjectIdOrderByPositionAscIdAsc(projectId)
                 .stream()
@@ -100,7 +103,7 @@ public class StageService {
             stageRepository.save(stage);
         });
 
-        return findByProjectId(projectId);
+        return findByProjectId(projectId, requesterId);
     }
 
 }

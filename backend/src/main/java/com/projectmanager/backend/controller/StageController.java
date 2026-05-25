@@ -19,8 +19,10 @@ public class StageController {
     }
 
     @GetMapping("/projects/{projectId}/stages")
-    public ResponseEntity<List<StageDTO>> findByProjectId(@PathVariable Long projectId) {
-        return ResponseEntity.ok(stageService.findByProjectId(projectId));
+    public ResponseEntity<List<StageDTO>> findByProjectId(
+            @PathVariable Long projectId,
+            Authentication authentication) {
+        return ResponseEntity.ok(stageService.findByProjectId(projectId, requesterId(authentication)));
     }
 
     @PostMapping("/projects/{projectId}/stages")

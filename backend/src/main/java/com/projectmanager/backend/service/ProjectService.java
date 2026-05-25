@@ -4,6 +4,7 @@ import com.projectmanager.backend.entity.Project;
 import com.projectmanager.backend.mapper.ProjectMapper;
 import com.projectmanager.backend.model.ProjectDTO;
 import com.projectmanager.backend.repository.ProjectRepository;
+import com.projectmanager.backend.repository.UserProjectRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -12,31 +13,38 @@ import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static com.projectmanager.backend.model.ProjectRole.ADMIN;
+import static com.projectmanager.backend.model.ProjectRole.MEMBER;
 import static com.projectmanager.backend.model.ProjectRole.OWNER;
 
 @Service
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final UserProjectRepository userProjectRepository;
     private final ProjectPermissionService permissionService;
     private final ProjectMapper projectMapper;
 
     public ProjectService(
             ProjectRepository projectRepository,
+            UserProjectRepository userProjectRepository,
             ProjectPermissionService permissionService,
             ProjectMapper projectMapper
     ) {
         this.projectRepository = projectRepository;
+        this.userProjectRepository = userProjectRepository;
         this.permissionService = permissionService;
         this.projectMapper = projectMapper;
     }
 
-    public List<ProjectDTO> findAll() {
-        return projectRepository.findAll()
-                        .stream().map(projectMapper::toProjectDTO).toList();
+    public List<ProjectDTO> findAll(Long requesterId) {
+        return userProjectRepository.findByUserId(requesterId)
+                .stream()
+                .map(up -> projectMapper.toProjectDTO(up.getProject()))
+                .toList();
     }
 
-    public Optional<ProjectDTO> findById(Long id) {
+    public Optional<ProjectDTO> findById(Long id, Long requesterId) {
+        permissionService.requireProjectRole(id, requesterId, OWNER, ADMIN, MEMBER);
         return projectRepository.findById(id).map(projectMapper::toProjectDTO);
     }
 

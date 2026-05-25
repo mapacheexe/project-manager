@@ -20,14 +20,14 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectDTO>> findAll() {
-        List<ProjectDTO> projects = projectService.findAll();
+    public ResponseEntity<List<ProjectDTO>> findAll(Authentication authentication) {
+        List<ProjectDTO> projects = projectService.findAll(requesterId(authentication));
         return ResponseEntity.ok(projects);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectDTO> findById(@PathVariable Long id) {
-        return projectService.findById(id)
+    public ResponseEntity<ProjectDTO> findById(@PathVariable Long id, Authentication authentication) {
+        return projectService.findById(id, requesterId(authentication))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

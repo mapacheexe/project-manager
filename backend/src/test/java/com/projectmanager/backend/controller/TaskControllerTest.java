@@ -30,9 +30,9 @@ class TaskControllerTest {
     void givenExistingStage_whenFindByStageId_thenReturnsOk() {
         TaskDTO task = new TaskDTO();
         task.setId(200L);
-        when(taskService.findByStageId(100L)).thenReturn(List.of(task));
+        when(taskService.findByStageId(100L, 1L)).thenReturn(List.of(task));
 
-        ResponseEntity<List<TaskDTO>> response = controller.findByStageId(100L);
+        ResponseEntity<List<TaskDTO>> response = controller.findByStageId(100L, authentication);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -60,9 +60,9 @@ class TaskControllerTest {
     void givenExistingTask_whenFindById_thenReturnsOk() {
         TaskDTO task = new TaskDTO();
         task.setId(200L);
-        when(taskService.findById(200L)).thenReturn(task);
+        when(taskService.findById(200L, 1L)).thenReturn(task);
 
-        ResponseEntity<TaskDTO> response = controller.findById(200L);
+        ResponseEntity<TaskDTO> response = controller.findById(200L, authentication);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());

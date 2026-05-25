@@ -8,8 +8,10 @@ import com.projectmanager.backend.model.UpdateUserRequest;
 import com.projectmanager.backend.model.UserDTO;
 import com.projectmanager.backend.service.JwtService;
 import com.projectmanager.backend.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +27,12 @@ class UserControllerTest {
     private final UserService userService = mock(UserService.class);
     private final JwtService jwtService = mock(JwtService.class);
     private final UserController controller = new UserController(userService, jwtService);
+    private final Authentication authentication = mock(Authentication.class);
+
+    @BeforeEach
+    void setUp() {
+        when(authentication.getName()).thenReturn("1");
+    }
 
     @Test
     void givenUsers_whenFindAll_thenReturnsOk() {
@@ -102,13 +110,13 @@ class UserControllerTest {
     }
 
     @Test
-    void givenValidRequest_whenUpdateUser_thenReturnsOk() {
+    void givenOwnId_whenUpdateUser_thenReturnsOk() {
         UpdateUserRequest request = new UpdateUserRequest();
         UserDTO user = new UserDTO();
         user.setId(1L);
         when(userService.updateUser(1L, request)).thenReturn(user);
 
-        ResponseEntity<UserDTO> response = controller.updateUser(1L, request);
+        ResponseEntity<UserDTO> response = controller.updateUser(1L, authentication, request);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -116,20 +124,34 @@ class UserControllerTest {
     }
 
     @Test
-    void givenExistingUser_whenDeleteUser_thenReturnsNoContent() {
-        ResponseEntity<Void> response = controller.deleteUser(1L);
+    void givenOtherId_whenUpdateUser_thenReturnsForbidden() {
+        ResponseEntity<UserDTO> response = controller.updateUser(99L, authentication, new UpdateUserRequest());
+
+        assertEquals(403, response.getStatusCode().value());
+    }
+
+    @Test
+    void givenOwnId_whenDeleteUser_thenReturnsNoContent() {
+        ResponseEntity<Void> response = controller.deleteUser(1L, authentication);
 
         assertEquals(204, response.getStatusCode().value());
         verify(userService).deleteUser(1L);
     }
 
     @Test
-    void givenExistingUser_whenFindProjectsByUserId_thenReturnsOk() {
+    void givenOtherId_whenDeleteUser_thenReturnsForbidden() {
+        ResponseEntity<Void> response = controller.deleteUser(99L, authentication);
+
+        assertEquals(403, response.getStatusCode().value());
+    }
+
+    @Test
+    void givenOwnId_whenFindProjectsByUserId_thenReturnsOk() {
         ProjectDTO project = new ProjectDTO();
         project.setId(10L);
         when(userService.findProjectsByUserId(1L)).thenReturn(List.of(project));
 
-        ResponseEntity<List<ProjectDTO>> response = controller.findProjectsByUserId(1L);
+        ResponseEntity<List<ProjectDTO>> response = controller.findProjectsByUserId(1L, authentication);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -137,7 +159,14 @@ class UserControllerTest {
     }
 
     @Test
-    void givenValidRequest_whenCreateProject_thenReturnsOk() {
+    void givenOtherId_whenFindProjectsByUserId_thenReturnsForbidden() {
+        ResponseEntity<List<ProjectDTO>> response = controller.findProjectsByUserId(99L, authentication);
+
+        assertEquals(403, response.getStatusCode().value());
+    }
+
+    @Test
+    void givenOwnId_whenCreateProject_thenReturnsOk() {
         ProjectDTO request = new ProjectDTO();
         request.setName("Backend");
         ProjectDTO created = new ProjectDTO();
@@ -145,10 +174,17 @@ class UserControllerTest {
         created.setName("Backend");
         when(userService.createProject(1L, request)).thenReturn(created);
 
-        ResponseEntity<ProjectDTO> response = controller.createProject(1L, request);
+        ResponseEntity<ProjectDTO> response = controller.createProject(1L, authentication, request);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals("Backend", response.getBody().getName());
+    }
+
+    @Test
+    void givenOtherId_whenCreateProject_thenReturnsForbidden() {
+        ResponseEntity<ProjectDTO> response = controller.createProject(99L, authentication, new ProjectDTO());
+
+        assertEquals(403, response.getStatusCode().value());
     }
 }

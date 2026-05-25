@@ -10,6 +10,7 @@ import com.projectmanager.backend.service.JwtService;
 import com.projectmanager.backend.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,25 +54,46 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+    public ResponseEntity<UserDTO> updateUser(
+            @PathVariable Long id,
+            Authentication authentication,
+            @Valid @RequestBody UpdateUserRequest request) {
+        if (!id.equals(requesterId(authentication))) {
+            return ResponseEntity.status(403).build();
+        }
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id, Authentication authentication) {
+        if (!id.equals(requesterId(authentication))) {
+            return ResponseEntity.status(403).build();
+        }
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/projects")
-    public ResponseEntity<List<ProjectDTO>> findProjectsByUserId(@PathVariable Long id) {
+    public ResponseEntity<List<ProjectDTO>> findProjectsByUserId(@PathVariable Long id, Authentication authentication) {
+        if (!id.equals(requesterId(authentication))) {
+            return ResponseEntity.status(403).build();
+        }
         return ResponseEntity.ok(userService.findProjectsByUserId(id));
     }
 
     @PostMapping("/{id}/projects")
-    public ResponseEntity<ProjectDTO> createProject(@PathVariable Long id, @Valid @RequestBody ProjectDTO request) {
+    public ResponseEntity<ProjectDTO> createProject(
+            @PathVariable Long id,
+            Authentication authentication,
+            @Valid @RequestBody ProjectDTO request) {
+        if (!id.equals(requesterId(authentication))) {
+            return ResponseEntity.status(403).build();
+        }
         ProjectDTO projectDTO = userService.createProject(id, request);
-        return  ResponseEntity.ok(projectDTO);
+        return ResponseEntity.ok(projectDTO);
     }
 
+    private Long requesterId(Authentication authentication) {
+        return Long.parseLong(authentication.getName());
+    }
 }

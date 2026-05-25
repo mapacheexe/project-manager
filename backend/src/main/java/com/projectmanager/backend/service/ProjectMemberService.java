@@ -17,6 +17,7 @@ import java.util.List;
 import static com.projectmanager.backend.model.ProjectRole.ADMIN;
 import static com.projectmanager.backend.model.ProjectRole.MEMBER;
 import static com.projectmanager.backend.model.ProjectRole.OWNER;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -43,10 +44,12 @@ public class ProjectMemberService {
         this.projectMapper = projectMapper;
     }
 
-    public List<ProjectMemberDTO> findMembers(Long projectId) {
+    public List<ProjectMemberDTO> findMembers(Long projectId, Long requesterId) {
         if (!projectRepository.existsById(projectId)) {
             throw new ResponseStatusException(NOT_FOUND, "Project not found");
         }
+
+        permissionService.requireProjectRole(projectId, requesterId, OWNER, ADMIN, MEMBER);
 
         return userProjectRepository.findByProjectId(projectId)
                 .stream()
@@ -78,10 +81,20 @@ public class ProjectMemberService {
     public ProjectMemberDTO updateMember(Long projectId, Long userId, ProjectMemberDTO request, Long requesterId) {
         permissionService.requireProjectRole(projectId, requesterId, OWNER, ADMIN);
 
+        String newRole = request.getRole();
+        boolean isKnownRole = OWNER.equalsIgnoreCase(newRole) || ADMIN.equalsIgnoreCase(newRole) || MEMBER.equalsIgnoreCase(newRole);
+        if (!isKnownRole) {
+            throw new ResponseStatusException(BAD_REQUEST, "Invalid role");
+        }
+
+        if (OWNER.equalsIgnoreCase(newRole)) {
+            permissionService.requireProjectRole(projectId, requesterId, OWNER);
+        }
+
         UserProject userProject = userProjectRepository.findByUserIdAndProjectId(userId, projectId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Project member not found"));
 
-        userProject.setRole(request.getRole());
+        userProject.setRole(newRole);
 
         return projectMapper.toProjectMemberDTO(userProjectRepository.save(userProject));
     }

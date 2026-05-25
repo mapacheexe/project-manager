@@ -33,9 +33,9 @@ class ProjectMemberControllerTest {
         ProjectMemberDTO member = new ProjectMemberDTO();
         member.setUserId(2L);
         member.setRole(MEMBER);
-        when(projectMemberService.findMembers(10L)).thenReturn(List.of(member));
+        when(projectMemberService.findMembers(10L, 1L)).thenReturn(List.of(member));
 
-        ResponseEntity<List<ProjectMemberDTO>> response = controller.findMembers(10L);
+        ResponseEntity<List<ProjectMemberDTO>> response = controller.findMembers(10L, authentication);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());

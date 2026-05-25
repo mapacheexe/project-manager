@@ -20,8 +20,10 @@ public class ProjectMemberController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectMemberDTO>> findMembers(@PathVariable Long projectId) {
-        return ResponseEntity.ok(projectMemberService.findMembers(projectId));
+    public ResponseEntity<List<ProjectMemberDTO>> findMembers(
+            @PathVariable Long projectId,
+            Authentication authentication) {
+        return ResponseEntity.ok(projectMemberService.findMembers(projectId, requesterId(authentication)));
     }
 
     @PostMapping("/{userId}")

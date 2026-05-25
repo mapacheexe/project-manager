@@ -80,11 +80,12 @@ class TaskServiceTest {
         second.setTitle("Test 2");
         second.setPosition(2);
 
-        when(stageRepository.existsById(100L)).thenReturn(true);
+        when(stageRepository.findById(100L)).thenReturn(Optional.of(stageWithProject(100L, 10L)));
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
         when(taskRepository.findByStageIdOrderByPositionAscIdAsc(100L))
                 .thenReturn(List.of(first, second));
 
-        var result = service.findByStageId(100L);
+        var result = service.findByStageId(100L, 1L);
 
         assertEquals(2, result.size());
         assertEquals(100L, result.get(0).getStageId());
@@ -93,11 +94,11 @@ class TaskServiceTest {
 
     @Test
     void givenMissingStage_whenFindByStageId_thenNotFoundThrown() {
-        when(stageRepository.existsById(100L)).thenReturn(false);
+        when(stageRepository.findById(100L)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> service.findByStageId(100L)
+                () -> service.findByStageId(100L, 1L)
         );
 
         assertEquals(NOT_FOUND, exception.getStatusCode());
@@ -107,8 +108,9 @@ class TaskServiceTest {
     void givenExistingTask_whenFindById_thenReturnsTask() {
         Task task = taskInStage(200L, 100L, 10L);
         when(taskRepository.findById(200L)).thenReturn(Optional.of(task));
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
 
-        var result = service.findById(200L);
+        var result = service.findById(200L, 1L);
 
         assertEquals(200L, result.getId());
     }
@@ -119,7 +121,7 @@ class TaskServiceTest {
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> service.findById(200L)
+                () -> service.findById(200L, 1L)
         );
 
         assertEquals(NOT_FOUND, exception.getStatusCode());

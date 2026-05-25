@@ -19,8 +19,10 @@ public class TaskController {
     }
 
     @GetMapping("/stages/{stageId}/tasks")
-    public ResponseEntity<List<TaskDTO>> findByStageId(@PathVariable Long stageId) {
-        return ResponseEntity.ok(taskService.findByStageId(stageId));
+    public ResponseEntity<List<TaskDTO>> findByStageId(
+            @PathVariable Long stageId,
+            Authentication authentication) {
+        return ResponseEntity.ok(taskService.findByStageId(stageId, requesterId(authentication)));
     }
 
     @PostMapping("/stages/{stageId}/tasks")
@@ -33,8 +35,8 @@ public class TaskController {
     }
 
     @GetMapping("/tasks/{id}")
-    public ResponseEntity<TaskDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(taskService.findById(id));
+    public ResponseEntity<TaskDTO> findById(@PathVariable Long id, Authentication authentication) {
+        return ResponseEntity.ok(taskService.findById(id, requesterId(authentication)));
     }
 
     @PatchMapping("/tasks/{id}")

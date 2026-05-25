@@ -21,10 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -53,9 +56,10 @@ class ProjectMemberServiceTest {
         member.setRole(MEMBER);
 
         when(projectRepository.existsById(10L)).thenReturn(true);
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
         when(userProjectRepository.findByProjectId(10L)).thenReturn(List.of(member));
 
-        var result = service.findMembers(10L);
+        var result = service.findMembers(10L, 1L);
 
         assertEquals(1, result.size());
         assertEquals(2L, result.get(0).getUserId());
@@ -67,7 +71,7 @@ class ProjectMemberServiceTest {
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> service.findMembers(10L)
+                () -> service.findMembers(10L, 1L)
         );
 
         assertEquals(NOT_FOUND, exception.getStatusCode());
@@ -157,14 +161,51 @@ class ProjectMemberServiceTest {
 
     @Test
     void givenMissingMembership_whenUpdateMember_thenNotFoundThrown() {
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
+        ProjectMemberDTO request = new ProjectMemberDTO();
+        request.setRole(MEMBER);
         when(userProjectRepository.findByUserIdAndProjectId(2L, 10L)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> service.updateMember(10L, 2L, new ProjectMemberDTO(), 1L)
+                () -> service.updateMember(10L, 2L, request, 1L)
         );
 
         assertEquals(NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void givenAdminRequester_whenUpdateMemberToOwner_thenForbiddenThrown() {
+        doNothing().when(permissionService).requireProjectRole(10L, 1L, OWNER, ADMIN);
+        doThrow(new ResponseStatusException(FORBIDDEN))
+                .when(permissionService).requireProjectRole(10L, 1L, OWNER);
+
+        ProjectMemberDTO request = new ProjectMemberDTO();
+        request.setRole(OWNER);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.updateMember(10L, 2L, request, 1L)
+        );
+
+        assertEquals(FORBIDDEN, exception.getStatusCode());
+        verify(userProjectRepository, never()).save(any(UserProject.class));
+    }
+
+    @Test
+    void givenInvalidRole_whenUpdateMember_thenBadRequestThrown() {
+        doNothing().when(permissionService).requireProjectRole(any(), any(), any());
+
+        ProjectMemberDTO request = new ProjectMemberDTO();
+        request.setRole("SUPERADMIN");
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.updateMember(10L, 2L, request, 1L)
+        );
+
+        assertEquals(BAD_REQUEST, exception.getStatusCode());
+        verify(userProjectRepository, never()).save(any(UserProject.class));
     }
 
     @Test

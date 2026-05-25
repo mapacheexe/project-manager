@@ -30,9 +30,9 @@ class StageControllerTest {
     void givenExistingProject_whenFindByProjectId_thenReturnsOk() {
         StageDTO stage = new StageDTO();
         stage.setId(100L);
-        when(stageService.findByProjectId(10L)).thenReturn(List.of(stage));
+        when(stageService.findByProjectId(10L, 1L)).thenReturn(List.of(stage));
 
-        ResponseEntity<List<StageDTO>> response = controller.findByProjectId(10L);
+        ResponseEntity<List<StageDTO>> response = controller.findByProjectId(10L, authentication);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
