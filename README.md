@@ -141,6 +141,7 @@ Todas las rutas salvo `/users` (registro) y `/users/login` requieren `Authorizat
 ```
 project-manager/
 ├── backend/
+│   ├── Dockerfile
 │   └── src/main/java/com/projectmanager/backend/
 │       ├── controller/     # UserController, ProjectController...
 │       ├── service/        # Lógica de negocio por entidad
@@ -148,6 +149,8 @@ project-manager/
 │       ├── entity/         # Entidades JPA
 │       └── model/          # DTOs y modelos de transferencia
 ├── frontend/
+│   ├── Dockerfile
+│   ├── nginx.conf
 │   └── src/app/
 │       ├── models/         # Interfaces de dominio TypeScript
 │       ├── services/       # Servicios HTTP
@@ -172,15 +175,29 @@ project-manager/
 - Node.js 20 LTS
 - Docker
 
-### Base de datos
+### Con Docker (recomendado)
+
+Levanta los tres servicios (base de datos, backend y frontend) en un solo comando:
 
 ```bash
 docker compose up -d
 ```
 
-Levanta PostgreSQL 16 en el puerto 5432 (base de datos `projectmanager`, usuario `admin`, contraseña `admin`).
+| Servicio | URL |
+|---|---|
+| Frontend | http://localhost:4200 |
+| API | http://localhost:8080 |
+| PostgreSQL | localhost:5432 |
 
-### Backend
+### Sin Docker
+
+#### Base de datos
+
+```bash
+docker compose up db -d
+```
+
+#### Backend
 
 ```bash
 cd backend
@@ -189,7 +206,7 @@ cd backend
 
 Disponible en `http://localhost:8080`. El esquema se crea automáticamente al arrancar.
 
-### Frontend
+#### Frontend
 
 ```bash
 cd frontend
@@ -203,15 +220,15 @@ Disponible en `http://localhost:4200`.
 
 ## Tests
 
-### Backend — 99 tests, 100 % de cobertura
+### Backend — 105 tests, 100 % de cobertura
 
 | Clase | Tests |
 |---|---|
 | UserServiceTest | 15 |
+| UserControllerTest | 14 |
 | TaskServiceTest | 14 |
-| ProjectMemberServiceTest | 13 |
+| ProjectMemberServiceTest | 15 |
 | StageServiceTest | 12 |
-| UserControllerTest | 10 |
 | ProjectServiceTest | 6 |
 | TaskControllerTest | 6 |
 | StageControllerTest | 5 |
