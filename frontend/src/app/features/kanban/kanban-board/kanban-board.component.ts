@@ -10,11 +10,12 @@ import { RouterLink } from '@angular/router';
 import { StageColumnComponent } from '../stage-column/stage-column.component';
 import { TaskFormValue, TaskModalComponent } from '../../../shared/components/task-modal/task-modal.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { AutofocusDirective } from '../../../shared/directives/autofocus.directive';
 
 @Component({
   selector: 'app-kanban-board',
   standalone: true,
-  imports: [RouterLink, StageColumnComponent, TaskModalComponent, ConfirmDialogComponent],
+  imports: [RouterLink, StageColumnComponent, TaskModalComponent, ConfirmDialogComponent, AutofocusDirective],
   templateUrl: './kanban-board.component.html',
   styleUrl: './kanban-board.component.scss',
 })

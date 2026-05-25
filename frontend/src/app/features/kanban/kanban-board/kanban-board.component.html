@@ -18,7 +18,7 @@
         (input)="newStageName.set($any($event.target).value)"
         (keydown.enter)="createStage()"
         (keydown.escape)="showStageForm.set(false)"
-        autofocus
+        appAutofocus
       />
       <button class="btn" type="button" (click)="createStage()">Crear</button>
       <button class="btn btn--ghost" type="button" (click)="showStageForm.set(false)">Cancelar</button>
