@@ -33,6 +33,7 @@ Interfaz responsiva con modo claro/oscuro, control de roles y tablero Kanban int
 | CI | GitHub Actions | — |
 | CD | Railway + Vercel | — |
 | Estilos | SCSS propio (sin frameworks UI) | — |
+| PWA | Angular Service Worker | — |
 
 ---
 
@@ -47,6 +48,7 @@ Interfaz responsiva con modo claro/oscuro, control de roles y tablero Kanban int
 - Confirmación en acciones destructivas
 - Modo claro / oscuro automático (`prefers-color-scheme`)
 - Diseño responsivo: vista global en escritorio, scroll snap columna a columna en móvil
+- Instalable como aplicación de escritorio (PWA) cuando se accede con HTTPS
 
 ### Roles y permisos
 
@@ -151,6 +153,10 @@ project-manager/
 ├── frontend/
 │   ├── Dockerfile
 │   ├── nginx.conf
+│   ├── ngsw-config.json        # Configuración del service worker (PWA)
+│   ├── public/
+│   │   ├── manifest.webmanifest  # Manifiesto PWA
+│   │   └── icons/              # Iconos 192×192 y 512×512
 │   └── src/app/
 │       ├── models/         # Interfaces de dominio TypeScript
 │       ├── services/       # Servicios HTTP
@@ -297,6 +303,8 @@ private static final Comparator<Task> TASK_ORDER =
 
 **Dark mode en controles nativos.** Los `<select>` del navegador no se adaptaban al modo oscuro. Se resolvió con `color-scheme: dark` en los tokens CSS, sin JavaScript.
 
+**PWA instalable.** La aplicación incluye soporte de Progressive Web App mediante `@angular/service-worker`. Con `ngsw-config.json` se define la estrategia de caché y con `manifest.webmanifest` los metadatos de instalación. Una vez desplegada con HTTPS, el navegador ofrece instalarla como aplicación nativa de escritorio sin distribuir ningún ejecutable.
+
 ---
 
 ## Posibles mejoras
@@ -310,5 +318,5 @@ private static final Comparator<Task> TASK_ORDER =
 | Medio plazo | Notificaciones en tiempo real (WebSockets) |
 | Medio plazo | Asignación de tareas a miembros |
 | Medio plazo | Fechas límite y vista de calendario |
-| Largo plazo | App móvil nativa (Capacitor) |
+| Largo plazo | App móvil nativa (Capacitor) — la PWA ya cubre escritorio |
 | Largo plazo | Integraciones externas (GitHub, Slack) |
