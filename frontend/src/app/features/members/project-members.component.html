@@ -44,17 +44,21 @@
   <div class="members-page__add">
     <h3 class="members-page__add-title">Añadir miembro</h3>
     <div class="members-page__add-form">
-      <select
-        class="form-control"
-        [value]="selectedUserId() ?? ''"
-        (change)="selectedUserId.set(+$any($event.target).value || null)"
-      >
-        <option value="">Selecciona un usuario...</option>
-        @for (user of availableUsers(); track user.id) {
-          <option [value]="user.id">{{ user.name }} — {{ user.email }}</option>
+      <div class="members-page__add-field">
+        <input
+          class="form-control"
+          type="email"
+          placeholder="correo@ejemplo.com"
+          autocomplete="off"
+          [value]="emailInput()"
+          (input)="emailInput.set($any($event.target).value)"
+          (keydown.enter)="addMember()"
+        />
+        @if (emailError()) {
+          <span class="members-page__add-error">{{ emailError() }}</span>
         }
-      </select>
-      <button class="btn" type="button" [disabled]="!selectedUserId()" (click)="addMember()">
+      </div>
+      <button class="btn" type="button" [disabled]="!canAdd()" (click)="addMember()">
         Añadir
       </button>
     </div>

@@ -39,10 +39,23 @@
   &__add-form {
     display: flex;
     gap: 0.75rem;
-
-    select { flex: 1; }
+    align-items: flex-start;
 
     @media (max-width: 640px) { flex-direction: column; }
+  }
+
+  &__add-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    input { width: 100%; }
+  }
+
+  &__add-error {
+    font-size: 0.75rem;
+    color: var(--color-danger);
   }
 }
 

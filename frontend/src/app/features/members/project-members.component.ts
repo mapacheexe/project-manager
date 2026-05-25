@@ -60,23 +60,37 @@ export class ProjectMembersComponent {
     }));
   });
 
-  protected readonly availableUsers = computed(() => {
-    const memberIds = new Set(this.members().map(m => m.userId));
-    return this.allUsers().filter(u => !memberIds.has(u.id));
+  protected readonly emailInput = signal('');
+
+  private readonly memberIds = computed(() => new Set(this.members().map(m => m.userId)));
+
+  protected readonly resolvedUser = computed(() => {
+    const email = this.emailInput().trim().toLowerCase();
+    if (!email) return null;
+    return this.allUsers().find(u => u.email.toLowerCase() === email) ?? null;
   });
 
-  protected readonly selectedUserId = signal<number | null>(null);
+  protected readonly emailError = computed(() => {
+    const email = this.emailInput().trim();
+    if (!email) return null;
+    const user = this.resolvedUser();
+    if (!user) return 'No se encontró ningún usuario con ese correo';
+    if (this.memberIds().has(user.id)) return 'Este usuario ya es miembro del proyecto';
+    return null;
+  });
+
+  protected readonly canAdd = computed(() => !!this.resolvedUser() && !this.emailError());
 
   private reload(): void {
     this.refresh.update(n => n + 1);
   }
 
   protected addMember(): void {
-    const userId = this.selectedUserId();
-    if (!userId) return;
-    this.projectService.addMember(this.id(), userId).subscribe({
+    const user = this.resolvedUser();
+    if (!user) return;
+    this.projectService.addMember(this.id(), user.id).subscribe({
       next: () => {
-        this.selectedUserId.set(null);
+        this.emailInput.set('');
         this.reload();
         this.toastService.success('Miembro añadido');
       },
