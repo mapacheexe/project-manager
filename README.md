@@ -30,7 +30,8 @@ Interfaz responsiva con modo claro/oscuro, control de roles y tablero Kanban int
 | ORM | Spring Data JPA / Hibernate | — |
 | Tests backend | JUnit 5 + Mockito + JaCoCo | — |
 | Tests frontend | Vitest | — |
-| CI/CD | GitHub Actions | — |
+| CI | GitHub Actions | — |
+| CD | Railway + Vercel | — |
 | Estilos | SCSS propio (sin frameworks UI) | — |
 
 ---
