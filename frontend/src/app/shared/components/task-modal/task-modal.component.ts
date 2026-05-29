@@ -30,7 +30,11 @@ export class TaskModalComponent {
     stageId: [0 as number],
   });
 
-  readonly statusOptions = ['PENDING', 'IN_PROGRESS', 'DONE'];
+  readonly statusOptions = [
+    { value: 'PENDING',     label: 'Pendiente'   },
+    { value: 'IN_PROGRESS', label: 'En progreso' },
+    { value: 'DONE',        label: 'Hecho'       },
+  ];
 
   constructor() {
     effect(() => {

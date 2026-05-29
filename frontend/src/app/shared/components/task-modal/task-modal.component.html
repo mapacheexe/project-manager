@@ -17,8 +17,8 @@
         <label for="status">Estado</label>
         <select id="status" formControlName="status" class="form-control">
           <option value="">Sin estado</option>
-          @for (s of statusOptions; track s) {
-            <option [value]="s">{{ s }}</option>
+          @for (s of statusOptions; track s.value) {
+            <option [value]="s.value">{{ s.label }}</option>
           }
         </select>
       </div>
