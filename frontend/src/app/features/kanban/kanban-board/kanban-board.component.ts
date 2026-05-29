@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, numberAttribute, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, numberAttribute, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of, switchMap } from 'rxjs';
 import { ProjectService } from '../../../services/project.service';
@@ -6,7 +6,7 @@ import { StageService } from '../../../services/stage.service';
 import { TaskService } from '../../../services/task.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { Stage, Task } from '../../../models';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { StageColumnComponent } from '../stage-column/stage-column.component';
 import { TaskFormValue, TaskModalComponent } from '../../../shared/components/task-modal/task-modal.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -24,6 +24,7 @@ export class KanbanBoardComponent {
   private readonly stageService = inject(StageService);
   private readonly taskService = inject(TaskService);
   private readonly toastService = inject(ToastService);
+  private readonly router = inject(Router);
 
   readonly id = input.required({ transform: numberAttribute });
 
@@ -38,6 +39,14 @@ export class KanbanBoardComponent {
 
   protected readonly stages = computed(() => this.stagesResource.value() ?? []);
   protected readonly project = this.projectResource.value;
+
+  constructor() {
+    effect(() => {
+      if (this.projectResource.error()) {
+        this.router.navigate(['/dashboard']);
+      }
+    });
+  }
 
   protected readonly showStageForm = signal(false);
   protected readonly newStageName = signal('');
