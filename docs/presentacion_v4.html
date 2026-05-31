@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css">
+<title>Sistema de Gestión de Proyectos — Mario González Giménez</title>
+<style>
+:root{
+  --indigo:#4f46e5; --indigo-dk:#4338ca; --indigo-lt:rgba(79,70,229,.13);
+  --green:#10b981;  --green-lt:rgba(16,185,129,.11);
+  --navy:#0f172a;   --surf:#1e293b; --surf2:#334155;
+  --muted:#64748b;  --dim:#94a3b8;  --txt:#f1f5f9;
+  --dot:rgba(148,163,184,.12);
+  --kanban-col-bg:#162032;
+}
+@media(prefers-color-scheme:light){
+  :root{
+    --navy:#f1f5f9; --surf:#ffffff; --surf2:#e2e8f0;
+    --muted:#64748b; --dim:#64748b; --txt:#1e293b;
+    --indigo-lt:rgba(79,70,229,.1); --green-lt:rgba(16,185,129,.09);
+    --dot:rgba(100,116,139,.22); --kanban-col-bg:#eaeff6;
+  }
+  html,body{background:#dde3ee}
+  #deck::before{background-image:radial-gradient(circle,rgba(100,116,139,.22) 1px,transparent 1px)}
+  svg text[fill="#e2e8f0"]   { fill:#1e293b }
+  svg text[fill="#94a3b8"]   { fill:#64748b }
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#060d1a;
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--txt)}
+
+/* ── fixed-size canvas ── */
+#deck{
+  position:fixed;
+  width:1280px;height:720px;
+  background:var(--navy);
+  overflow:hidden;
+}
+
+/* dot-grid overlay */
+#deck::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(circle,rgba(148,163,184,.13) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+
+/* ── slides ── */
+.slide{
+  position:absolute;inset:0;display:none;
+  padding:52px 70px 52px 70px;
+  flex-direction:column;
+  z-index:1;
+}
+.slide.active{display:flex}
+
+/* ── shared components ── */
+.slide-title{
+  font-size:2rem;font-weight:800;color:var(--txt);
+  border-left:4px solid var(--indigo);padding-left:.9rem;
+  margin-bottom:1.6rem;flex-shrink:0;line-height:1.2;
+}
+.card{
+  background:var(--surf);border:1px solid var(--surf2);
+  border-radius:10px;padding:1rem 1.3rem;
+}
+.hdr{font-size:.72rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--indigo);margin-bottom:.5rem}
+ul.pts{list-style:none}
+ul.pts li{position:relative;padding:.32rem 0 .32rem 1.1rem;
+  font-size:.95rem;color:var(--dim);line-height:1.45}
+ul.pts li::before{content:'›';position:absolute;left:0;color:var(--indigo);font-weight:700}
+ul.d{list-style:none}
+ul.d li{position:relative;padding:.3rem 0 .3rem 1.05rem;
+  font-size:.91rem;color:var(--dim);line-height:1.45}
+ul.d li::before{content:'›';position:absolute;left:0;color:var(--indigo);font-weight:700}
+.stk-lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--muted);margin-bottom:.45rem;font-weight:700}
+.sp{display:inline-flex;align-items:center;gap:.45rem;padding:.45rem 1.05rem;
+  background:var(--surf);border:1px solid var(--surf2);border-radius:7px;
+  font-size:1rem;color:var(--txt);font-weight:500;white-space:nowrap}
+.sp i{font-size:1.4rem;line-height:1}
+.sp svg{flex-shrink:0}
+.feat-li{list-style:none}
+.feat-li li{display:flex;align-items:flex-start;gap:.65rem;
+  padding:.45rem 0;border-bottom:1px solid var(--surf2);
+  font-size:1.05rem;color:var(--dim);line-height:1.6}
+.feat-li li:last-child{border:none}
+
+/* ── progress / counter / nav ── */
+#prog{position:fixed;bottom:0;left:0;height:3px;background:var(--indigo);
+  transition:width .28s ease;z-index:99}
+#ctr{position:fixed;bottom:.5rem;right:1rem;font-size:.7rem;
+  color:var(--muted);z-index:99;font-variant-numeric:tabular-nums}
+.nb{position:fixed;top:50%;transform:translateY(-50%);
+  background:rgba(15,23,42,.85);border:1px solid var(--surf2);
+  color:var(--muted);width:2.2rem;height:2.2rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:99;font-size:1.05rem;
+  transition:all .15s;backdrop-filter:blur(6px);user-select:none}
+.nb:hover{color:var(--txt);border-color:var(--indigo)}
+#nb-p{left:.6rem}
+#nb-n{right:.6rem}
+
+/* ══════════════════════════════
+   1 · PORTADA
+══════════════════════════════ */
+#s1{
+  background:linear-gradient(135deg,#312e81 0%,#4f46e5 55%,#6d6af5 100%);
+  justify-content:center;align-items:flex-start;padding:56px 80px;
+}
+#s1::after{content:'';position:absolute;right:-70px;bottom:-70px;
+  width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.05)}
+#s1::before{content:'';position:absolute;right:90px;top:-50px;
+  width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04)}
+.c-sup{font-size:.75rem;text-transform:uppercase;letter-spacing:.18em;
+  color:rgba(255,255,255,.52);margin-bottom:1.3rem;position:relative;z-index:1}
+.c-h1{font-size:3rem;font-weight:800;line-height:1.08;color:#fff;
+  max-width:680px;margin-bottom:.9rem;position:relative;z-index:1}
+.c-sub{font-size:1.05rem;color:rgba(255,255,255,.68);
+  margin-bottom:3rem;position:relative;z-index:1}
+.c-meta{display:flex;gap:2.8rem;position:relative;z-index:1}
+.mi label{display:block;font-size:.62rem;text-transform:uppercase;
+  letter-spacing:.1em;color:rgba(255,255,255,.42);margin-bottom:.18rem}
+.mi span{font-size:.9rem;color:rgba(255,255,255,.88);font-weight:600}
+
+/* ══════════════════════════════
+   2 · ÍNDICE
+══════════════════════════════ */
+.idx-g{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;flex:1;align-content:center;max-width:900px;margin:0 auto;width:100%}
+.idx-it{display:flex;align-items:center;gap:1rem;padding:.8rem 1.1rem;
+  background:var(--surf);border:1px solid var(--surf2);border-radius:8px;
+  cursor:pointer;transition:border-color .15s}
+.idx-it:hover{border-color:var(--indigo)}
+.idx-n{font-size:1.3rem;font-weight:800;color:var(--indigo);
+  opacity:.3;min-width:1.7rem}
+.idx-t{font-size:1.05rem;color:var(--txt);font-weight:500}
+</style>
+</head>
+<body>
+<div id="deck">
+
+<!-- ══════════════════════════════════
+     1 · PORTADA
+══════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="c-sup">Proyecto Final de Ciclo · DAW 2.º · Mayo 2026</div>
+  <h1 class="c-h1">Sistema de Gestión<br>de Proyectos y Tareas</h1>
+  <p class="c-sub">Aplicación web colaborativa con tablero Kanban</p>
+  <div class="c-meta">
+    <div class="mi"><label>Autor</label><span>Mario González Giménez</span></div>
+    <div class="mi"><label>Centro</label><span>IES La Vereda</span></div>
+    <div class="mi"><label>Tutor</label><span>Victor Pla Soler</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     2 · ÍNDICE
+══════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="slide-title">Índice</div>
+  <div class="idx-g">
+    <div class="idx-it" onclick="go(2)"><span class="idx-n">01</span><span class="idx-t">¿Qué es el proyecto?</span></div>
+    <div class="idx-it" onclick="go(3)"><span class="idx-n">02</span><span class="idx-t">Planificación</span></div>
+    <div class="idx-it" onclick="go(4)"><span class="idx-n">03</span><span class="idx-t">Roles y permisos</span></div>
+    <div class="idx-it" onclick="go(5)"><span class="idx-n">04</span><span class="idx-t">Diseño visual</span></div>
+    <div class="idx-it" onclick="go(6)"><span class="idx-n">05</span><span class="idx-t">Arquitectura del sistema</span></div>
+    <div class="idx-it" onclick="go(7)"><span class="idx-n">06</span><span class="idx-t">Stack tecnológico</span></div>
+    <div class="idx-it" onclick="go(8)"><span class="idx-n">07</span><span class="idx-t">Modelo de datos</span></div>
+    <div class="idx-it" onclick="go(9)"><span class="idx-n">08</span><span class="idx-t">Frontend Angular</span></div>
+    <div class="idx-it" onclick="go(10)"><span class="idx-n">09</span><span class="idx-t">Backend Spring Boot</span></div>
+    <div class="idx-it" onclick="go(11)"><span class="idx-n">10</span><span class="idx-t">Seguridad JWT</span></div>
+    <div class="idx-it" onclick="go(12)"><span class="idx-n">11</span><span class="idx-t">Tests y calidad</span></div>
+    <div class="idx-it" onclick="go(13)"><span class="idx-n">12</span><span class="idx-t">Conclusiones</span></div>
+    <div class="idx-it" onclick="go(14)"><span class="idx-n">13</span><span class="idx-t">Demo en vivo</span></div>
+  </div>
+</div>
+<!-- ══════════════════════════════════
+     3b · ¿QUÉ ES?
+══════════════════════════════════ -->
+<div class="slide" id="s_intro2">
+  <div class="slide-title">¿Qué es el proyecto?</div>
+  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:3rem">
+
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:1.8rem">
+      <p style="font-size:1.25rem;color:var(--dim);line-height:1.8">
+        Herramienta <strong style="color:var(--txt)">visual y colaborativa</strong> de gestión de proyectos y tareas.
+        Organiza el trabajo en un tablero con columnas y tarjetas para seguir el progreso en equipo.
+      </p>
+      <ul class="feat-li">
+        <li><span style="color:var(--indigo)">◆</span>&nbsp;Proyectos gestionados por miembros con roles diferenciados (OWNER · ADMIN · MEMBER).</li>
+        <li><span style="color:var(--indigo)">◆</span>&nbsp;Columnas personalizables que contienen tarjetas de tarea ordenadas según el estado del trabajo.</li>
+        <li><span style="color:var(--indigo)">◆</span>&nbsp;Disponible como aplicación web, móvil y de escritorio mediante PWA (Progressive Web App).</li>
+      </ul>
+    </div>
+
+    <div style="display:flex;align-items:center">
+      <div style="
+        width:100%;
+        background:var(--navy);
+        background-image:radial-gradient(circle,var(--dot) 1px,transparent 1px);
+        background-size:20px 20px;
+        border:1px solid var(--surf2);border-radius:12px;padding:14px;
+        display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div style="background:var(--kanban-col-bg);border:1px solid var(--surf2);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px">
+          <div style="border-bottom:1px solid var(--surf2);padding:0 0 7px 4px">
+            <span style="font-size:.88rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--dim)">Pendiente</span>
+          </div>
+          <div style="background:var(--surf);border:1px solid var(--surf2);border-left:3px solid #94a3b8;border-radius:4px;padding:12px 14px">
+            <div style="font-size:1rem;font-weight:500;color:var(--txt);margin-bottom:6px">Diseñar login</div>
+            <span style="background:rgba(148,163,184,.15);color:#94a3b8;font-size:.82rem;font-weight:600;padding:2px 9px;border-radius:999px">Pendiente</span>
+          </div>
+          <div style="background:var(--surf);border:1px solid var(--surf2);border-left:3px solid #94a3b8;border-radius:4px;padding:12px 14px">
+            <div style="font-size:1rem;font-weight:500;color:var(--txt);margin-bottom:6px">Configurar Docker</div>
+            <span style="background:rgba(148,163,184,.15);color:#94a3b8;font-size:.82rem;font-weight:600;padding:2px 9px;border-radius:999px">Pendiente</span>
+          </div>
+        </div>
+        <div style="background:var(--kanban-col-bg);border:1px solid var(--surf2);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px">
+          <div style="border-bottom:1px solid var(--surf2);padding:0 0 7px 4px">
+            <span style="font-size:.88rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--dim)">En progreso</span>
+          </div>
+          <div style="background:var(--surf);border:1px solid var(--surf2);border-left:3px solid #f59e0b;border-radius:4px;padding:12px 14px">
+            <div style="font-size:1rem;font-weight:500;color:var(--txt);margin-bottom:6px">API de tareas</div>
+            <span style="background:rgba(245,158,11,.15);color:#f59e0b;font-size:.82rem;font-weight:600;padding:2px 9px;border-radius:999px">En progreso</span>
+          </div>
+        </div>
+        <div style="background:var(--kanban-col-bg);border:1px solid var(--surf2);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px">
+          <div style="border-bottom:1px solid var(--surf2);padding:0 0 7px 4px">
+            <span style="font-size:.88rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--dim)">Completado</span>
+          </div>
+          <div style="background:var(--surf);border:1px solid var(--surf2);border-left:3px solid #10b981;border-radius:4px;padding:12px 14px">
+            <div style="font-size:1rem;font-weight:500;color:var(--txt);margin-bottom:6px">Auth JWT</div>
+            <span style="background:rgba(16,185,129,.15);color:#10b981;font-size:.82rem;font-weight:600;padding:2px 9px;border-radius:999px">Completado</span>
+          </div>
+          <div style="background:var(--surf);border:1px solid var(--surf2);border-left:3px solid #10b981;border-radius:4px;padding:12px 14px">
+            <div style="font-size:1rem;font-weight:500;color:var(--txt);margin-bottom:6px">Modelo de datos</div>
+            <span style="background:rgba(16,185,129,.15);color:#10b981;font-size:.82rem;font-weight:600;padding:2px 9px;border-radius:999px">Completado</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     9 · PLANIFICACIÓN
+══════════════════════════════════ -->
+<div class="slide" id="s9gantt">
+  <div class="slide-title">Planificación — 14 semanas (marzo–mayo 2026)</div>
+  <div style="flex:1;display:flex;align-items:center">
+    <svg viewBox="0 0 1060 334" style="width:100%;max-height:300px">
+      <!-- grid lines -->
+      <line x1="160" y1="0" x2="160" y2="334" stroke="var(--surf2)" stroke-width="1"/>
+      <line x1="224" y1="34" x2="224" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="288" y1="34" x2="288" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="352" y1="34" x2="352" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="416" y1="34" x2="416" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="480" y1="34" x2="480" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="544" y1="34" x2="544" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="608" y1="34" x2="608" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="672" y1="34" x2="672" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="736" y1="34" x2="736" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="800" y1="34" x2="800" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="864" y1="34" x2="864" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="928" y1="34" x2="928" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="992" y1="34" x2="992" y2="334" stroke="var(--surf2)" stroke-width=".5" opacity=".5"/>
+      <line x1="1056" y1="34" x2="1056" y2="334" stroke="var(--surf2)" stroke-width="1"/>
+      <line x1="160" y1="34" x2="1060" y2="34" stroke="var(--surf2)" stroke-width="1"/>
+      <!-- week numbers -->
+      <text x="192" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">1</text>
+      <text x="256" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">2</text>
+      <text x="320" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">3</text>
+      <text x="384" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">4</text>
+      <text x="448" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">5</text>
+      <text x="512" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">6</text>
+      <text x="576" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">7</text>
+      <text x="640" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">8</text>
+      <text x="704" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">9</text>
+      <text x="768" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">10</text>
+      <text x="832" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">11</text>
+      <text x="896" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">12</text>
+      <text x="960" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">13</text>
+      <text x="1024" y="22" font-family="Segoe UI,sans-serif" font-size="12" fill="var(--dim)" text-anchor="middle">14</text>
+      <!-- rows -->
+      <text x="154" y="55" font-family="Segoe UI,sans-serif" font-size="13" fill="var(--dim)" text-anchor="end">Backend</text>
+      <rect x="160" y="42" width="192" height="20" rx="4" fill="#10b981" opacity=".85"/>
+      <text x="154" y="89" font-family="Segoe UI,sans-serif" font-size="13" fill="var(--dim)" text-anchor="end">Setup frontend</text>
+      <rect x="288" y="76" width="128" height="20" rx="4" fill="#818cf8" opacity=".85"/>
+      <text x="154" y="123" font-family="Segoe UI,sans-serif" font-size="13" fill="var(--dim)" text-anchor="end">Auth (Fases 2–4)</text>
+      <rect x="352" y="110" width="192" height="20" rx="4" fill="#4f46e5" opacity=".85"/>
+      <text x="154" y="157" font-family="Segoe UI,sans-serif" font-size="13" fill="var(--dim)" text-anchor="end">Dashboard (Fase 5)</text>
+      <rect x="480" y="144" width="128" height="20" rx="4" fill="#0ea5e9" opacity=".85"/>
+      <text x="154" y="191" font-family="Segoe UI,sans-serif" font-size="13" fill="var(--dim)" text-anchor="end">Kanban (Fases 6–6b)</text>
+      <rect x="544" y="178" width="192" height="20" rx="4" fill="#0ea5e9" opacity=".85"/>
+      <text x="154" y="225" font-family="Segoe UI,sans-serif" font-size="13" fill="var(--dim)" text-anchor="end">Modales y Toast (7–8)</text>
+      <rect x="672" y="212" width="192" height="20" rx="4" fill="#8b5cf6" opacity=".85"/>
+      <text x="154" y="259" font-family="Segoe UI,sans-serif" font-size="13" fill="var(--dim)" text-anchor="end">UI avanzada</text>
+      <rect x="800" y="246" width="192" height="20" rx="4" fill="#f59e0b" opacity=".85"/>
+      <text x="154" y="293" font-family="Segoe UI,sans-serif" font-size="13" fill="var(--dim)" text-anchor="end">Tests y CI/CD</text>
+      <rect x="864" y="280" width="192" height="20" rx="4" fill="#ef4444" opacity=".85"/>
+      <text x="154" y="327" font-family="Segoe UI,sans-serif" font-size="13" fill="var(--dim)" text-anchor="end">JWT y seguridad</text>
+      <rect x="928" y="314" width="128" height="20" rx="4" fill="#06b6d4" opacity=".85"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     10 · ROLES Y PERMISOS (opcional)
+══════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="slide-title">Roles y permisos</div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center">
+    <table style="width:72%;border-collapse:collapse;font-size:.92rem">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:.5rem 1rem;color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;border-bottom:2px solid var(--surf2)">Acción</th>
+          <th style="text-align:center;padding:.5rem 1rem;color:var(--dim);font-weight:700;font-size:.9rem;border-bottom:2px solid var(--surf2)">MEMBER</th>
+          <th style="text-align:center;padding:.5rem 1rem;color:#f59e0b;font-weight:700;font-size:.9rem;border-bottom:2px solid var(--surf2)">ADMIN</th>
+          <th style="text-align:center;padding:.5rem 1rem;color:var(--indigo);font-weight:700;font-size:.9rem;border-bottom:2px solid var(--surf2)">OWNER</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4" style="padding:.3rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--surf);border-top:1px solid var(--surf2)">Tareas</td></tr>
+        <tr><td style="padding:.45rem 1rem;color:var(--dim)">Ver tablero y tareas</td><td style="text-align:center;color:var(--dim)">✓</td><td style="text-align:center;color:#f59e0b">✓</td><td style="text-align:center;color:var(--indigo)">✓</td></tr>
+        <tr><td style="padding:.45rem 1rem;color:var(--dim)">Crear · editar · mover · eliminar tarea</td><td style="text-align:center;color:var(--dim)">✓</td><td style="text-align:center;color:#f59e0b">✓</td><td style="text-align:center;color:var(--indigo)">✓</td></tr>
+        <tr><td colspan="4" style="padding:.3rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--surf);border-top:1px solid var(--surf2)">Proyecto</td></tr>
+        <tr><td style="padding:.45rem 1rem;color:var(--dim)">Renombrar proyecto</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:#f59e0b">✓</td><td style="text-align:center;color:var(--indigo)">✓</td></tr>
+        <tr><td style="padding:.45rem 1rem;color:var(--dim)">Eliminar proyecto</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--indigo)">✓</td></tr>
+        <tr><td style="padding:.45rem 1rem;color:var(--dim)">Abandonar proyecto</td><td style="text-align:center;color:var(--dim)">✓</td><td style="text-align:center;color:#f59e0b">✓</td><td style="text-align:center;color:var(--muted)">—</td></tr>
+        <tr><td colspan="4" style="padding:.3rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--surf);border-top:1px solid var(--surf2)">Etapas</td></tr>
+        <tr><td style="padding:.45rem 1rem;color:var(--dim)">Gestionar etapas (crear · editar · reordenar · eliminar)</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:#f59e0b">✓</td><td style="text-align:center;color:var(--indigo)">✓</td></tr>
+        <tr><td colspan="4" style="padding:.3rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--surf);border-top:1px solid var(--surf2)">Miembros</td></tr>
+        <tr><td style="padding:.45rem 1rem;color:var(--dim)">Ver miembros del proyecto</td><td style="text-align:center;color:var(--dim)">✓</td><td style="text-align:center;color:#f59e0b">✓</td><td style="text-align:center;color:var(--indigo)">✓</td></tr>
+        <tr><td style="padding:.45rem 1rem;color:var(--dim)">Añadir · eliminar miembro</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:#f59e0b">✓</td><td style="text-align:center;color:var(--indigo)">✓</td></tr>
+        <tr><td style="padding:.45rem 1rem;color:var(--dim)">Cambiar rol de miembro</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:#f59e0b">✓</td><td style="text-align:center;color:var(--indigo)">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     DISEÑO VISUAL
+══════════════════════════════════ -->
+<div class="slide" id="s_design">
+  <div class="slide-title">Diseño visual</div>
+  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.4rem;align-items:stretch">
+
+    <div style="background:rgba(79,70,229,.07);border:1.5px dashed #4f46e5;border-radius:12px;padding:1.4rem 1.6rem;display:flex;flex-direction:column;gap:1rem">
+      <div style="font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#818cf8">Sistema de tokens CSS</div>
+      <ul class="d" style="font-size:1rem;margin:0">
+        <li>Variables CSS en <code style="font-size:.95rem;color:var(--indigo)">_tokens.scss</code> — un cambio afecta toda la app</li>
+        <li>Sin valores escritos directamente en los componentes.</li>
+      </ul>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.55rem">
+        <div style="display:flex;align-items:center;gap:.6rem;font-size:.95rem;color:var(--dim)"><span style="width:18px;height:18px;border-radius:4px;background:#4f46e5;flex-shrink:0"></span>Primary</div>
+        <div style="display:flex;align-items:center;gap:.6rem;font-size:.95rem;color:var(--dim)"><span style="width:18px;height:18px;border-radius:4px;background:#10b981;flex-shrink:0"></span>Success</div>
+        <div style="display:flex;align-items:center;gap:.6rem;font-size:.95rem;color:var(--dim)"><span style="width:18px;height:18px;border-radius:4px;background:#0f172a;border:1px solid #334155;flex-shrink:0"></span>Bg dark</div>
+        <div style="display:flex;align-items:center;gap:.6rem;font-size:.95rem;color:var(--dim)"><span style="width:18px;height:18px;border-radius:4px;background:#f1f5f9;border:1px solid #e2e8f0;flex-shrink:0"></span>Bg light</div>
+      </div>
+      <div style="font-size:.95rem;color:var(--dim)">Tipografía: <strong style="color:var(--txt)">Inter</strong></div>
+      <div style="display:flex;gap:.5rem">
+        <span style="font-size:.9rem;background:rgba(79,70,229,.12);color:#818cf8;padding:.2rem .55rem;border-radius:5px;font-weight:600">400</span>
+        <span style="font-size:.9rem;background:rgba(79,70,229,.12);color:#818cf8;padding:.2rem .55rem;border-radius:5px;font-weight:600">500</span>
+        <span style="font-size:.9rem;background:rgba(79,70,229,.12);color:#818cf8;padding:.2rem .55rem;border-radius:5px;font-weight:600">600</span>
+        <span style="font-size:.9rem;background:rgba(79,70,229,.12);color:#818cf8;padding:.2rem .55rem;border-radius:5px;font-weight:600">700</span>
+      </div>
+      <div>
+        <div style="font-size:.88rem;color:var(--muted);margin-bottom:.5rem">Paleta — <code style="font-size:.88rem;color:var(--indigo)">accentColor(id % 6)</code></div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+          <span style="width:26px;height:26px;min-width:26px;border-radius:50%;background:#6366f1;flex-shrink:0"></span>
+          <span style="width:26px;height:26px;min-width:26px;border-radius:50%;background:#f59e0b;flex-shrink:0"></span>
+          <span style="width:26px;height:26px;min-width:26px;border-radius:50%;background:#10b981;flex-shrink:0"></span>
+          <span style="width:26px;height:26px;min-width:26px;border-radius:50%;background:#f97316;flex-shrink:0"></span>
+          <span style="width:26px;height:26px;min-width:26px;border-radius:50%;background:#8b5cf6;flex-shrink:0"></span>
+          <span style="width:26px;height:26px;min-width:26px;border-radius:50%;background:#06b6d4;flex-shrink:0"></span>
+        </div>
+        <div style="font-size:.85rem;color:var(--dim);margin-top:.4rem">avatares · proyectos · etapas</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(16,185,129,.07);border:1.5px dashed #10b981;border-radius:12px;padding:1.4rem 1.6rem;display:flex;flex-direction:column;gap:1rem">
+      <div style="font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#10b981">Dark / Light mode automático</div>
+      <ul class="d" style="font-size:1rem;margin:0">
+        <li>Se adapta a la preferencia del sistema operativo del usuario — cero configuración</li>
+        <li><code style="font-size:.95rem;color:var(--green)">@media (prefers-color-scheme: dark)</code> redefine los tokens CSS — un único punto de cambio para toda la app</li>
+        <li><code style="font-size:.95rem;color:var(--green)">color-scheme: light/dark</code> — inputs, selects y scrollbars nativos también se adaptan</li>
+        <li>Sin librerías de theming externas — implementado íntegramente con CSS custom properties</li>
+      </ul>
+    </div>
+
+    <div style="background:rgba(245,158,11,.07);border:1.5px dashed #f59e0b;border-radius:12px;padding:1.4rem 1.6rem;display:flex;flex-direction:column;gap:1rem">
+      <div style="font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#f59e0b">Responsive y Scroll Snap</div>
+      <ul class="d" style="font-size:1rem;margin:0">
+        <li>En móvil las columnas del kanban se encajan al deslizar — solo CSS, sin JavaScript</li>
+        <li><code style="font-size:.95rem;color:#f59e0b">scroll-snap-type: x mandatory</code> en el contenedor</li>
+        <li>En escritorio: layout de columnas fijas lado a lado</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ARQUITECTURA
+══════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="slide-title">Arquitectura del sistema</div>
+  <div style="flex:1;display:grid;grid-template-columns:1fr 320px;gap:2.4rem;align-items:center">
+
+    <!-- Diagram (reused from presentacion.html s6) -->
+    <div>
+      <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);margin-bottom:.8rem">Producción</div>
+      <svg viewBox="0 0 480 300" style="width:100%">
+        <defs>
+          <marker id="ai" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#4f46e5"/></marker>
+          <marker id="ag" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#10b981"/></marker>
+        </defs>
+        <!-- Vercel container -->
+        <rect x="40" y="6" width="400" height="82" rx="9"
+              fill="rgba(79,70,229,.04)" stroke="#4f46e5" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="58" y="22" font-family="Segoe UI,sans-serif" font-size="10" fill="#818cf8" font-weight="600" letter-spacing=".3">Vercel</text>
+        <!-- Angular box -->
+        <rect x="60" y="26" width="360" height="52" rx="7" fill="rgba(79,70,229,.1)" stroke="#4f46e5" stroke-width="2"/>
+        <text x="240" y="57" font-family="Segoe UI,sans-serif" font-size="14" fill="#e2e8f0" text-anchor="middle" font-weight="700">Angular 20 — SPA</text>
+        <!-- arrows FE ↔ BE -->
+        <line x1="234" y1="124" x2="234" y2="90" stroke="#4f46e5" stroke-width="1.8" marker-end="url(#ai)"/>
+        <line x1="246" y1="90" x2="246" y2="124" stroke="#4f46e5" stroke-width="1.8" marker-end="url(#ai)"/>
+        <text x="262" y="110" font-family="Segoe UI,sans-serif" font-size="10" fill="#64748b">HTTPS / JSON + JWT</text>
+        <!-- Railway container -->
+        <rect x="40" y="130" width="400" height="162" rx="9"
+              fill="rgba(16,185,129,.04)" stroke="#10b981" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="58" y="147" font-family="Segoe UI,sans-serif" font-size="10" fill="#10b981" font-weight="600" letter-spacing=".3">Railway</text>
+        <!-- Spring Boot box -->
+        <rect x="60" y="152" width="360" height="50" rx="7" fill="rgba(16,185,129,.1)" stroke="#10b981" stroke-width="2"/>
+        <text x="240" y="181" font-family="Segoe UI,sans-serif" font-size="13" fill="#e2e8f0" text-anchor="middle" font-weight="700">Spring Boot — API REST</text>
+        <!-- arrows BE ↔ DB -->
+        <line x1="234" y1="230" x2="234" y2="204" stroke="#10b981" stroke-width="1.8" marker-end="url(#ag)"/>
+        <line x1="246" y1="204" x2="246" y2="230" stroke="#10b981" stroke-width="1.8" marker-end="url(#ag)"/>
+        <text x="262" y="220" font-family="Segoe UI,sans-serif" font-size="10" fill="#64748b">JPA / SQL</text>
+        <!-- PostgreSQL box -->
+        <rect x="60" y="232" width="360" height="50" rx="7" fill="rgba(100,116,139,.08)" stroke="#64748b" stroke-width="1.5"/>
+        <text x="240" y="262" font-family="Segoe UI,sans-serif" font-size="13" fill="#e2e8f0" text-anchor="middle" font-weight="700">PostgreSQL 16</text>
+      </svg>
+    </div>
+
+    <!-- Right: 3 points -->
+    <div style="display:flex;flex-direction:column;gap:1.1rem">
+      <div class="card">
+        <div class="hdr">Desacoplado</div>
+        <ul class="pts"><li>Cada capa se despliega, escala y versiona de forma independiente</li></ul>
+      </div>
+      <div class="card">
+        <div class="hdr">Sin estado</div>
+        <ul class="pts"><li>JWT — el servidor no guarda sesiones</li></ul>
+      </div>
+      <div class="card">
+        <div class="hdr">Local en un comando</div>
+        <ul class="pts"><li style="color:var(--green);font-family:monospace">docker compose up</li></ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     STACK TECNOLÓGICO
+══════════════════════════════════ -->
+<!-- ══════════════════════════════════
+     STACK TECNOLÓGICO
+══════════════════════════════════ -->
+<div class="slide" id="s_stack">
+  <div class="slide-title">Stack tecnológico</div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:.55rem">
+
+    <!-- Frontend -->
+    <div style="flex:1;display:flex;align-items:center;gap:1.8rem;border-left:5px solid #818cf8;background:rgba(79,70,229,.07);border-radius:0 10px 10px 0;padding:.9rem 1.4rem">
+      <div style="min-width:108px;font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#818cf8">Frontend</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.45rem .9rem;align-items:center">
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><svg width="20" height="20" viewBox="0 0 250 250"><polygon fill="#DD0031" points="125,30 31.9,63.2 46.1,186.3 125,230 203.9,186.3 218.1,63.2"/><polygon fill="#C3002F" points="125,30 125,52.1 125,153.4 125,230 203.9,186.3 218.1,63.2"/><path fill="#ffffff" d="M125,52.1L66.8,182.6h21.7l11.7-29.2h49.4l11.7,29.2h21.7L125,52.1z M142,135.4H108l17-40.9L142,135.4z"/></svg>Angular 20</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-typescript-plain colored" style="font-size:1.4rem;line-height:1"></i>TypeScript</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-sass-plain colored" style="font-size:1.4rem;line-height:1"></i>SCSS</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><svg width="18" height="18" viewBox="0 0 60 60"><path d="M20 12C9 12 3 17 3 27c0 7 3.5 12 10.5 14.5C10 43 8.5 45.5 8.5 48c0 4 3 6 9 6 1.5 0 3-.2 4.3-.5C23.5 55.8 26 57 29 57c5.5 0 10-4.5 10-10 0-2-.6-3.9-1.6-5.5C43.5 39.5 47 34.5 47 27 47 17 41 12 30 12h-10z" fill="#E40072"/><path d="M30 12C19 12 13 17 13 27c0 7 3.5 12 10.5 14.5C20 43 18.5 45.5 18.5 48c0 4 3 6 9 6 1.5 0 3-.2 4.3-.5" fill="none" stroke="#E40072" stroke-width="0"/></svg>RxJS</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><svg width="20" height="20" viewBox="0 0 32 32" fill="none"><path d="M4 5L16 27L28 5H23L16 19L9 5H4Z" fill="#acd157"/><path d="M12 5L16 12L20 5H12Z" fill="#fcc72b"/></svg>Vitest</span>
+      </div>
+    </div>
+
+    <!-- Backend -->
+    <div style="flex:1;display:flex;align-items:center;gap:1.8rem;border-left:5px solid #10b981;background:rgba(16,185,129,.07);border-radius:0 10px 10px 0;padding:.9rem 1.4rem">
+      <div style="min-width:108px;font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#10b981">Backend</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.45rem .9rem;align-items:center">
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-spring-plain colored" style="font-size:1.4rem;line-height:1"></i>Spring Boot 4</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-java-plain colored" style="font-size:1.4rem;line-height:1"></i>Java 21 LTS</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-spring-plain colored" style="font-size:1.4rem;line-height:1"></i>Spring Security</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-hibernate-plain colored" style="font-size:1.4rem;line-height:1"></i>JPA / Hibernate</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)">JJWT</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)">Lombok</span>
+      </div>
+    </div>
+
+    <!-- Datos -->
+    <div style="flex:1;display:flex;align-items:center;gap:1.8rem;border-left:5px solid #38bdf8;background:rgba(14,165,233,.07);border-radius:0 10px 10px 0;padding:.9rem 1.4rem">
+      <div style="min-width:108px;font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#38bdf8">Datos</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.45rem .9rem;align-items:center">
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-postgresql-plain colored" style="font-size:1.4rem;line-height:1"></i>PostgreSQL 16</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-liquibase-plain colored" style="font-size:1.4rem;line-height:1"></i>Liquibase</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)">H2 (tests)</span>
+      </div>
+    </div>
+
+    <!-- Testing -->
+    <div style="flex:1;display:flex;align-items:center;gap:1.8rem;border-left:5px solid #f59e0b;background:rgba(245,158,11,.07);border-radius:0 10px 10px 0;padding:.9rem 1.4rem">
+      <div style="min-width:108px;font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#f59e0b">Testing</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.45rem .9rem;align-items:center">
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)">JUnit 5</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)">Mockito</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)">JaCoCo</span>
+      </div>
+    </div>
+
+    <!-- Infraestructura -->
+    <div style="flex:1;display:flex;align-items:center;gap:1.8rem;border-left:5px solid #94a3b8;background:rgba(100,116,139,.08);border-radius:0 10px 10px 0;padding:.9rem 1.4rem">
+      <div style="min-width:108px;font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8">Infra</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.45rem .9rem;align-items:center">
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-docker-plain colored" style="font-size:1.4rem;line-height:1"></i>Docker Compose</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-github-plain" style="font-size:1.4rem;line-height:1;color:var(--txt)"></i>GitHub Actions</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-vercel-plain" style="font-size:1.4rem;line-height:1;color:var(--txt)"></i>Vercel</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)">Railway</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-maven-plain colored" style="font-size:1.4rem;line-height:1"></i>Maven</span>
+        <span style="display:inline-flex;align-items:center;gap:.5rem;font-size:1.05rem;font-weight:500;color:var(--txt)"><i class="devicon-git-plain colored" style="font-size:1.4rem;line-height:1"></i>Git</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     4 · MODELO ER
+══════════════════════════════════ -->
+<div class="slide" id="s7er">
+  <div class="slide-title">Modelo de datos</div>
+  <div style="flex:1;display:flex;justify-content:center;align-items:center">
+    <svg viewBox="0 0 1060 440" style="width:100%;max-height:410px">
+      <rect x="14" y="80" width="182" height="124" rx="8" fill="var(--surf)" stroke="#4f46e5" stroke-width="2"/>
+      <rect x="14" y="80" width="182" height="36" rx="8" fill="#4f46e5"/>
+      <rect x="14" y="102" width="182" height="14" fill="#4f46e5"/>
+      <text x="105" y="104" font-family="Segoe UI,sans-serif" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">users</text>
+      <text x="30" y="138" font-family="monospace" font-size="12" fill="#94a3b8">🔑 id</text>
+      <text x="30" y="156" font-family="monospace" font-size="12" fill="#94a3b8">   name</text>
+      <text x="30" y="174" font-family="monospace" font-size="12" fill="#94a3b8">   email</text>
+      <text x="30" y="192" font-family="monospace" font-size="12" fill="#94a3b8">   password (BCrypt)</text>
+      <rect x="308" y="80" width="210" height="124" rx="8" fill="var(--surf)" stroke="#4f46e5" stroke-width="2"/>
+      <rect x="308" y="80" width="210" height="36" rx="8" fill="#4f46e5"/>
+      <rect x="308" y="102" width="210" height="14" fill="#4f46e5"/>
+      <text x="413" y="104" font-family="Segoe UI,sans-serif" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">user_project</text>
+      <text x="324" y="138" font-family="monospace" font-size="12" fill="#94a3b8">🔑 id</text>
+      <text x="324" y="156" font-family="monospace" font-size="12" fill="#94a3b8">🔗 user_id</text>
+      <text x="324" y="174" font-family="monospace" font-size="12" fill="#94a3b8">🔗 project_id</text>
+      <text x="324" y="192" font-family="monospace" font-size="12" fill="#94a3b8">   role</text>
+      <rect x="630" y="80" width="200" height="88" rx="8" fill="var(--surf)" stroke="#4f46e5" stroke-width="2"/>
+      <rect x="630" y="80" width="200" height="36" rx="8" fill="#4f46e5"/>
+      <rect x="630" y="102" width="200" height="14" fill="#4f46e5"/>
+      <text x="730" y="104" font-family="Segoe UI,sans-serif" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">project</text>
+      <text x="646" y="138" font-family="monospace" font-size="12" fill="#94a3b8">🔑 id</text>
+      <text x="646" y="156" font-family="monospace" font-size="12" fill="#94a3b8">   name</text>
+      <rect x="630" y="260" width="200" height="130" rx="8" fill="var(--surf)" stroke="#10b981" stroke-width="2"/>
+      <rect x="630" y="260" width="200" height="36" rx="8" fill="#10b981"/>
+      <rect x="630" y="282" width="200" height="14" fill="#10b981"/>
+      <text x="730" y="284" font-family="Segoe UI,sans-serif" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">stage</text>
+      <text x="646" y="318" font-family="monospace" font-size="12" fill="#94a3b8">🔑 id</text>
+      <text x="646" y="336" font-family="monospace" font-size="12" fill="#94a3b8">   name</text>
+      <text x="646" y="354" font-family="monospace" font-size="12" fill="#94a3b8">   position</text>
+      <text x="646" y="372" font-family="monospace" font-size="12" fill="#94a3b8">🔗 project_id</text>
+      <rect x="874" y="260" width="172" height="130" rx="8" fill="var(--surf)" stroke="#10b981" stroke-width="2"/>
+      <rect x="874" y="260" width="172" height="36" rx="8" fill="#10b981"/>
+      <rect x="874" y="282" width="172" height="14" fill="#10b981"/>
+      <text x="960" y="284" font-family="Segoe UI,sans-serif" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">task</text>
+      <text x="890" y="318" font-family="monospace" font-size="12" fill="#94a3b8">🔑 id</text>
+      <text x="890" y="336" font-family="monospace" font-size="12" fill="#94a3b8">   title</text>
+      <text x="890" y="354" font-family="monospace" font-size="12" fill="#94a3b8">   status</text>
+      <text x="890" y="372" font-family="monospace" font-size="12" fill="#94a3b8">🔗 stage_id</text>
+      <line x1="196" y1="142" x2="308" y2="142" stroke="#4f46e5" stroke-width="1.6" opacity=".7"/>
+      <text x="250" y="132" font-family="Segoe UI,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">1..N</text>
+      <line x1="630" y1="142" x2="518" y2="142" stroke="#4f46e5" stroke-width="1.6" opacity=".7"/>
+      <text x="576" y="132" font-family="Segoe UI,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">1..N</text>
+      <line x1="730" y1="168" x2="730" y2="260" stroke="#10b981" stroke-width="1.6" opacity=".7"/>
+      <text x="746" y="218" font-family="Segoe UI,sans-serif" font-size="11" fill="#64748b">1..N</text>
+      <line x1="830" y1="336" x2="874" y2="336" stroke="#10b981" stroke-width="1.6" opacity=".7"/>
+      <text x="850" y="326" font-family="Segoe UI,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">1..N</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     5 · FRONTEND ANGULAR
+══════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="slide-title">Frontend Angular</div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:2rem">
+
+    <!-- Flow diagram -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:0">
+      <!-- Browser -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.35rem">
+        <div style="background:rgba(100,116,139,.12);border:1.5px solid var(--surf2);border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;color:var(--dim)">Browser</div>
+      </div>
+
+      <!-- Arrow -->
+      <svg width="48" height="28" style="flex-shrink:0"><defs><marker id="fa1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#4f46e5"/></marker></defs><line x1="4" y1="14" x2="40" y2="14" stroke="#4f46e5" stroke-width="2" marker-end="url(#fa1)"/></svg>
+
+      <!-- Router + AuthGuard -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.35rem">
+        <div style="background:rgba(79,70,229,.12);border:1.5px solid #4f46e5;border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;color:#818cf8;white-space:nowrap">Router<br><span style="font-size:.78rem;color:var(--indigo)">+ AuthGuard</span></div>
+      </div>
+
+      <!-- Arrow -->
+      <svg width="48" height="28" style="flex-shrink:0"><defs><marker id="fa2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#4f46e5"/></marker></defs><line x1="4" y1="14" x2="40" y2="14" stroke="#4f46e5" stroke-width="2" marker-end="url(#fa2)"/></svg>
+
+      <!-- Componentes -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.35rem">
+        <div style="background:rgba(79,70,229,.12);border:1.5px solid #4f46e5;border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;color:#818cf8">Componentes</div>
+      </div>
+
+      <!-- Arrow -->
+      <svg width="48" height="28" style="flex-shrink:0"><defs><marker id="fa3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#4f46e5"/></marker></defs><line x1="4" y1="14" x2="40" y2="14" stroke="#4f46e5" stroke-width="2" marker-end="url(#fa3)"/></svg>
+
+      <!-- Servicios (Signals) -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.35rem">
+        <div style="background:rgba(79,70,229,.12);border:1.5px solid #4f46e5;border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;color:#818cf8;white-space:nowrap">Servicios<br><span style="font-size:.78rem;color:var(--indigo)">Signals</span></div>
+      </div>
+
+      <!-- Arrow -->
+      <svg width="48" height="28" style="flex-shrink:0"><defs><marker id="fa4" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#4f46e5"/></marker></defs><line x1="4" y1="14" x2="40" y2="14" stroke="#4f46e5" stroke-width="2" marker-end="url(#fa4)"/></svg>
+
+      <!-- AuthInterceptor -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.35rem">
+        <div style="background:rgba(79,70,229,.12);border:1.5px solid #4f46e5;border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;color:#818cf8;white-space:nowrap">Auth<br><span style="font-size:.78rem;color:var(--indigo)">Interceptor</span></div>
+      </div>
+
+      <!-- Arrow -->
+      <svg width="48" height="28" style="flex-shrink:0"><defs><marker id="fa5" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#10b981"/></marker></defs><line x1="4" y1="14" x2="40" y2="14" stroke="#10b981" stroke-width="2" marker-end="url(#fa5)"/></svg>
+
+      <!-- API -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.35rem">
+        <div style="background:rgba(16,185,129,.1);border:1.5px solid #10b981;border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;color:var(--green)">API REST</div>
+      </div>
+    </div>
+
+    <!-- 3 concepts -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem">
+      <div class="card" style="border-color:rgba(79,70,229,.35)">
+        <div class="hdr">AuthGuard</div>
+        <ul class="pts"><li>Protege rutas enteras de forma declarativa — ningún componente verifica auth por su cuenta</li></ul>
+      </div>
+      <div class="card" style="border-color:rgba(79,70,229,.35)">
+        <div class="hdr">AuthInterceptor</div>
+        <ul class="pts"><li>Intercepta todas las peticiones HTTP de forma transparente — los componentes no saben nada de autenticación</li></ul>
+      </div>
+      <div class="card" style="border-color:rgba(79,70,229,.35)">
+        <div class="hdr">Signals</div>
+        <ul class="pts"><li>El estado se propaga automáticamente — sin suscripciones manuales ni riesgo de memory leaks</li></ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     6 · BACKEND SPRING BOOT
+══════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="slide-title">Backend Spring Boot</div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:2rem">
+
+    <!-- Flow diagram -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:0">
+
+      <!-- HTTP Request -->
+      <div style="background:rgba(100,116,139,.12);border:1.5px solid var(--surf2);border-radius:10px;padding:.6rem 1rem;font-size:.84rem;font-weight:600;color:var(--dim);white-space:nowrap">HTTP<br>Request</div>
+
+      <svg width="44" height="28" style="flex-shrink:0"><defs><marker id="ba1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#10b981"/></marker></defs><line x1="4" y1="14" x2="36" y2="14" stroke="#10b981" stroke-width="2" marker-end="url(#ba1)"/></svg>
+
+      <!-- JwtAuthFilter -->
+      <div style="background:rgba(16,185,129,.1);border:1.5px solid #10b981;border-radius:10px;padding:.6rem 1rem;font-size:.84rem;font-weight:600;color:var(--green);white-space:nowrap">Jwt<br>AuthFilter</div>
+
+      <svg width="44" height="28" style="flex-shrink:0"><defs><marker id="ba2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#10b981"/></marker></defs><line x1="4" y1="14" x2="36" y2="14" stroke="#10b981" stroke-width="2" marker-end="url(#ba2)"/></svg>
+
+      <!-- @RestController -->
+      <div style="background:rgba(16,185,129,.1);border:1.5px solid #10b981;border-radius:10px;padding:.6rem 1rem;font-size:.84rem;font-weight:600;color:var(--green);white-space:nowrap">@Rest<br>Controller</div>
+
+      <svg width="44" height="28" style="flex-shrink:0"><defs><marker id="ba3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#10b981"/></marker></defs><line x1="4" y1="14" x2="36" y2="14" stroke="#10b981" stroke-width="2" marker-end="url(#ba3)"/></svg>
+
+      <!-- @Service -->
+      <div style="background:rgba(16,185,129,.1);border:1.5px solid #10b981;border-radius:10px;padding:.6rem 1rem;font-size:.84rem;font-weight:600;color:var(--green);white-space:nowrap">@Service<br><span style="font-size:.75rem;color:rgba(16,185,129,.7)">lógica de negocio</span></div>
+
+      <svg width="44" height="28" style="flex-shrink:0"><defs><marker id="ba4" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#10b981"/></marker></defs><line x1="4" y1="14" x2="36" y2="14" stroke="#10b981" stroke-width="2" marker-end="url(#ba4)"/></svg>
+
+      <!-- @Repository -->
+      <div style="background:rgba(16,185,129,.1);border:1.5px solid #10b981;border-radius:10px;padding:.6rem 1rem;font-size:.84rem;font-weight:600;color:var(--green);white-space:nowrap">@Repository<br><span style="font-size:.75rem;color:rgba(16,185,129,.7)">JPA</span></div>
+
+      <svg width="44" height="28" style="flex-shrink:0"><defs><marker id="ba5" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#10b981"/></marker></defs><line x1="4" y1="14" x2="36" y2="14" stroke="#10b981" stroke-width="2" marker-end="url(#ba5)"/></svg>
+
+      <!-- PostgreSQL -->
+      <div style="background:rgba(100,116,139,.1);border:1.5px solid var(--surf2);border-radius:10px;padding:.6rem 1rem;font-size:.84rem;font-weight:600;color:var(--dim);white-space:nowrap">Post<br>greSQL</div>
+
+    </div>
+
+    <!-- 3 concepts -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem">
+      <div class="card" style="border-color:rgba(16,185,129,.3)">
+        <div class="hdr" style="color:var(--green)">SecurityFilterChain</div>
+        <ul class="pts"><li>Define rutas públicas, sesión stateless y CORS — la autorización por rol (OWNER/ADMIN/MEMBER) la hace <code style="font-size:.8rem;color:var(--green)">PermissionService</code> dentro de cada servicio</li></ul>
+      </div>
+      <div class="card" style="border-color:rgba(16,185,129,.3)">
+        <div class="hdr" style="color:var(--green)">JPA + Liquibase</div>
+        <ul class="pts"><li>Responsabilidades separadas — JPA mapea objetos a filas; Liquibase versiona cada cambio de esquema como código</li></ul>
+      </div>
+      <div class="card" style="border-color:rgba(16,185,129,.3)">
+        <div class="hdr" style="color:var(--green)">Bean Validation</div>
+        <ul class="pts"><li>400 automático en DTOs inválidos</li></ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     6 · SEGURIDAD JWT
+══════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="slide-title">Seguridad JWT</div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:1rem">
+
+    <svg viewBox="0 0 1060 410" style="width:100%;flex:1;min-height:0">
+      <defs>
+        <marker id="j1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#4f46e5"/></marker>
+        <marker id="j2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#10b981"/></marker>
+        <marker id="j3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#64748b"/></marker>
+      </defs>
+      <rect x="20"  y="6" width="200" height="38" rx="7" fill="rgba(79,70,229,.14)" stroke="#4f46e5" stroke-width="1.5"/>
+      <text x="120" y="30" font-family="Segoe UI,sans-serif" font-size="13" fill="#e2e8f0" text-anchor="middle" font-weight="700">Cliente (SPA)</text>
+      <rect x="390" y="6" width="220" height="38" rx="7" fill="rgba(16,185,129,.1)" stroke="#10b981" stroke-width="1.5"/>
+      <text x="500" y="30" font-family="Segoe UI,sans-serif" font-size="13" fill="#e2e8f0" text-anchor="middle" font-weight="700">Spring Boot API</text>
+      <rect x="820" y="6" width="200" height="38" rx="7" fill="rgba(100,116,139,.1)" stroke="#64748b" stroke-width="1.5"/>
+      <text x="920" y="30" font-family="Segoe UI,sans-serif" font-size="13" fill="#e2e8f0" text-anchor="middle" font-weight="700">PostgreSQL</text>
+      <line x1="120" y1="46" x2="120" y2="400" stroke="#4f46e5" stroke-width="1" stroke-dasharray="5,4" opacity=".25"/>
+      <line x1="500" y1="46" x2="500" y2="400" stroke="#10b981" stroke-width="1" stroke-dasharray="5,4" opacity=".25"/>
+      <line x1="920" y1="46" x2="920" y2="400" stroke="#64748b" stroke-width="1" stroke-dasharray="5,4" opacity=".2"/>
+      <line x1="120" y1="84" x2="492" y2="84" stroke="#4f46e5" stroke-width="1.8" marker-end="url(#j1)"/>
+      <text x="306" y="74" font-family="Segoe UI,sans-serif" font-size="11.5" fill="#94a3b8" text-anchor="middle">POST /users/login  { email, password }</text>
+      <line x1="500" y1="116" x2="912" y2="116" stroke="#64748b" stroke-width="1.8" marker-end="url(#j3)"/>
+      <text x="710" y="106" font-family="Segoe UI,sans-serif" font-size="11.5" fill="#64748b" text-anchor="middle">SELECT * FROM users WHERE email = ?</text>
+      <line x1="920" y1="144" x2="508" y2="144" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#j3)"/>
+      <text x="710" y="134" font-family="Segoe UI,sans-serif" font-size="11.5" fill="#64748b" text-anchor="middle">User row</text>
+      <rect x="400" y="154" width="200" height="22" rx="4" fill="rgba(16,185,129,.14)" stroke="#10b981" stroke-width="1"/>
+      <text x="500" y="169" font-family="Segoe UI,sans-serif" font-size="11" fill="#10b981" text-anchor="middle">BCrypt verify + sign JWT</text>
+      <line x1="500" y1="198" x2="128" y2="198" stroke="#10b981" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#j2)"/>
+      <text x="306" y="188" font-family="Segoe UI,sans-serif" font-size="11.5" fill="#94a3b8" text-anchor="middle">200 OK  ·  { token: eyJ... }</text>
+      <rect x="52" y="206" width="136" height="22" rx="4" fill="rgba(79,70,229,.12)" stroke="#4f46e5" stroke-width="1"/>
+      <text x="120" y="221" font-family="Segoe UI,sans-serif" font-size="11" fill="#818cf8" text-anchor="middle">localStorage</text>
+      <line x1="20" y1="248" x2="1040" y2="248" stroke="#263548" stroke-width="1"/>
+      <text x="530" y="244" font-family="Segoe UI,sans-serif" font-size="10" fill="#475569" text-anchor="middle" font-style="italic">petición autenticada</text>
+      <line x1="120" y1="274" x2="492" y2="274" stroke="#4f46e5" stroke-width="1.8" marker-end="url(#j1)"/>
+      <text x="306" y="264" font-family="Segoe UI,sans-serif" font-size="11.5" fill="#94a3b8" text-anchor="middle">GET /projects  ·  Authorization: Bearer eyJ...</text>
+      <rect x="400" y="282" width="200" height="22" rx="4" fill="rgba(16,185,129,.12)" stroke="#10b981" stroke-width="1"/>
+      <text x="500" y="297" font-family="Segoe UI,sans-serif" font-size="11" fill="#10b981" text-anchor="middle">JwtAuthFilter ✓  firma válida</text>
+      <line x1="500" y1="326" x2="912" y2="326" stroke="#64748b" stroke-width="1.8" marker-end="url(#j3)"/>
+      <text x="710" y="316" font-family="Segoe UI,sans-serif" font-size="11.5" fill="#64748b" text-anchor="middle">SELECT proyectos del usuario</text>
+      <line x1="920" y1="354" x2="508" y2="354" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#j3)"/>
+      <text x="710" y="344" font-family="Segoe UI,sans-serif" font-size="11.5" fill="#64748b" text-anchor="middle">Filas de proyectos</text>
+      <line x1="500" y1="382" x2="128" y2="382" stroke="#10b981" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#j2)"/>
+      <text x="306" y="372" font-family="Segoe UI,sans-serif" font-size="11.5" fill="#94a3b8" text-anchor="middle">200 OK  ·  [ { id, name, ... } ]</text>
+    </svg>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     8 · TESTS Y CALIDAD
+══════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="slide-title">Tests y calidad</div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:1.1rem;justify-content:center;max-width:78%;margin:0 auto;width:100%">
+
+    <!-- CI — full width -->
+    <div style="background:rgba(79,70,229,.07);border:1.5px dashed #4f46e5;border-radius:10px;padding:1rem 1.4rem">
+      <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.65rem">
+        <svg width="26" height="26" viewBox="0 0 98 96" fill="var(--txt)"><path fill-rule="evenodd" clip-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"/></svg>
+        <span style="font-size:1rem;font-weight:700;color:var(--txt)">GitHub Actions — CI en cada push</span>
+      </div>
+      <div style="display:flex;gap:2rem;align-items:center">
+        <div style="font-size:.9rem;color:var(--dim)">2 jobs paralelos: frontend y backend independientes</div>
+        <div style="display:flex;gap:.7rem;margin-left:auto">
+          <code style="font-size:.83rem;color:var(--green);background:var(--navy);padding:.3rem .7rem;border-radius:5px;white-space:nowrap">npm test -- --watch=false</code>
+          <code style="font-size:.83rem;color:var(--green);background:var(--navy);padding:.3rem .7rem;border-radius:5px;white-space:nowrap">./mvnw verify</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tests — two columns -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.1rem">
+
+      <div style="background:rgba(16,185,129,.07);border:1.5px dashed #10b981;border-radius:10px;padding:.9rem 1.3rem">
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
+          <span style="font-size:.96rem;font-weight:700;color:var(--txt)">JUnit 5 · Mockito · H2</span>
+        </div>
+        <ul class="pts">
+          <li>BD H2 real en tests — sin mocks de persistencia</li>
+          <li>Nomenclatura BDD: <code style="font-size:.84rem;color:var(--green)">givenX_whenY_thenZ</code></li>
+          <li>JaCoCo bloquea el build si cobertura baja del 80%</li>
+        </ul>
+      </div>
+
+      <div style="background:rgba(245,158,11,.07);border:1.5px dashed #f59e0b;border-radius:10px;padding:.9rem 1.3rem">
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+            <path d="M4 5L16 27L28 5H23L16 19L9 5H4Z" fill="#acd157"/>
+            <path d="M12 5L16 12L20 5H12Z" fill="#fcc72b"/>
+          </svg>
+          <span style="font-size:.96rem;font-weight:700;color:var(--txt)">Vitest</span>
+        </div>
+        <ul class="pts">
+          <li>Cubre los puntos más críticos: entrada, salida y control de acceso de la autenticación</li>
+          <li><code style="font-size:.84rem;color:#f59e0b">vi.useFakeTimers</code> — controla tiempo asíncrono</li>
+          <li>Convención <code style="font-size:.84rem;color:#f59e0b">describe / it</code> legible sin contexto</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     CONCLUSIONES
+══════════════════════════════════ -->
+<div class="slide" id="s_conclusiones">
+  <div class="slide-title">Conclusiones y mejoras futuras</div>
+  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:2.4rem;align-items:start;padding-top:.5rem">
+
+    <div style="display:flex;flex-direction:column;gap:1.2rem">
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--indigo);margin-bottom:.2rem">Resultados del proyecto</div>
+      <div class="card" style="border-color:rgba(79,70,229,.35)">
+        <ul class="pts">
+          <li>Aplicación funcional y desplegada en producción.</li>
+          <li>95 tests de backend con cobertura superior al 80&nbsp;%.</li>
+          <li>Arquitectura desacoplada, escalable y mantenible.</li>
+          <li>Disponible en cualquier dispositivo sin instalación adicional.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1.2rem">
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--green);margin-bottom:.2rem">Líneas de mejora</div>
+      <div class="card" style="border-color:rgba(16,185,129,.3)">
+        <ul class="pts">
+          <li>Notificaciones en tiempo real mediante WebSockets.</li>
+          <li>Asignación de tareas a miembros concretos del equipo.</li>
+          <li>Adjuntos y comentarios en las tarjetas de tarea.</li>
+          <li>Estadísticas y métricas de progreso por proyecto.</li>
+          <li>Subtareas y dependencias entre tareas.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- ══════════════════════════════════
+     DEMO EN VIVO
+══════════════════════════════════ -->
+<div class="slide" id="s_demo" style="justify-content:center;align-items:center;gap:2.4rem;flex-direction:row">
+
+  <!-- QR -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:1rem">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcAQMAAAAhlF3CAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABlklEQVRYhe2YQZKDQAhF6XLRyxwhR/Fo7dE8ikdw6aJLhg+ok5nUzNZfFRZG+7kIAT4QkY/9Z6PCZum4n3apOrc8uiPEV37OrVf1483u44gPFtXV7uwq0vYBMI9Iofm5PlWLbvYKN5Rheywinna0MLNv2CTy7l1qksAQgAY/TRM8+34KBgm8zCHkTd4YA4SfKCHdHvCuu15HKtJBMdcWad0d07B+pea9oFggUOPWV5ZRS8/TNCo4qsmwRQJ9BQnmdoWMCYrHR9X7ylQicgP6JR0cd88+Qa0gWPUlNamg1Y51FJ0ifHhA2Z8/AhW01o4S6ibG0ixY1mN2KDMhhFPmp0ELWel1+Z6aVND7ioXJBxfJfaXX9RxciGDpUTt+FQwudlrTTy5oz/iMfQUPI0Tu6PZ3g8XLPlzB8TP9mulgWjtWEkQFSkAIUStQrXhlH47tKhKMC+LiMxiKX3yOz55PB3N9jzZ/Zt/rbk8HFwyV6uuinlXGCL3bpybjHeGDkX0Jj7+6rkWRCaYmxFBZ3MFfgsEBP/a3fQGvVN3mQT9iiQAAAABJRU5ErkJggg=="
+         alt="QR App"
+         style="width:420px;height:420px;image-rendering:pixelated;border-radius:16px;background:#fff;padding:14px"/>
+    <span style="font-size:1rem;color:var(--muted)">Escanea para abrir la app</span>
+  </div>
+
+  <!-- Info -->
+  <div style="display:flex;flex-direction:column;gap:1.4rem;max-width:500px">
+    <div>
+      <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.5rem;font-weight:700">Demo en vivo</div>
+      <p style="font-size:2rem;font-weight:800;color:var(--txt);line-height:1.15">Sistema de Gestión<br>de Proyectos</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.6rem">
+      <div style="display:flex;align-items:center;gap:.8rem;padding:.75rem 1rem;background:var(--surf);border:1px solid var(--surf2);border-radius:8px">
+        <span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);min-width:60px">Frontend</span>
+        <code style="font-size:.9rem;color:var(--indigo)">project-manager-orpin-chi.vercel.app</code>
+      </div>
+      <div style="display:flex;align-items:center;gap:.8rem;padding:.75rem 1rem;background:var(--surf);border:1px solid var(--surf2);border-radius:8px">
+        <span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);min-width:60px">Swagger</span>
+        <code style="font-size:.9rem;color:var(--dim)">localhost:8080/swagger-ui.html</code>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- #deck -->
+
+<button class="nb" id="nb-p" onclick="prev()">&#8249;</button>
+<button class="nb" id="nb-n" onclick="next()">&#8250;</button>
+<div id="prog"></div>
+<div id="ctr"></div>
+<button onclick="openPresenter()" title="Vista de presentador (P)"
+  style="position:fixed;bottom:.4rem;left:.6rem;z-index:99;background:rgba(15,23,42,.85);
+  border:1px solid #334155;color:#64748b;width:2.2rem;height:2.2rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.78rem;
+  font-weight:700;backdrop-filter:blur(6px);transition:all .15s;font-family:inherit"
+  onmouseover="this.style.color='#f1f5f9';this.style.borderColor='#4f46e5'"
+  onmouseout="this.style.color='#64748b';this.style.borderColor='#334155'">P</button>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let cur = 0;
+const TOTAL = slides.length;
+
+// ── Notas del presentador ─────────────────────────────────────────────────
+const NOTES = [
+  { title: 'Portada',              time: '30 seg',       text: 'Proyecto final de ciclo: sistema de gestión de proyectos colaborativo. Angular en el frontend, Spring Boot en el backend. Está desplegado y accesible ahora mismo.' },
+  { title: 'Índice',               time: '10 seg',       text: 'Recorrido por: qué es el proyecto, planificación, roles, diseño, arquitectura, stack, modelo de datos, frontend, backend, seguridad, tests y conclusiones.' },
+  { title: '¿Qué es el proyecto?', time: '45 seg',       text: 'Herramienta visual y colaborativa de gestión de proyectos y tareas. Organiza el trabajo en un tablero con columnas y tarjetas. Los proyectos se gestionan por miembros con roles diferenciados. Las columnas son personalizables según el flujo de trabajo del equipo. Disponible como aplicación web, móvil y de escritorio gracias a PWA (Progressive Web App), que la hace instalable sin pasar por ninguna tienda.' },
+  { title: 'Planificación',        time: '30 seg',       text: '14 semanas de desarrollo, de marzo a mayo de 2026. Fases: backend → setup frontend → autenticación → dashboard → kanban → modales → UI avanzada → tests → seguridad JWT.' },
+  { title: 'Roles y permisos',     time: '1 min',        text: 'Hay tres roles por proyecto. MEMBER puede ver y gestionar tareas. ADMIN además puede renombrar el proyecto, gestionar etapas y añadir o eliminar miembros. OWNER tiene control total, incluido eliminar el proyecto, pero no puede abandonarlo. Solo el OWNER puede asignar el rol OWNER a otro miembro.' },
+  { title: 'Diseño visual',        time: '1 min',        text: 'Estructura de cabecera fija más contenido centrado con ancho máximo. Navegación jerárquica de dos niveles: dashboard → kanban. Recorrido visual en patrón Z en la barra de navegación, spotted pattern en el dashboard y patrón F en el kanban. Jerarquía visual en tres niveles por tamaño y contraste. Las acciones de las tarjetas están ocultas hasta que el ratón pasa por encima (progressive disclosure) para reducir ruido. Los tokens CSS centralizan el tema: un archivo para modo claro y oscuro.' },
+  { title: 'Arquitectura',         time: '1.5 min',      text: 'Frontend en Vercel como SPA (Single Page Application) estática servida desde CDN (red de distribución de contenido). Backend API REST en Railway. Se comunican por HTTPS con JSON y el token JWT en cada petición. En local: docker compose up levanta todo. Sin estado en servidor: cualquier instancia puede atender cualquier petición.' },
+  { title: 'Stack tecnológico',    time: '45 seg',       text: 'Angular en el frontend, Spring Boot en el backend y PostgreSQL para la base de datos. Angular conlleva TypeScript y se ha elegido SCSS —del que hablaremos más adelante— para el estilo. En el backend, Spring Boot 4 sobre Java 21 incluye Spring Security para la autenticación y JPA con Hibernate para el acceso a datos. Las migraciones de esquema las gestiona Liquibase. Para testing: JUnit 5, Mockito y JaCoCo en el backend; Vitest en el frontend. Toda la infra corre en Docker en local, CI/CD con GitHub Actions y despliegue en Vercel y Railway.' },
+  { title: 'Modelo de datos',      time: '1 min',        text: '5 tablas: users, project, user_project, stage y task. user_project une usuarios con proyectos y almacena el rol. stage son las columnas del tablero, ordenadas por el campo position. task tiene clave foránea a su stage. Las migraciones las gestiona Liquibase, no Hibernate.' },
+  { title: 'Frontend Angular',     time: '1.5 min',      text: 'Flujo de una petición: Router → AuthGuard (comprueba token) → Componente → Servicio → AuthInterceptor (añade cabecera de autorización) → API. El AuthGuard protege rutas de forma declarativa. El AuthInterceptor inyecta el token en todas las peticiones de forma transparente. El estado reactivo usa Signals: signal() para estado local, computed() para valores derivados, sin suscripciones manuales.' },
+  { title: 'Backend Spring Boot',  time: '1.5 min',      text: 'Flujo: JwtAuthFilter → Controller → Service → Repository → PostgreSQL. El filtro valida la firma del token y carga el usuario en el contexto de seguridad. El ProjectPermissionService verifica el rol dentro del proyecto y lanza un error 403 si no tiene permiso. Bean Validation lanza error 400 automático en objetos de transferencia de datos inválidos. Sin sesión de servidor: configuración sin estado.' },
+  { title: 'Seguridad JWT',        time: '2 min',        text: 'Login: el backend consulta la base de datos, verifica la contraseña con BCrypt y firma el token JWT con HMAC-SHA256. El cliente guarda el token en localStorage y lo envía en la cabecera de autorización en cada petición. El JwtAuthFilter verifica la firma sin tocar la base de datos — sin sesiones de servidor. Antes había una cabecera X-User-Id sin ninguna verificación; ahora la identidad la garantiza la firma criptográfica.' },
+  { title: 'Tests y calidad',      time: '1 min',        text: '95 tests de backend con JUnit 5 y Mockito. Los tests de persistencia usan H2 (base de datos real en memoria, no sustitutos artificiales). Nomenclatura BDD (Behaviour-Driven Development): givenX_whenY_thenZ. JaCoCo bloquea el build si la cobertura baja del 80%. Frontend cubierto con Vitest: servicio de autenticación, interceptor, guard y notificaciones. CI (integración continua) con 2 procesos paralelos en cada subida a GitHub.' },
+  { title: 'Conclusiones',         time: '1 min',        text: 'La aplicación está funcional y desplegada en producción con 95 tests y cobertura superior al 80%. Como líneas de mejora: notificaciones en tiempo real con WebSockets, asignación de tareas a miembros concretos, adjuntos y comentarios en tarjetas, estadísticas de progreso y subtareas con dependencias.' },
+  { title: 'Demo en vivo',         time: '',             text: 'Escanear el QR o abrir la URL. Mostrar: registro → login → crear proyecto → añadir tarea → moverla entre columnas.' },
+];
+
+const ch = new BroadcastChannel('presenter-v3');
+
+function show(n) {
+  slides[cur].classList.remove('active');
+  cur = Math.max(0, Math.min(n, TOTAL - 1));
+  slides[cur].classList.add('active');
+  document.getElementById('ctr').textContent = (cur + 1) + ' / ' + TOTAL;
+  document.getElementById('prog').style.width = ((cur + 1) / TOTAL * 100) + '%';
+  document.getElementById('nb-p').style.opacity = cur === 0 ? '0.2' : '1';
+  document.getElementById('nb-n').style.opacity = cur === TOTAL - 1 ? '0.2' : '1';
+  ch.postMessage({ type: 'slide', cur });
+}
+
+function next() { show(cur + 1); }
+function prev() { show(cur - 1); }
+function go(n)  { show(n); }
+
+ch.onmessage = e => {
+  if (e.data.type === 'cmd') { e.data.cmd === 'next' ? next() : prev(); }
+};
+
+function openPresenter() {
+  const notesJson = JSON.stringify(NOTES);
+  const initialCur = cur;
+  const html =
+    '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Presentador</title><style>' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'body{background:#0f172a;color:#f1f5f9;font-family:Segoe UI,system-ui,sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden}' +
+    '#top{background:#1e293b;border-bottom:1px solid #334155;padding:.8rem 1.6rem;display:flex;align-items:center;gap:1rem;flex-shrink:0}' +
+    '#num{font-size:.8rem;font-weight:700;color:#64748b;min-width:64px}' +
+    '#title{font-size:1.25rem;font-weight:800;flex:1}' +
+    '#time{font-size:.82rem;font-weight:600;color:#818cf8;background:rgba(79,70,229,.15);padding:.22rem .75rem;border-radius:999px;border:1px solid rgba(79,70,229,.3)}' +
+    '#timer{font-size:1rem;font-weight:700;color:#10b981;min-width:52px;text-align:right;font-variant-numeric:tabular-nums}' +
+    '#notes{flex:1;padding:2rem 2.8rem;overflow-y:auto;font-size:1.22rem;line-height:1.95;color:#cbd5e1}' +
+    '#bottom{background:#1e293b;border-top:1px solid #334155;padding:.8rem 1.6rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}' +
+    '#next-wrap{display:flex;flex-direction:column;gap:.2rem}' +
+    '#next-lbl{font-size:.7rem;color:#64748b;text-transform:uppercase;letter-spacing:.08em}' +
+    '#next-title{font-size:.95rem;color:#94a3b8;font-weight:500}' +
+    '.btn{background:#1e293b;border:1px solid #334155;color:#f1f5f9;padding:.5rem 1.4rem;border-radius:7px;font-size:.9rem;cursor:pointer;font-weight:600;transition:background .15s}' +
+    '.btn:hover:not(:disabled){background:#334155}' +
+    '.btn:disabled{opacity:.3;cursor:default}' +
+    '</style></head><body>' +
+    '<div id="top"><span id="num"></span><span id="title"></span><span id="time"></span><span id="timer">0:00</span></div>' +
+    '<div id="notes"></div>' +
+    '<div id="bottom">' +
+    '<div id="next-wrap"><div id="next-lbl">Siguiente</div><div id="next-title"></div></div>' +
+    '<div style="display:flex;gap:.7rem">' +
+    '<button class="btn" id="bp" onclick="cmd(\'prev\')">&#8592; Anterior</button>' +
+    '<button class="btn" id="bn" onclick="cmd(\'next\')">Siguiente &#8594;</button>' +
+    '</div></div>' +
+    '<script>' +
+    'const N=' + notesJson + ';' +
+    'const T=N.length;' +
+    'let c=' + initialCur + ';' +
+    'let s=0;' +
+    'setInterval(()=>{s++;const m=Math.floor(s/60),ss=String(s%60).padStart(2,"0");document.getElementById("timer").textContent=m+":"+ss;},1000);' +
+    'const ch=new BroadcastChannel("presenter-v3");' +
+    'ch.onmessage=e=>{if(e.data.type==="slide"){c=e.data.cur;render();}};' +
+    'function cmd(v){ch.postMessage({type:"cmd",cmd:v});}' +
+    'function render(){' +
+    '  const n=N[c]||{};' +
+    '  document.getElementById("num").textContent=(c+1)+" / "+T;' +
+    '  document.getElementById("title").textContent=n.title||"";' +
+    '  const te=document.getElementById("time");' +
+    '  te.textContent=n.time||"";te.style.display=n.time?"":"none";' +
+    '  document.getElementById("notes").textContent=n.text||"";' +
+    '  const nx=N[c+1];' +
+    '  document.getElementById("next-title").textContent=nx?nx.title:"— fin —";' +
+    '  document.getElementById("bp").disabled=c===0;' +
+    '  document.getElementById("bn").disabled=c===T-1;' +
+    '}' +
+    'document.addEventListener("keydown",e=>{' +
+    '  if(["ArrowRight","ArrowDown"," "].includes(e.key)){e.preventDefault();cmd("next");}' +
+    '  if(["ArrowLeft","ArrowUp"].includes(e.key)){e.preventDefault();cmd("prev");}' +
+    '});' +
+    'render();' +
+    '<\/script></body></html>';
+
+  const w = window.open('', 'presenter-v3', 'width=960,height=620,menubar=no,toolbar=no,location=no,status=no');
+  if (w) { w.document.open(); w.document.write(html); w.document.close(); }
+  else { alert('Permite las ventanas emergentes para abrir la vista de presentador.'); }
+}
+
+// Scale canvas to viewport
+function resize() {
+  const deck = document.getElementById('deck');
+  const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  deck.style.transform = 'scale(' + s + ')';
+  deck.style.transformOrigin = 'top left';
+  deck.style.left = ((window.innerWidth  - 1280 * s) / 2) + 'px';
+  deck.style.top  = ((window.innerHeight - 720  * s) / 2) + 'px';
+}
+window.addEventListener('resize', resize);
+resize();
+
+document.addEventListener('keydown', e => {
+  if (['ArrowRight', 'ArrowDown', ' '].includes(e.key)) { e.preventDefault(); next(); }
+  if (['ArrowLeft', 'ArrowUp'].includes(e.key))          { e.preventDefault(); prev(); }
+  if (e.key === 'f' || e.key === 'F') document.documentElement.requestFullscreen?.();
+  if (e.key === 'p' || e.key === 'P') openPresenter();
+});
+
+document.getElementById('deck').addEventListener('click', e => {
+  if (!e.target.closest('.nb') && !e.target.closest('a') && !e.target.closest('.idx-it')) {
+    if (!window.getSelection().toString()) next();
+  }
+});
+
+show(0);
+</script>
+</body>
+</html>
