@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Seed Users with bcrypt hashed passwords (password123) -->
+    <changeSet id="v1.0.1-1" author="mario">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM users</sqlCheck>
+        </preConditions>
+        <insert tableName="users">
+            <column name="name" value="Alice Johnson"/>
+            <column name="email" value="alice@example.com"/>
+            <column name="password" value="$2a$10$slYQmyNdGzin7olVN3p5Be3DlH.PKZbv5H8KnzzVgXXbVxzy2QIDM"/>
+        </insert>
+        <insert tableName="users">
+            <column name="name" value="Bob Smith"/>
+            <column name="email" value="bob@example.com"/>
+            <column name="password" value="$2a$10$slYQmyNdGzin7olVN3p5Be3DlH.PKZbv5H8KnzzVgXXbVxzy2QIDM"/>
+        </insert>
+        <insert tableName="users">
+            <column name="name" value="Carol White"/>
+            <column name="email" value="carol@example.com"/>
+            <column name="password" value="$2a$10$slYQmyNdGzin7olVN3p5Be3DlH.PKZbv5H8KnzzVgXXbVxzy2QIDM"/>
+        </insert>
+        <insert tableName="users">
+            <column name="name" value="David Brown"/>
+            <column name="email" value="david@example.com"/>
+            <column name="password" value="$2a$10$slYQmyNdGzin7olVN3p5Be3DlH.PKZbv5H8KnzzVgXXbVxzy2QIDM"/>
+        </insert>
+        <insert tableName="users">
+            <column name="name" value="Eve Davis"/>
+            <column name="email" value="eve@example.com"/>
+            <column name="password" value="$2a$10$slYQmyNdGzin7olVN3p5Be3DlH.PKZbv5H8KnzzVgXXbVxzy2QIDM"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Projects -->
+    <changeSet id="v1.0.1-2" author="mario">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM project</sqlCheck>
+        </preConditions>
+        <insert tableName="project">
+            <column name="name" value="Website Redesign"/>
+        </insert>
+        <insert tableName="project">
+            <column name="name" value="Mobile App Development"/>
+        </insert>
+        <insert tableName="project">
+            <column name="name" value="API Integration"/>
+        </insert>
+        <insert tableName="project">
+            <column name="name" value="Database Migration"/>
+        </insert>
+        <insert tableName="project">
+            <column name="name" value="Security Audit"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Stages -->
+    <changeSet id="v1.0.1-3" author="mario">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM stage</sqlCheck>
+        </preConditions>
+        <!-- Project 1 stages -->
+        <insert tableName="stage">
+            <column name="name" value="Backlog"/>
+            <column name="position" value="1"/>
+            <column name="project_id" value="1"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="In Progress"/>
+            <column name="position" value="2"/>
+            <column name="project_id" value="1"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="Review"/>
+            <column name="position" value="3"/>
+            <column name="project_id" value="1"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="Done"/>
+            <column name="position" value="4"/>
+            <column name="project_id" value="1"/>
+        </insert>
+        <!-- Project 2 stages -->
+        <insert tableName="stage">
+            <column name="name" value="Backlog"/>
+            <column name="position" value="1"/>
+            <column name="project_id" value="2"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="In Progress"/>
+            <column name="position" value="2"/>
+            <column name="project_id" value="2"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="Testing"/>
+            <column name="position" value="3"/>
+            <column name="project_id" value="2"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="Done"/>
+            <column name="position" value="4"/>
+            <column name="project_id" value="2"/>
+        </insert>
+        <!-- Project 3 stages -->
+        <insert tableName="stage">
+            <column name="name" value="Backlog"/>
+            <column name="position" value="1"/>
+            <column name="project_id" value="3"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="In Progress"/>
+            <column name="position" value="2"/>
+            <column name="project_id" value="3"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="Done"/>
+            <column name="position" value="3"/>
+            <column name="project_id" value="3"/>
+        </insert>
+        <!-- Project 4 stages -->
+        <insert tableName="stage">
+            <column name="name" value="Backlog"/>
+            <column name="position" value="1"/>
+            <column name="project_id" value="4"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="In Progress"/>
+            <column name="position" value="2"/>
+            <column name="project_id" value="4"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="Done"/>
+            <column name="position" value="3"/>
+            <column name="project_id" value="4"/>
+        </insert>
+        <!-- Project 5 stages -->
+        <insert tableName="stage">
+            <column name="name" value="Backlog"/>
+            <column name="position" value="1"/>
+            <column name="project_id" value="5"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="In Progress"/>
+            <column name="position" value="2"/>
+            <column name="project_id" value="5"/>
+        </insert>
+        <insert tableName="stage">
+            <column name="name" value="Done"/>
+            <column name="position" value="3"/>
+            <column name="project_id" value="5"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed Tasks -->
+    <changeSet id="v1.0.1-4" author="mario">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM task</sqlCheck>
+        </preConditions>
+        <insert tableName="task">
+            <column name="title" value="Design homepage"/>
+            <column name="description" value="Create mockups for new homepage"/>
+            <column name="status" value="TODO"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="1"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Implement header"/>
+            <column name="description" value="Build responsive header component"/>
+            <column name="status" value="IN_PROGRESS"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="2"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Setup database"/>
+            <column name="description" value="Configure PostgreSQL for project"/>
+            <column name="status" value="DONE"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="3"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Write tests"/>
+            <column name="description" value="Unit tests for header component"/>
+            <column name="status" value="DONE"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="4"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Setup project structure"/>
+            <column name="description" value="Initialize React project"/>
+            <column name="status" value="TODO"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="5"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Create authentication"/>
+            <column name="description" value="Implement login/signup flow"/>
+            <column name="status" value="IN_PROGRESS"/>
+            <column name="position" value="2"/>
+            <column name="stage_id" value="6"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Build UI components"/>
+            <column name="description" value="Create reusable component library"/>
+            <column name="status" value="IN_PROGRESS"/>
+            <column name="position" value="3"/>
+            <column name="stage_id" value="7"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Deploy to production"/>
+            <column name="description" value="Setup CI/CD pipeline"/>
+            <column name="status" value="DONE"/>
+            <column name="position" value="2"/>
+            <column name="stage_id" value="8"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Design API endpoints"/>
+            <column name="description" value="Document REST API"/>
+            <column name="status" value="TODO"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="9"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Implement endpoints"/>
+            <column name="description" value="Build API routes"/>
+            <column name="status" value="IN_PROGRESS"/>
+            <column name="position" value="2"/>
+            <column name="stage_id" value="10"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="API testing"/>
+            <column name="description" value="Test all endpoints"/>
+            <column name="status" value="DONE"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="11"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Backup strategy"/>
+            <column name="description" value="Plan database backup"/>
+            <column name="status" value="TODO"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="12"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Execute migration"/>
+            <column name="description" value="Migrate data from old DB"/>
+            <column name="status" value="IN_PROGRESS"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="13"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Verify data"/>
+            <column name="description" value="Validate migrated data"/>
+            <column name="status" value="DONE"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="14"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Penetration testing"/>
+            <column name="description" value="Security assessment"/>
+            <column name="status" value="TODO"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="15"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Fix vulnerabilities"/>
+            <column name="description" value="Address security issues"/>
+            <column name="status" value="IN_PROGRESS"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="16"/>
+        </insert>
+        <insert tableName="task">
+            <column name="title" value="Final audit"/>
+            <column name="description" value="Complete security audit"/>
+            <column name="status" value="DONE"/>
+            <column name="position" value="1"/>
+            <column name="stage_id" value="17"/>
+        </insert>
+    </changeSet>
+
+    <!-- Seed User-Project relationships -->
+    <changeSet id="v1.0.1-5" author="mario">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM user_project</sqlCheck>
+        </preConditions>
+        <insert tableName="user_project">
+            <column name="user_id" value="1"/>
+            <column name="project_id" value="1"/>
+            <column name="role" value="OWNER"/>
+            <column name="joined_at" value="2024-01-15"/>
+        </insert>
+        <insert tableName="user_project">
+            <column name="user_id" value="1"/>
+            <column name="project_id" value="2"/>
+            <column name="role" value="OWNER"/>
+            <column name="joined_at" value="2024-02-01"/>
+        </insert>
+        <insert tableName="user_project">
+            <column name="user_id" value="2"/>
+            <column name="project_id" value="1"/>
+            <column name="role" value="MEMBER"/>
+            <column name="joined_at" value="2024-01-20"/>
+        </insert>
+        <insert tableName="user_project">
+            <column name="user_id" value="2"/>
+            <column name="project_id" value="3"/>
+            <column name="role" value="OWNER"/>
+            <column name="joined_at" value="2024-03-10"/>
+        </insert>
+        <insert tableName="user_project">
+            <column name="user_id" value="3"/>
+            <column name="project_id" value="1"/>
+            <column name="role" value="MEMBER"/>
+            <column name="joined_at" value="2024-01-25"/>
+        </insert>
+        <insert tableName="user_project">
+            <column name="user_id" value="3"/>
+            <column name="project_id" value="2"/>
+            <column name="role" value="MEMBER"/>
+            <column name="joined_at" value="2024-02-05"/>
+        </insert>
+        <insert tableName="user_project">
+            <column name="user_id" value="4"/>
+            <column name="project_id" value="3"/>
+            <column name="role" value="MEMBER"/>
+            <column name="joined_at" value="2024-03-15"/>
+        </insert>
+        <insert tableName="user_project">
+            <column name="user_id" value="4"/>
+            <column name="project_id" value="4"/>
+            <column name="role" value="OWNER"/>
+            <column name="joined_at" value="2024-04-01"/>
+        </insert>
+        <insert tableName="user_project">
+            <column name="user_id" value="5"/>
+            <column name="project_id" value="5"/>
+            <column name="role" value="OWNER"/>
+            <column name="joined_at" value="2024-05-01"/>
+        </insert>
+        <insert tableName="user_project">
+            <column name="user_id" value="5"/>
+            <column name="project_id" value="2"/>
+            <column name="role" value="MEMBER"/>
+            <column name="joined_at" value="2024-02-10"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
+
