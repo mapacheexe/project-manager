@@ -18,47 +18,53 @@ Duración estimada: 13–15 minutos
 
 ## 3. ¿Qué es el proyecto? *(45 seg)*
 
-"La aplicación es una herramienta visual y colaborativa de gestión de proyectos y tareas. Organiza el trabajo en un tablero con columnas y tarjetas para seguir el progreso en equipo. Los proyectos se gestionan por miembros con roles diferenciados: OWNER, ADMIN y MEMBER. Las columnas son personalizables según el flujo de trabajo del equipo. Y está disponible como aplicación web, móvil y de escritorio gracias a PWA —Progressive Web App—, que la hace instalable en cualquier dispositivo sin pasar por ninguna tienda."
+"Herramienta de gestión de proyectos y tareas. Organiza el trabajo en un tablero con columnas y tarjetas. Los proyectos se gestionan por miembros con roles. Las columnas son personalizables según el flujo de trabajo del equipo. Disponible como aplicación web, móvil y de escritorio gracias a PWA —Progressive Web App—."
 
 ---
 
 ## 4. Planificación *(30 seg)*
 
-"El desarrollo se estructuró en 14 semanas desde marzo hasta mayo de 2026. Empecé por el backend completo, luego el setup del frontend, autenticación, dashboard, kanban, modales, UI avanzada, tests y por último la seguridad JWT."
+"El desarrollo se estructuró en 14 semanas desde marzo hasta mayo de 2026, siguiendo un enfoque incremental: cada fase añade funcionalidad sobre la anterior sin romper lo que ya funcionaba. Empecé por el backend completo para tener la API estable antes de construir el frontend encima. Luego el setup del frontend, autenticación, dashboard, kanban, modales, UI avanzada, tests y por último la seguridad JWT."
 
 ---
 
 ## 5. Roles y permisos *(1 min)*
 
-"Hay tres roles por proyecto. MEMBER puede ver y gestionar tareas. ADMIN además puede renombrar el proyecto, gestionar etapas y añadir o eliminar miembros. OWNER tiene control total, incluido eliminar el proyecto, pero no puede abandonarlo —debe eliminarlo si ya no lo quiere. Solo el OWNER puede asignar el rol OWNER a otro miembro."
+"Hay tres roles por proyecto. MEMBER puede ver y gestionar tareas. ADMIN además gestiona el proyecto: etapas, miembros y configuración. OWNER tiene control total e incluye eliminar el proyecto."
 
 ---
 
 ## 6. Diseño visual *(1 min)*
 
-"La página tiene una estructura de cabecera fija más área de contenido centrada con ancho máximo, lo que limita la longitud de línea y mantiene la legibilidad en pantallas grandes. La navegación es jerárquica de dos niveles: el dashboard como punto de entrada y el kanban como vista de trabajo.
+"La navegación es jerárquica en dos niveles: el dashboard como punto de entrada y el kanban como vista de trabajo.
 
-El recorrido visual sigue un patrón Z en la barra de navegación —el ojo va del logo a la izquierda a los controles de usuario a la derecha—, un patrón de cuadrícula en el dashboard donde el usuario escanea las tarjetas buscando el proyecto, y un barrido horizontal por los encabezados de columna en el kanban.
+El recorrido visual varía según la pantalla: patrón Z en la barra de navegación, cuadrícula en el dashboard y barrido horizontal en el kanban. La jerarquía visual se construye con tres niveles de tamaño y contraste. Las acciones de las tarjetas solo aparecen al pasar el ratón por encima, para reducir el ruido visual. El modo claro y oscuro se gestionan desde un único archivo de variables CSS.
 
-La jerarquía visual se construye por tamaño y contraste en tres niveles. Las acciones de las tarjetas aparecen solo cuando el ratón pasa por encima, para reducir el ruido visual en reposo. El sistema de tokens CSS garantiza que el modo claro y oscuro se adapten cambiando un único archivo."
+En cuanto al diseño responsivo: en móvil las columnas del tablero se encajan al deslizar gracias a scroll snap, lo que facilita la navegación sin tocar JavaScript. En escritorio se muestran en un layout fijo de columnas lado a lado."
 
 ---
 
 ## 7. Arquitectura *(1.5 min)*
 
-"La arquitectura es cliente-servidor desacoplada. El frontend vive en Vercel como una SPA —Single Page Application— estática servida desde CDN, una red de distribución de contenido. El backend es una API REST en Railway. Se comunican por HTTPS con JSON. En local se levanta todo con un solo comando. Esta separación facilita escalar cada capa independientemente."
+"La arquitectura es cliente-servidor desacoplada: cada capa es completamente independiente, lo que facilita la escalabilidad y el mantenimiento futuro.
+
+El frontend es una SPA —Single Page Application—, es decir, un conjunto de ficheros estáticos: HTML, JavaScript y CSS. Al no requerir ningún proceso de servidor, no necesita Docker: se despliega directamente en Vercel, que lo distribuye globalmente a través de su red de servidores CDN —Content Delivery Network—.
+
+El backend expone una API REST: una serie de URLs a las que el frontend hace peticiones HTTP para obtener o modificar datos. Corre en Railway dentro de un contenedor Docker, junto a la base de datos PostgreSQL. PostgreSQL es una base de datos relacional gratuita, robusta y ampliamente adoptada en el sector. Además, al usar JPA como capa de acceso a datos, cambiar de base de datos sería tan sencillo como cambiar el driver de conexión.
+
+En local, todo el entorno de desarrollo se levanta con un único comando: `docker compose up`."
 
 ---
 
 ## 8. Stack tecnológico *(45 seg)*
 
-"Para el stack tecnológico se ha usado Angular para el frontend, Spring Boot en el backend y PostgreSQL para la base de datos. Angular conlleva TypeScript como lenguaje, y se ha elegido SCSS —del que acabamos de hablar— para el estilo. En el backend, Spring Boot 4 sobre Java 21 incluye Spring Security para la autenticación y JPA con Hibernate para el acceso a datos. Las migraciones de esquema las gestiona Liquibase. Para testing: JUnit 5, Mockito y JaCoCo en el backend, Vitest en el frontend. Y toda la infraestructura corre en Docker en local, con integración continua en GitHub Actions y despliegue en Vercel y Railway."
+"Tres capas principales: frontend con Angular, TypeScript y SCSS; backend con Spring Boot 4 sobre Java 21, Spring Security y JPA con Hibernate; base de datos PostgreSQL con migraciones gestionadas por Liquibase. La infraestructura —Docker en local, GitHub Actions para CI/CD, Vercel y Railway para el despliegue— automatiza todo el ciclo. Para garantizar la calidad: JUnit 5, Mockito y JaCoCo en el backend, Vitest en el frontend."
 
 ---
 
 ## 9. Modelo de datos *(1 min)*
 
-"El modelo tiene cinco tablas. `users` guarda las credenciales. `project` representa cada proyecto. `user_project` es la tabla intermedia que une usuarios con proyectos y almacena el rol de cada uno. `stage` son las columnas del tablero, ordenadas por un campo `position`. Y `task` tiene una clave foránea al stage al que pertenece. Las migraciones las gestiona Liquibase, no Hibernate."
+"El modelo tiene cinco tablas, bastante intuitivas. Destacaría dos decisiones de diseño: `user_project` modela la relación entre usuarios y proyectos como una entidad propia, lo que permite añadir el campo `role` a esa relación. Y `stage` representa las columnas del tablero: cada etapa tiene un campo `position` que determina el orden en que se muestran, y las tareas tienen una clave foránea que las vincula a su etapa. Las migraciones de esquema las gestiona Liquibase, no Hibernate."
 
 ---
 
