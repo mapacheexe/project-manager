@@ -1,6 +1,6 @@
-import { Component, computed, effect, inject, input, numberAttribute, signal } from '@angular/core';
+import { Component, computed, inject, input, numberAttribute, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { of, switchMap } from 'rxjs';
+import { EMPTY, catchError, of, switchMap } from 'rxjs';
 import { ProjectService } from '../../../services/project.service';
 import { StageService } from '../../../services/stage.service';
 import { TaskService } from '../../../services/task.service';
@@ -30,23 +30,22 @@ export class KanbanBoardComponent {
 
   private readonly stagesResource = rxResource({
     params: () => this.id(),
-    stream: ({ params: id }) => this.stageService.getByProject(id),
+    stream: ({ params: id }) => this.stageService.getByProject(id).pipe(
+      catchError(() => of([] as Stage[])),
+    ),
   });
   private readonly projectResource = rxResource({
     params: () => this.id(),
-    stream: ({ params: id }) => this.projectService.getById(id),
+    stream: ({ params: id }) => this.projectService.getById(id).pipe(
+      catchError(() => {
+        this.router.navigate(['/dashboard']);
+        return EMPTY;
+      }),
+    ),
   });
 
   protected readonly stages = computed(() => this.stagesResource.value() ?? []);
   protected readonly project = this.projectResource.value;
-
-  constructor() {
-    effect(() => {
-      if (this.projectResource.error()) {
-        this.router.navigate(['/dashboard']);
-      }
-    });
-  }
 
   protected readonly showStageForm = signal(false);
   protected readonly newStageName = signal('');
